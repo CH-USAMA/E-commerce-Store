@@ -103,7 +103,11 @@ class BrandSeeder extends Seeder
 ];
 
         foreach ($data as $item) {
-            Brand::updateOrCreate(['name' => $item['name'] ?? ($item['title'] ?? '')], $item);
+            $matchKey = ['name' => $item['name'] ?? ''];
+            if (isset($item['slug'])) $matchKey = ['slug' => $item['slug']];
+            elseif (isset($item['title'])) $matchKey = ['title' => $item['title']];
+            
+            Brand::updateOrCreate($matchKey, $item);
         }
     }
 }

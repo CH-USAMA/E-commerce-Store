@@ -18,7 +18,11 @@ class BlogCategorySeeder extends Seeder
 ];
 
         foreach ($data as $item) {
-            BlogCategory::updateOrCreate(['name' => $item['name'] ?? ($item['title'] ?? '')], $item);
+            $matchKey = ['name' => $item['name'] ?? ''];
+            if (isset($item['slug'])) $matchKey = ['slug' => $item['slug']];
+            elseif (isset($item['title'])) $matchKey = ['title' => $item['title']];
+            
+            BlogCategory::updateOrCreate($matchKey, $item);
         }
     }
 }

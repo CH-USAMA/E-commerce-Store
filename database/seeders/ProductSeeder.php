@@ -587,7 +587,11 @@ class ProductSeeder extends Seeder
 ];
 
         foreach ($data as $item) {
-            Product::updateOrCreate(['slug' => $item['slug']], $item);
+            $matchKey = ['name' => $item['name'] ?? ''];
+            if (isset($item['slug'])) $matchKey = ['slug' => $item['slug']];
+            elseif (isset($item['title'])) $matchKey = ['title' => $item['title']];
+            
+            Product::updateOrCreate($matchKey, $item);
         }
     }
 }
