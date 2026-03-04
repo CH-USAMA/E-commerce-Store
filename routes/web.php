@@ -49,6 +49,8 @@ Route::post('/cart/nearest-store', [\App\Http\Controllers\CartController::class,
 Route::get('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/order-success', [\App\Http\Controllers\CartController::class, 'orderSuccess'])->name('order.success');
+Route::get('/track-order', [\App\Http\Controllers\OrderTrackingController::class, 'index'])->name('order.track');
+Route::post('/track-order', [\App\Http\Controllers\OrderTrackingController::class, 'track'])->name('order.track.submit');
 
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {

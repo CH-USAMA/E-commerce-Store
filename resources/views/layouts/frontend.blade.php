@@ -154,6 +154,9 @@
                                 </li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('specials') }}">Specials</a>
                                 </li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('order.track') }}">Track
+                                        Order</a>
+                                </li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('contact') }}">Contact Us</a>
                                 </li>
                                 <li class="nav-item">
@@ -275,6 +278,7 @@
                                 <li><a href="{{ route('about') }}">About Us</a></li>
                                 <li><a href="{{ route('services') }}">Services</a></li>
                                 <li><a href="{{ route('blog') }}">Blog</a></li>
+                                <li><a href="{{ route('order.track') }}">Track Order</a></li>
                             </ul>
                         </div>
                         <!-- Footer Links end -->
