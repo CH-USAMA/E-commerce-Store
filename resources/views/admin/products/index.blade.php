@@ -57,15 +57,19 @@
                         @forelse($products as $product)
                             <tr>
                                 <td class="ps-4">
-                                    @if($product->image)
-                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" width="50"
-                                            class="rounded shadow-sm">
-                                    @else
-                                        <div class="rounded bg-light d-flex align-items-center justify-content-center fw-bold text-muted"
-                                            style="width: 50px; height: 50px;">
-                                            NA
-                                        </div>
-                                    @endif
+                                    @php
+                                        $imagePath = $product->image;
+                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https'])) {
+                                            if (Str::contains($imagePath, 'images/')) {
+                                                $imagePath = asset($imagePath);
+                                            } else {
+                                                $imagePath = asset('storage/' . $imagePath);
+                                            }
+                                        } elseif (!$imagePath) {
+                                            $imagePath = asset('images/placeholder.webp');
+                                        }
+                                    @endphp
+                                    <img src="{{ $imagePath }}" alt="{{ $product->name }}" width="50" class="rounded shadow-sm">
                                 </td>
                                 <td>
                                     <div class="fw-bold">{{ $product->name }}</div>
@@ -79,10 +83,19 @@
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <a href="{{ route('product.detail', $product->slug) }}" target="_blank"
-                                        class="btn btn-sm btn-outline-primary me-2">View</a>
-                                    <a href="{{ route('admin.products.edit', $product->id) }}"
-                                        class="btn btn-sm btn-outline-dark">Edit</a>
+                                    <div class="btn-group">
+                                        <a href="{{ route('product.detail', $product->slug) }}" target="_blank"
+                                            class="btn btn-sm btn-outline-primary">View</a>
+                                        <a href="{{ route('admin.products.edit', $product->id) }}"
+                                            class="btn btn-sm btn-outline-dark">Edit</a>
+                                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
+                                            class="d-inline"
+                                            onsubmit="return confirm('Are you sure you want to delete this product?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

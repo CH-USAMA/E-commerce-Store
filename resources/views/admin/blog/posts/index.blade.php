@@ -30,15 +30,19 @@
                         @forelse($posts as $post)
                             <tr>
                                 <td class="ps-4">
-                                    @if($post->feature_image)
-                                        <img src="{{ asset('storage/' . $post->feature_image) }}" alt="{{ $post->title }}"
-                                            width="60" class="rounded shadow-sm">
-                                    @else
-                                        <div class="rounded bg-light d-flex align-items-center justify-content-center text-muted"
-                                            style="width: 60px; height: 40px;">
-                                            <small>No Image</small>
-                                        </div>
-                                    @endif
+                                    @php
+                                        $imagePath = $post->feature_image;
+                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https'])) {
+                                            if (Str::contains($imagePath, 'images/')) {
+                                                $imagePath = asset($imagePath);
+                                            } else {
+                                                $imagePath = asset('storage/' . $imagePath);
+                                            }
+                                        } elseif (!$imagePath) {
+                                            $imagePath = asset('images/placeholder.webp');
+                                        }
+                                    @endphp
+                                    <img src="{{ $imagePath }}" alt="{{ $post->title }}" width="60" class="rounded shadow-sm">
                                 </td>
                                 <td>
                                     <div class="fw-bold">{{ $post->title }}</div>
@@ -55,10 +59,19 @@
                                 </td>
                                 <td>{{ $post->created_at->format('M d, Y') }}</td>
                                 <td class="text-end pe-4">
-                                    <a href="{{ route('blog.detail', $post->slug) }}" target="_blank"
-                                        class="btn btn-sm btn-outline-primary me-2">View</a>
-                                    <a href="{{ route('admin.blog.edit', $post->id) }}"
-                                        class="btn btn-sm btn-outline-dark">Edit</a>
+                                    <div class="btn-group">
+                                        <a href="{{ route('blog.detail', $post->slug) }}" target="_blank"
+                                            class="btn btn-sm btn-outline-primary">View</a>
+                                        <a href="{{ route('admin.blog.edit', $post->id) }}"
+                                            class="btn btn-sm btn-outline-dark">Edit</a>
+                                        <form action="{{ route('admin.blog.destroy', $post->id) }}" method="POST"
+                                            class="d-inline"
+                                            onsubmit="return confirm('Are you sure you want to delete this post?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

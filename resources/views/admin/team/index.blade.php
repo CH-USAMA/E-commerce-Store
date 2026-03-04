@@ -25,22 +25,36 @@
                         @forelse($members as $member)
                             <tr>
                                 <td class="ps-4">
-                                    @if($member->image)
-                                        <img src="{{ asset('storage/' . $member->image) }}" alt="{{ $member->name }}" width="50"
-                                            height="50" class="rounded-circle shadow-sm object-fit-cover">
-                                    @else
-                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center fw-bold text-muted"
-                                            style="width: 50px; height: 50px;">
-                                            {{ substr($member->name, 0, 1) }}
-                                        </div>
-                                    @endif
+                                    @php
+                                        $imagePath = $member->image;
+                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https'])) {
+                                            if (Str::contains($imagePath, 'images/')) {
+                                                $imagePath = asset($imagePath);
+                                            } else {
+                                                $imagePath = asset('storage/' . $imagePath);
+                                            }
+                                        } elseif (!$imagePath) {
+                                            $imagePath = asset('images/placeholder.webp');
+                                        }
+                                    @endphp
+                                    <img src="{{ $imagePath }}" alt="{{ $member->name }}" width="50" height="50"
+                                        class="rounded-circle shadow-sm object-fit-cover">
                                 </td>
                                 <td class="fw-bold">{{ $member->name }}</td>
                                 <td><span class="badge bg-secondary">{{ $member->role }}</span></td>
                                 <td>{{ \Illuminate\Support\Str::limit($member->bio, 50) }}</td>
                                 <td class="text-end pe-4">
-                                    <a href="{{ route('admin.team.edit', $member->id) }}"
-                                        class="btn btn-sm btn-outline-dark">Edit</a>
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.team.edit', $member->id) }}"
+                                            class="btn btn-sm btn-outline-dark">Edit</a>
+                                        <form action="{{ route('admin.team.destroy', $member->id) }}" method="POST"
+                                            class="d-inline"
+                                            onsubmit="return confirm('Are you sure you want to remove this team member?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

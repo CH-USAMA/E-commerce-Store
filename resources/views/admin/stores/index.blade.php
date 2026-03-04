@@ -36,10 +36,18 @@
                                 </td>
                                 <td>{{ $store->lat ?? '0' }}, {{ $store->lng ?? '0' }}</td>
                                 <td class="text-end pe-4">
-                                    <a href="{{ route('store.detail', $store->id) }}" target="_blank"
-                                        class="btn btn-sm btn-outline-primary me-2">View</a>
-                                    <a href="{{ route('admin.stores.edit', $store->id) }}"
-                                        class="btn btn-sm btn-outline-dark">Edit</a>
+                                    <div class="btn-group">
+                                        <a href="{{ route('store.detail', $store->id) }}" target="_blank"
+                                            class="btn btn-sm btn-outline-primary">View</a>
+                                        <a href="{{ route('admin.stores.edit', $store->id) }}"
+                                            class="btn btn-sm btn-outline-dark">Edit</a>
+                                        <form action="{{ route('admin.stores.destroy', $store->id) }}" method="POST"
+                                            class="d-inline" onsubmit="return confirm('Delete this store?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

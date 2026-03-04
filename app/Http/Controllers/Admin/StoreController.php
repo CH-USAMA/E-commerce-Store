@@ -37,7 +37,7 @@ class StoreController extends Controller
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('stores', 'public');
             $data = $validated;
-            $data['image'] = 'storage/' . $path;
+            $data['image'] = $path;
         } else {
             $data = $validated;
         }
@@ -75,7 +75,7 @@ class StoreController extends Controller
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('stores', 'public');
             $data = $validated;
-            $data['image'] = 'storage/' . $path;
+            $data['image'] = $path;
         } else {
             $data = $validated;
         }

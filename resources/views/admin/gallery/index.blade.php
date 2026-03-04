@@ -12,8 +12,8 @@
         @forelse($items as $item)
             <div class="col">
                 <div class="h-100 border-0 shadow-sm card">
-                    <img src="{{ asset('storage/' . $item->image) }}" class="card-img-top object-fit-cover"
-                        alt="{{ $item->title }}" style="height: 200px;">
+                    <img src="{{ Str::startsWith($item->image, ['http', 'https']) ? $item->image : (Str::contains($item->image, 'images/') ? asset($item->image) : asset('storage/' . $item->image)) }}"
+                        class="card-img-top object-fit-cover" alt="{{ $item->title }}" style="height: 200px;">
                     <div class="p-3 card-body">
                         <h6 class="mb-1 card-title fw-bold text-truncate">{{ $item->title }}</h6>
                         <span class="badge bg-light text-dark mb-3">{{ $item->category }}</span>
