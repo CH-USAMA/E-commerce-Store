@@ -69,20 +69,17 @@ class $seederName extends Seeder
         \$data = $export;
 
         foreach (\$data as \$item) {
-            $modelName::updateOrCreate(['name' => \$item['name'] ?? (\$item['title'] ?? '')], \$item);
+            \$matchKey = ['name' => \$item['name'] ?? ''];
+            if (isset(\$item['slug'])) \$matchKey = ['slug' => \$item['slug']];
+            elseif (isset(\$item['title'])) \$matchKey = ['title' => \$item['title']];
+            
+            $modelName::updateOrCreate(\$matchKey, \$item);
         }
     }
 }
 ";
-    // For Blog Posts where title is unique but slug is used
-    if ($tableName === 'blog_posts') {
-        $template = str_replace("['name' => \$item['name'] ?? (\$item['title'] ?? '')]", "['slug' => \$item['slug']]", $template);
-    }
 
-    // For products where name is used
-    if ($tableName === 'products') {
-        $template = str_replace("['name' => \$item['name'] ?? (\$item['title'] ?? '')]", "['slug' => \$item['slug']]", $template);
-    }
+    file_put_contents("database/seeders/$seederName.php", $template);
 
     file_put_contents("database/seeders/$seederName.php", $template);
     echo "Generated: $seederName.php\n";
