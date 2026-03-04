@@ -74,17 +74,15 @@
                                     <a class="image-anime">
                                         <figure>
                                             @php
-                                                $imagePath = $member->image;
-                                                if ($imagePath && !str_starts_with($imagePath, 'http')) {
-                                                    if (file_exists(public_path('storage/' . $imagePath))) {
-                                                        $imageSrc = asset('storage/' . $imagePath);
-                                                    } elseif (file_exists(public_path('images/' . $imagePath))) {
-                                                        $imageSrc = asset('images/' . $imagePath);
+                                                $imageSrc = $member->image;
+                                                if ($imageSrc && !Str::startsWith($imageSrc, ['http', 'https'])) {
+                                                    if (Str::contains($imageSrc, 'images/')) {
+                                                        $imageSrc = asset($imageSrc);
                                                     } else {
-                                                        $imageSrc = asset('images/placeholder-team.webp');
+                                                        $imageSrc = asset('storage/' . $imageSrc);
                                                     }
-                                                } else {
-                                                    $imageSrc = $imagePath ?? asset('images/placeholder-team.webp');
+                                                } elseif (!$imageSrc) {
+                                                    $imageSrc = asset('images/placeholder-team.webp');
                                                 }
                                             @endphp
                                             <img src="{{ $imageSrc }}" alt="{{ $member->name }}">
