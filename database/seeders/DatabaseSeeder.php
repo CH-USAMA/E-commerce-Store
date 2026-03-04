@@ -12,14 +12,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::firstOrCreate([
-            'email' => 'admin@jabulani.com',
-        ], [
-            'name' => 'Super Admin',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
+        // Calling all generated seeders
+        $this->call([
+            AdminSeeder::class,
+            CategorySeeder::class,
+            BrandSeeder::class,
+            ProductSeeder::class,
+            StoreSeeder::class,
+            ServiceSeeder::class,
+            BlogCategorySeeder::class,
+            BlogPostSeeder::class,
+            GalleryItemSeeder::class,
+            BannerSeeder::class,
+            TeamMemberSeeder::class,
         ]);
-
-        $this->call(StaticDataSeeder::class);
     }
 }
