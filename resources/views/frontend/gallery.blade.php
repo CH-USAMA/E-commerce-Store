@@ -34,7 +34,7 @@
                         <div class="photo-gallery wow fadeInUp" data-cursor-text="View">
                             <a href="{{ asset('storage/' . $item->image) }}" class="gallery-popup">
                                 <figure class="image-anime">
-                                    <img src="{{ asset('storage/' . $item->image) }}"
+                                    <img src="{{ asset('storage/' . $item->image) }}" loading="lazy"
                                         alt="{{ $item->title ?? 'Gallery Image' }}">
                                 </figure>
                             </a>

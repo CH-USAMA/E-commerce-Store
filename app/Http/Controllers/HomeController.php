@@ -8,9 +8,9 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $banners = \App\Models\Banner::all();
-        $stores = \App\Models\Store::all();
-        $brands = \App\Models\Brand::all();
+        $banners = \Illuminate\Support\Facades\Cache::remember('banners', 3600, fn() => \App\Models\Banner::all());
+        $stores = \Illuminate\Support\Facades\Cache::remember('stores_all', 3600, fn() => \App\Models\Store::all());
+        $brands = \Illuminate\Support\Facades\Cache::remember('brands', 3600, fn() => \App\Models\Brand::all());
         $featuredProducts = \App\Models\Product::with('category')->take(12)->get();
         $latestPosts = \App\Models\BlogPost::with('category')->latest()->take(3)->get();
 
@@ -19,7 +19,7 @@ class HomeController extends Controller
 
     public function about()
     {
-        $teamMembers = \App\Models\TeamMember::take(4)->get();
+        $teamMembers = \Illuminate\Support\Facades\Cache::remember('team_about', 3600, fn() => \App\Models\TeamMember::take(4)->get());
         return view('frontend.about', compact('teamMembers'));
     }
 
@@ -36,25 +36,25 @@ class HomeController extends Controller
 
     public function blogDetail($slug)
     {
-        $post = \App\Models\BlogPost::where('slug', $slug)->firstOrFail();
+        $post = \Illuminate\Support\Facades\Cache::remember("blog_post_$slug", 3600, fn() => \App\Models\BlogPost::where('slug', $slug)->firstOrFail());
         return view('frontend.blog-detail', compact('post'));
     }
 
     public function team()
     {
-        $teamMembers = \App\Models\TeamMember::all();
+        $teamMembers = \Illuminate\Support\Facades\Cache::remember('team_all', 3600, fn() => \App\Models\TeamMember::all());
         return view('frontend.team', compact('teamMembers'));
     }
 
     public function gallery()
     {
-        $galleryItems = \App\Models\GalleryItem::all();
+        $galleryItems = \Illuminate\Support\Facades\Cache::remember('gallery_all', 3600, fn() => \App\Models\GalleryItem::all());
         return view('frontend.gallery', compact('galleryItems'));
     }
 
     public function stores()
     {
-        $stores = \App\Models\Store::all();
+        $stores = \Illuminate\Support\Facades\Cache::remember('stores_page', 3600, fn() => \App\Models\Store::all());
         return view('frontend.stores', compact('stores'));
     }
 
@@ -70,13 +70,12 @@ class HomeController extends Controller
 
     public function specials()
     {
-        // For now, these might be static or fetched from a 'Promotion' model if created.
         return view('frontend.specials');
     }
 
     public function storeDetail($id)
     {
-        $store = \App\Models\Store::findOrFail($id);
+        $store = \Illuminate\Support\Facades\Cache::remember("store_detail_$id", 3600, fn() => \App\Models\Store::findOrFail($id));
         return view('frontend.store-detail', compact('store'));
     }
 
@@ -87,10 +86,10 @@ class HomeController extends Controller
 
     public function products(Request $request)
     {
-        $categories = \App\Models\Category::with('products')->get();
-        // Filter by category if requested
+        $categories = \Illuminate\Support\Facades\Cache::remember('categories_products', 3600, fn() => \App\Models\Category::with('products')->get());
+
         $selectedCategory = $request->get('category');
-        $products = \App\Models\Product::when($selectedCategory, function ($query) use ($selectedCategory) {
+        $products = \App\Models\Product::with('category')->when($selectedCategory, function ($query) use ($selectedCategory) {
             return $query->whereHas('category', function ($q) use ($selectedCategory) {
                 $q->where('slug', $selectedCategory);
             });
@@ -101,7 +100,7 @@ class HomeController extends Controller
 
     public function productDetail($slug)
     {
-        $product = \App\Models\Product::where('slug', $slug)->with('category')->firstOrFail();
+        $product = \Illuminate\Support\Facades\Cache::remember("product_detail_$slug", 3600, fn() => \App\Models\Product::where('slug', $slug)->with('category')->firstOrFail());
         return view('frontend.product-single', compact('product'));
     }
 

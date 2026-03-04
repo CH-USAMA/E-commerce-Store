@@ -51,14 +51,14 @@
                                     <div class="project-image">
                                         <figure class="image-anime">
                                             <img src="{{ $product->image ? (Str::contains($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) : asset('images/placeholder.webp') }}"
-                                                alt="{{ $product->name }}">
+                                                alt="{{ $product->name }}" loading="lazy">
                                         </figure>
                                         <div class="project-tag">
                                             <a href="#">{{ $product->category->name }}</a>
                                         </div>
                                         <div class="project-btn">
                                             <a href="{{ route('product.detail', $product->slug) }}"><img
-                                                    src="{{ asset('images/arrow-white.svg') }}" alt=""></a>
+                                                    src="{{ asset('images/arrow-white.svg') }}" alt="" loading="lazy"></a>
                                         </div>
                                     </div>
                                     <div class="project-content">

@@ -188,12 +188,12 @@
                                 <div class="project-item wow fadeInUp">
                                     <div class="project-image">
                                         <figure class="image-anime">
-                                            <img alt=""
+                                            <img alt="" loading="lazy"
                                                 src="{{ $store->image ? (Str::contains($store->image, 'images/') ? asset($store->image) : asset('storage/' . $store->image)) : asset('images/JBshop(small).webp') }}" />
                                         </figure>
                                         <div class="project-btn">
                                             <a href="{{ route('store.detail', $store->id) }}">
-                                                <img alt="" src="{{ asset('images/arrow-white.svg') }}" />
+                                                <img alt="" loading="lazy" src="{{ asset('images/arrow-white.svg') }}" />
                                             </a>
                                         </div>
                                     </div>
@@ -271,7 +271,7 @@
                                 <div class="project-item wow fadeInUp">
                                     <div class="project-image">
                                         <figure class="image-anime">
-                                            <img alt=""
+                                            <img alt="" loading="lazy"
                                                 src="{{ $product->image ? (Str::contains($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) : asset('images/placeholder.webp') }}" />
                                         </figure>
                                         <div class="project-tag">
@@ -280,7 +280,7 @@
                                         </div>
                                         <div class="project-btn">
                                             <a href="{{ route('product.detail', $product->slug) }}">
-                                                <img alt="" src="{{ asset('images/arrow-white.svg') }}" />
+                                                <img alt="" loading="lazy" src="{{ asset('images/arrow-white.svg') }}" />
                                             </a>
                                         </div>
                                     </div>
@@ -317,7 +317,7 @@
                             <div class="post-featured-image">
                                 <figure class="image-anime">
                                     <img src="{{ $post->feature_image ? (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('storage/' . $post->feature_image)) : asset('images/placeholder.webp') }}"
-                                        alt="">
+                                        alt="" loading="lazy">
                                 </figure>
                             </div>
                             <div class="post-item-content">

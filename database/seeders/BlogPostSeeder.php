@@ -10,13 +10,13 @@ class BlogPostSeeder extends Seeder
     public function run(): void
     {
         $data = [
-  0 => 
-  [
-    'blog_category_id' => 1,
-    'author_id' => 1,
-    'title' => 'Step-by-Step Guide to Installing Your Rainwater Tank',
-    'slug' => 'step-by-step-guide-to-installing-your-rainwater-tank',
-    'content' => '<div class="post-entry">
+            0 =>
+                [
+                    'blog_category_id' => 1,
+                    'author_id' => 1,
+                    'title' => 'Step-by-Step Guide to Installing Your Rainwater Tank',
+                    'slug' => 'step-by-step-guide-to-installing-your-rainwater-tank',
+                    'content' => '<div class="post-entry">
                             <p class="wow fadeInUp">Installing a rainwater tank is an excellent way to conserve water and reduce dependence on municipal supplies. A well-installed tank ensures stability, longevity, and efficient water collection for household or garden use.</p>
 
                             <p class="wow fadeInUp" data-wow-delay="0.2s">Proper installation begins with selecting the ideal location, ensuring adequate space and accessibility. A stable foundation is essential to prevent shifting or damage over time. By following the correct steps—preparing a solid base, reinforcing with concrete and mesh, and securely positioning the tank—you can ensure long-term functionality and reliability.</p>
@@ -42,16 +42,16 @@ class BlogPostSeeder extends Seeder
                             <p class="wow fadeInUp" data-wow-delay="1.4s">Installing a rainwater tank is a valuable investment that provides environmental and cost-saving benefits. By ensuring a solid foundation, proper reinforcement, and correct placement, you can set up a reliable and efficient system for water collection. Take the right steps today to create a sustainable water source for the future.</p>
                             
                         </div>',
-    'feature_image' => 'images/rainwater_tip.webp',
-    'is_published' => 1,
-  ],
-  1 => 
-  [
-    'blog_category_id' => 1,
-    'author_id' => 1,
-    'title' => 'A Comprehensive Guide to Bricks and Blocks Used in Construction',
-    'slug' => 'a-comprehensive-guide-to-bricks-and-blocks-used-in-construction',
-    'content' => '<div class="post-entry">
+                    'feature_image' => 'images/rainwater_tip.webp',
+                    'is_published' => 1,
+                ],
+            1 =>
+                [
+                    'blog_category_id' => 1,
+                    'author_id' => 1,
+                    'title' => 'A Comprehensive Guide to Bricks and Blocks Used in Construction',
+                    'slug' => 'a-comprehensive-guide-to-bricks-and-blocks-used-in-construction',
+                    'content' => '<div class="post-entry">
                             <p class="wow fadeInUp">Bricks and blocks are the backbone of any construction project, providing strength, durability, and versatility. Understanding the different types and their applications can help you make the right choices for your building needs. Let’s explore the various options available and their uses in construction.</p>
 
                             <p class="wow fadeInUp" data-wow-delay="0.2s">Face bricks and common bricks serve distinct purposes. Face bricks are aesthetically appealing and used in visible areas without the need for plastering. On the other hand, common bricks, also known as plaster bricks, are more functional and are typically covered with plaster for protection and finishing.</p>
@@ -77,16 +77,16 @@ class BlogPostSeeder extends Seeder
                             <p class="wow fadeInUp" data-wow-delay="1.4s">Whether you are constructing a home, commercial building, or any other structure, selecting the right type of bricks and blocks is crucial. Quality materials ensure a sturdy, long-lasting build. For accurate estimations and expert advice, consult professionals to determine the right quantities and types for your project.</p>
                             
                         </div>',
-    'feature_image' => 'images/bricks_blocks (2].webp',
-    'is_published' => 1,
-  ],
-  2 => 
-  [
-    'blog_category_id' => 1,
-    'author_id' => 1,
-    'title' => 'Why Choose Aluminium Windows? Features & Benefits Explained',
-    'slug' => 'why-choose-aluminium-windows-features-benefits-explained',
-    'content' => '<div class="post-entry">
+                    'feature_image' => 'images/bricks_blocks (2).webp',
+                    'is_published' => 1,
+                ],
+            2 =>
+                [
+                    'blog_category_id' => 1,
+                    'author_id' => 1,
+                    'title' => 'Why Choose Aluminium Windows? Features & Benefits Explained',
+                    'slug' => 'why-choose-aluminium-windows-features-benefits-explained',
+                    'content' => '<div class="post-entry">
                             <p class="wow fadeInUp">Looking to upgrade your property with aluminium windows? Here are the top features and benefits that make aluminium windows a fantastic choice.</p>
 
                             <p class="wow fadeInUp" data-wow-delay="0.2s">Aluminium windows provide a sleek, high-end finish that enhances the appearance of your property, making it stand out with modern elegance. Designed for both residential and architectural projects, these windows are a durable, low-maintenance solution that helps save money over time.</p>
@@ -103,7 +103,7 @@ class BlogPostSeeder extends Seeder
                             
                             <ul class="wow fadeInUp" data-wow-delay="1.2s">
                                 <li>Durable anodised aluminium extrusions that are ideal for coastal environments</li>
-                                <li>Available in PT (one vent], PTT (two vents], and P4TT (four vents] configurations</li>
+                                <li>Available in PT (one vent), PTT (two vents), and P4TT (four vents) configurations</li>
                                 <li>Powder-coated finishes ensure long-lasting colour and eliminate the need for painting</li>
                                 <li>Lightweight yet strong construction provides lasting quality</li>
                             </ul>
@@ -111,16 +111,18 @@ class BlogPostSeeder extends Seeder
                             <p class="wow fadeInUp" data-wow-delay="1.4s">With the added benefit of a powder-coated finish, these windows remain pristine for years, making them an excellent investment for any property. Whether you\'re looking to update your home or complete an architectural project, aluminium windows are the ideal solution for both style and functionality.</p>
                             
                         </div>',
-    'feature_image' => 'images/alu_win.webp',
-    'is_published' => 1,
-  ],
-];
+                    'feature_image' => 'images/alu_win.webp',
+                    'is_published' => 1,
+                ],
+        ];
 
         foreach ($data as $item) {
             $matchKey = ['name' => $item['name'] ?? ''];
-            if (isset($item['slug'])) $matchKey = ['slug' => $item['slug']];
-            elseif (isset($item['title'])) $matchKey = ['title' => $item['title']];
-            
+            if (isset($item['slug']))
+                $matchKey = ['slug' => $item['slug']];
+            elseif (isset($item['title']))
+                $matchKey = ['title' => $item['title']];
+
             BlogPost::updateOrCreate($matchKey, $item);
         }
     }
