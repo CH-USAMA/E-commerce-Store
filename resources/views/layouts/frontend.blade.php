@@ -61,8 +61,8 @@
     @stack('css')
     <style>
         /* High-priority alert overrides */
-        .alert-danger, 
-        .container .alert-danger, 
+        .alert-danger,
+        .container .alert-danger,
         body .alert-danger {
             background-color: #ff0000 !important;
             background: #ff0000 !important;
@@ -73,10 +73,11 @@
             display: block !important;
             z-index: 9999 !important;
         }
-        .alert-danger *, 
-        .alert-danger ul, 
-        .alert-danger li, 
-        .alert-danger p, 
+
+        .alert-danger *,
+        .alert-danger ul,
+        .alert-danger li,
+        .alert-danger p,
         .alert-danger span,
         .alert-danger div {
             color: #ffffff !important;
@@ -86,6 +87,7 @@
             visibility: visible !important;
             font-weight: 700 !important;
         }
+
         .invalid-feedback {
             color: #ffffff !important;
             background-color: #ff0000 !important;
@@ -363,9 +365,13 @@
     <script src="{{ asset('js/ScrollTrigger.min.js') }}"></script>
     <script src="{{ asset('js/SplitText.js') }}"></script>
     <!-- Smooth Scroll -->
-    <script src="{{ asset('js/smooth-scroll.js') }}"></script>
+    <script src="{{ asset('js/SmoothScroll.js') }}"></script>
     <!-- Text Effect -->
-    <script src="{{ asset('js/text-type.js') }}"></script>
+    <script src="{{ asset('js/typed.js') }}"></script>
+    <!-- WOW Animation -->
+    <script src="{{ asset('js/wow.js') }}"></script>
+    <!-- ImagesLoaded (CDN) -->
+    <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
     <!-- Main Custom js file -->
     <script src="{{ asset('js/function.js') }}"></script>
 

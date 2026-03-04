@@ -52,36 +52,42 @@
 	}
 
 	/* Hero Slider Layout JS */
-	const hero_slider_layout = new Swiper('.hero-slider-layout .swiper', {
-		effect: 'fade',
-		slidesPerView : 1,
-		speed: 1000,
-		spaceBetween: 0,
-		loop: true,
-		autoplay: {
-			delay: 4000,
-		},
-		pagination: {
-			el: '.hero-pagination',
-			clickable: true,
-		},
-	});
+	const $heroSlider = $('.hero-slider-layout .swiper');
+	if ($heroSlider.length) {
+		const hero_loop = $heroSlider.find('.swiper-slide').length > 1;
+		const hero_slider_layout = new Swiper('.hero-slider-layout .swiper', {
+			effect: 'fade',
+			slidesPerView : 1,
+			speed: 1000,
+			spaceBetween: 0,
+			loop: hero_loop,
+			autoplay: hero_loop ? {
+				delay: 4000,
+			} : false,
+			pagination: {
+				el: '.hero-pagination',
+				clickable: true,
+			},
+		});
+	}
 
 	if ($('.agency-supports-slider').length) {
+		const $suppSlider = $('.agency-supports-slider .swiper');
+		const supp_loop = $suppSlider.find('.swiper-slide').length > 6;
 		const agency_supports_slider = new Swiper('.agency-supports-slider .swiper', {
 			slidesPerView : 2,
 			speed: 2000,
 			spaceBetween: 30,
-			loop: true,
-			autoplay: {
+			loop: supp_loop,
+			autoplay: supp_loop ? {
 				delay: 1000,
-			},
+			} : false,
 			breakpoints: {
 				768:{
 				  	slidesPerView: 4,
 				},
 				991:{
-				  	slidesPerView: 6,
+				  	slidesPerView: 6,		  	
 				}
 			}
 		});
@@ -432,27 +438,31 @@ $window.on("load", function () {
 	
 		  $window.on("load", function () {
         /* Init Swiper (unique container, using default wrapper/slide classes) */
-const portfolioSwiper = new Swiper('.portfolio-swiper', {
-  centeredSlides: true,
-  loop: true,
-  speed: 500,
-  slidesPerView: 1.5,
-  spaceBetween: 40,
-  autoplay: {
-    delay: 3000,
-    disableOnInteraction: false,
-  },
-  navigation: {
-    nextEl: '.portfolio-next',
-    prevEl: '.portfolio-prev',
-  },
-  breakpoints: {
-    640: { slidesPerView: 2.5 },
-    768: { slidesPerView: 2.75 },
-    1080: { slidesPerView: 3.25 },
-    1280: { slidesPerView: 3.5 },
-  },
-});
+const $portSlider = $('.portfolio-swiper');
+if ($portSlider.length) {
+	const port_loop = $portSlider.find('.swiper-slide').length > 4;
+	const portfolioSwiper = new Swiper('.portfolio-swiper', {
+	  centeredSlides: true,
+	  loop: port_loop,
+	  speed: 500,
+	  slidesPerView: 1.5,
+	  spaceBetween: 40,
+	  autoplay: port_loop ? {
+	    delay: 3000,
+	    disableOnInteraction: false,
+	  } : false,
+	  navigation: {
+	    nextEl: '.portfolio-next',
+	    prevEl: '.portfolio-prev',
+	  },
+	  breakpoints: {
+	    640: { slidesPerView: 2.5 },
+	    768: { slidesPerView: 2.75 },
+	    1080: { slidesPerView: 3.25 },
+	    1280: { slidesPerView: 3.5 },
+	  },
+	});
+}
   })
 	
 })(jQuery);
