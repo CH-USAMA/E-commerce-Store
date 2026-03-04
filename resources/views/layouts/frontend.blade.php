@@ -370,8 +370,14 @@
     <script src="{{ asset('js/typed.js') }}"></script>
     <!-- WOW Animation -->
     <script src="{{ asset('js/wow.js') }}"></script>
+    <!-- Parallaxie -->
+    <script src="{{ asset('js/parallaxie.js') }}"></script>
+    <!-- YTPlayer -->
+    <script src="{{ asset('js/jquery.mb.YTPlayer.min.js') }}"></script>
     <!-- ImagesLoaded (CDN) -->
     <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
+    <!-- Isotope Filtering -->
+    <script src="{{ asset('js/isotope.min.js') }}"></script>
     <!-- Main Custom js file -->
     <script src="{{ asset('js/function.js') }}"></script>
 

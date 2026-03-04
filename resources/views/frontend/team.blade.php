@@ -73,8 +73,21 @@
                                 <div class="team-image">
                                     <a class="image-anime">
                                         <figure>
-                                            <img src="{{ $member->image ? asset('storage/' . $member->image) : asset('images/placeholder-team.webp') }}"
-                                                alt="{{ $member->name }}">
+                                            @php
+                                                $imagePath = $member->image;
+                                                if ($imagePath && !str_starts_with($imagePath, 'http')) {
+                                                    if (file_exists(public_path('storage/' . $imagePath))) {
+                                                        $imageSrc = asset('storage/' . $imagePath);
+                                                    } elseif (file_exists(public_path('images/' . $imagePath))) {
+                                                        $imageSrc = asset('images/' . $imagePath);
+                                                    } else {
+                                                        $imageSrc = asset('images/placeholder-team.webp');
+                                                    }
+                                                } else {
+                                                    $imageSrc = $imagePath ?? asset('images/placeholder-team.webp');
+                                                }
+                                            @endphp
+                                            <img src="{{ $imageSrc }}" alt="{{ $member->name }}">
                                         </figure>
                                     </a>
                                 </div>
