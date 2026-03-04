@@ -24,10 +24,21 @@
                             <textarea name="bio" class="form-control" rows="5">{{ $member->bio }}</textarea>
                         </div>
                         <div class="mb-3 text-center">
+                            @php
+                                $imageSrc = $member->image;
+                                if ($imageSrc && !Str::startsWith($imageSrc, ['http', 'https'])) {
+                                    if (Str::contains($imageSrc, 'images/')) {
+                                        $imageSrc = asset($imageSrc);
+                                    } else {
+                                        $imageSrc = asset('storage/' . $imageSrc);
+                                    }
+                                } elseif (!$imageSrc) {
+                                    $imageSrc = asset('images/placeholder-team.webp');
+                                }
+                            @endphp
                             @if($member->image)
                                 <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $member->image) }}" alt="{{ $member->name }}" width="120"
-                                        height="120"
+                                    <img src="{{ $imageSrc }}" alt="{{ $member->name }}" width="120" height="120"
                                         class="rounded-circle shadow-sm object-fit-cover border border-2 border-warning">
                                 </div>
                             @endif

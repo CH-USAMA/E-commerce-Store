@@ -25,8 +25,8 @@
                             <label class="form-label">Store Image</label>
                             @if($store->image)
                                 <div class="mb-2">
-                                    <img src="{{ asset($store->image) }}" alt="Store" class="rounded shadow-sm"
-                                        style="height: 100px;">
+                                    <img src="{{ (Str::contains($store->image, 'images/') ? asset($store->image) : asset('storage/' . $store->image)) }}"
+                                        alt="Store" class="rounded shadow-sm" style="height: 100px;">
                                 </div>
                             @endif
                             <input type="file" name="image" class="form-control" accept="image/*">

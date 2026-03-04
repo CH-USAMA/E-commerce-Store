@@ -485,8 +485,19 @@
                         <div class="team-item wow fadeInUp">
                             <div class="team-image">
                                 <figure class="image-anime">
-                                    <img src="{{ Str::contains($member->image, 'images/') ? asset($member->image) : asset('storage/' . $member->image) }}"
-                                        alt="{{ $member->name }}">
+                                    @php
+                                        $imageSrc = $member->image;
+                                        if ($imageSrc && !Str::startsWith($imageSrc, ['http', 'https'])) {
+                                            if (Str::contains($imageSrc, 'images/')) {
+                                                $imageSrc = asset($imageSrc);
+                                            } else {
+                                                $imageSrc = asset('storage/' . $imageSrc);
+                                            }
+                                        } elseif (!$imageSrc) {
+                                            $imageSrc = asset('images/placeholder-team.webp');
+                                        }
+                                    @endphp
+                                    <img src="{{ $imageSrc }}" alt="{{ $member->name }}">
                                 </figure>
                             </div>
                             <div class="team-body">

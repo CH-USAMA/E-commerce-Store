@@ -31,8 +31,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label d-block">Current Image</label>
-                            <img src="{{ asset($banner->image) }}" alt="{{ $banner->title }}" class="img-thumbnail mb-2"
-                                width="200">
+                            <img src="{{ (Str::contains($banner->image, 'images/') ? asset($banner->image) : asset('storage/' . $banner->image)) }}"
+                                alt="{{ $banner->title }}" class="img-thumbnail mb-2" width="200">
                             <input type="file" name="image" id="image" class="form-control">
                             <small class="text-muted">Leave empty to keep current image.</small>
                         </div>

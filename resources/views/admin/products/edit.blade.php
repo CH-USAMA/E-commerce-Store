@@ -93,7 +93,8 @@
                                 <option value="">Select Brand</option>
                                 @foreach($brands as $brand)
                                     <option value="{{ $brand->id }}" {{ $product->brand_id == $brand->id ? 'selected' : '' }}>
-                                        {{ $brand->name }}</option>
+                                        {{ $brand->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -105,8 +106,8 @@
                         <h6 class="mb-3 fw-bold">Product Image</h6>
                         @if($product->image)
                             <div class="mb-2">
-                                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
-                                    class="img-fluid rounded shadow-sm">
+                                <img src="{{ (Str::contains($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) }}"
+                                    alt="{{ $product->name }}" class="img-fluid rounded shadow-sm">
                             </div>
                         @endif
                         <input type="file" name="image" class="form-control">

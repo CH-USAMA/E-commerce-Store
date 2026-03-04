@@ -32,10 +32,15 @@
                 @forelse($galleryItems as $item)
                     <div class="col-lg-4 col-sm-6 mb-4">
                         <div class="photo-gallery wow fadeInUp" data-cursor-text="View">
-                            <a href="{{ asset('storage/' . $item->image) }}" class="gallery-popup">
+                            @php
+                                $imageSrc = $item->image;
+                                if ($imageSrc && !Str::startsWith($imageSrc, ['http', 'https'])) {
+                                    $imageSrc = Str::contains($imageSrc, 'images/') ? asset($imageSrc) : asset('storage/' . $imageSrc);
+                                }
+                            @endphp
+                            <a href="{{ $imageSrc }}" class="gallery-popup">
                                 <figure class="image-anime">
-                                    <img src="{{ asset('storage/' . $item->image) }}" loading="lazy"
-                                        alt="{{ $item->title ?? 'Gallery Image' }}">
+                                    <img src="{{ $imageSrc }}" loading="lazy" alt="{{ $item->title ?? 'Gallery Image' }}">
                                 </figure>
                             </a>
                         </div>

@@ -48,7 +48,7 @@
                             <label class="form-label">Feature Image</label>
                             @if($post->feature_image)
                                 <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $post->feature_image) }}"
+                                    <img src="{{ (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('storage/' . $post->feature_image)) }}"
                                         class="img-fluid rounded shadow-sm">
                                 </div>
                             @endif

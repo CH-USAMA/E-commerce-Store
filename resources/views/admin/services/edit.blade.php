@@ -33,8 +33,9 @@
                         <div class="mb-3 text-center">
                             @if($service->image)
                                 <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}"
-                                        class="img-fluid rounded shadow-sm" style="max-height: 200px;">
+                                    <img src="{{ (Str::contains($service->image, 'images/') ? asset($service->image) : asset('storage/' . $service->image)) }}"
+                                        alt="{{ $service->title }}" class="img-fluid rounded shadow-sm"
+                                        style="max-height: 200px;">
                                 </div>
                             @endif
                             <label class="form-label d-block text-start">Change Image (Optional)</label>
