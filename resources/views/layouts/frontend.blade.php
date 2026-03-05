@@ -159,6 +159,35 @@
                                 </li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('contact') }}">Contact Us</a>
                                 </li>
+                                @auth
+                                    <li class="nav-item submenu"><a class="nav-link" href="#">My Account</a>
+                                        <ul>
+                                            @if(auth()->user()->role === 'admin')
+                                                <li class="nav-item"><a class="nav-link"
+                                                        href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
+                                            @elseif(auth()->user()->role === 'manager')
+                                                <li class="nav-item"><a class="nav-link"
+                                                        href="{{ route('branch.dashboard') }}">Branch Dashboard</a></li>
+                                            @else
+                                                <li class="nav-item"><a class="nav-link" href="{{ route('user.dashboard') }}">My
+                                                        Dashboard</a></li>
+                                                <li class="nav-item"><a class="nav-link"
+                                                        href="{{ route('user.orders.index') }}">My Orders</a></li>
+                                            @endif
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="#"
+                                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+                                                <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                                    class="d-none">
+                                                    @csrf
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                @else
+                                    <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login /
+                                            Register</a></li>
+                                @endauth
                                 <li class="nav-item">
                                     <a class="nav-link position-relative" href="{{ route('cart') }}">
                                         <i class="fas fa-shopping-cart"></i>

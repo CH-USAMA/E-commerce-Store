@@ -104,6 +104,24 @@ class CartController extends Controller
         return response()->json(['cart_count' => array_sum($cart)]);
     }
 
+    public function checkoutAuth()
+    {
+        if (auth()->check()) {
+            return redirect()->route('checkout');
+        }
+        $cart = session()->get('cart', []);
+        if (empty($cart)) {
+            return redirect()->route('products')->with('error', 'Your cart is empty.');
+        }
+        return view('frontend.checkout-auth');
+    }
+
+    public function guestCheckout()
+    {
+        session()->put('guest_checkout', true);
+        return redirect()->route('checkout');
+    }
+
     public function checkout()
     {
         $cart = session()->get('cart', []);
@@ -111,15 +129,22 @@ class CartController extends Controller
             return redirect()->route('products')->with('error', 'Your cart is empty.');
         }
 
+        if (!auth()->check() && !session()->get('guest_checkout')) {
+            return redirect()->route('checkout.auth');
+        }
+
         $products = \App\Models\Product::whereIn('id', array_keys($cart))->get()->map(function ($product) use ($cart) {
             $product->cart_quantity = $cart[$product->id];
             $product->cart_subtotal = $product->price * $cart[$product->id];
             return $product;
         });
-        $total = $products->sum('cart_subtotal');
-        $stores = \App\Models\Store::all();
+        $user = auth()->user();
+        $defaultShipping = null;
+        if ($user) {
+            $defaultShipping = $user->addresses()->where('type', 'shipping')->where('is_default', true)->first();
+        }
 
-        return view('frontend.checkout', compact('products', 'total', 'stores'));
+        return view('frontend.checkout', compact('products', 'total', 'stores', 'user', 'defaultShipping'));
     }
 
     public function processCheckout(Request $request)

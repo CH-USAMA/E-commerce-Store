@@ -35,6 +35,8 @@ Route::get('/contact', [\App\Http\Controllers\HomeController::class, 'contact'])
 Route::post('/contact', [\App\Http\Controllers\HomeController::class, 'submitContact'])->name('contact.submit');
 
 // Authentication Routes
+Route::get('/register', [\App\Http\Controllers\AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register']);
 Route::get('/login', [\App\Http\Controllers\AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
@@ -46,11 +48,20 @@ Route::post('/cart/update', [\App\Http\Controllers\CartController::class, 'updat
 Route::post('/cart/remove', [\App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/count', [\App\Http\Controllers\CartController::class, 'count'])->name('cart.count');
 Route::post('/cart/nearest-store', [\App\Http\Controllers\CartController::class, 'nearestStore'])->name('cart.nearest-store');
+Route::get('/checkout/auth', [\App\Http\Controllers\CartController::class, 'checkoutAuth'])->name('checkout.auth');
+Route::get('/checkout/guest', [\App\Http\Controllers\CartController::class, 'guestCheckout'])->name('checkout.guest');
 Route::get('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/order-success', [\App\Http\Controllers\CartController::class, 'orderSuccess'])->name('order.success');
 Route::get('/track-order', [\App\Http\Controllers\OrderTrackingController::class, 'index'])->name('order.track');
 Route::post('/track-order', [\App\Http\Controllers\OrderTrackingController::class, 'track'])->name('order.track.submit');
+
+// User Portal Routes
+Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/orders', [\App\Http\Controllers\User\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\User\OrderController::class, 'show'])->name('orders.show');
+});
 
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {

@@ -41,14 +41,14 @@
                                 <label class="form-label text-white">Full Name</label>
                                 <input type="text" name="customer_name"
                                     class="form-control bg-dark text-white border-secondary @error('customer_name') is-invalid @enderror"
-                                    value="{{ old('customer_name') }}" required>
+                                    value="{{ old('customer_name', isset($user) ? $user->name : '') }}" required>
                                 @error('customer_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-white">Email Address</label>
                                 <input type="email" name="customer_email"
                                     class="form-control bg-dark text-white border-secondary @error('customer_email') is-invalid @enderror"
-                                    value="{{ old('customer_email') }}" required>
+                                    value="{{ old('customer_email', isset($user) ? $user->email : '') }}" required>
                                 @error('customer_email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
@@ -62,21 +62,24 @@
                                 <label class="form-label text-white">Shipping Address</label>
                                 <textarea name="customer_address"
                                     class="form-control bg-dark text-white border-secondary @error('customer_address') is-invalid @enderror"
-                                    rows="3" required>{{ old('customer_address') }}</textarea>
+                                    rows="3"
+                                    required>{{ old('customer_address', isset($defaultShipping) ? $defaultShipping->address_line_1 . ' ' . $defaultShipping->address_line_2 : '') }}</textarea>
                                 @error('customer_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-white">City</label>
                                 <input type="text" name="customer_city"
                                     class="form-control bg-dark text-white border-secondary @error('customer_city') is-invalid @enderror"
-                                    value="{{ old('customer_city') }}" required>
+                                    value="{{ old('customer_city', isset($defaultShipping) ? $defaultShipping->city : '') }}"
+                                    required>
                                 @error('customer_city') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-white">Postal Code</label>
                                 <input type="text" name="customer_postal_code"
                                     class="form-control bg-dark text-white border-secondary @error('customer_postal_code') is-invalid @enderror"
-                                    value="{{ old('customer_postal_code') }}" required>
+                                    value="{{ old('customer_postal_code', isset($defaultShipping) ? $defaultShipping->postal_code : '') }}"
+                                    required>
                                 @error('customer_postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -202,7 +205,7 @@
                     if (storeLat && storeLng) {
                         const dist = calculateDistance(userLat, userLng, storeLat, storeLng);
                         option.text = `${option.text.split('(')[0].trim()} (${dist.toFixed(1)} km away)`;
-                        
+
                         if (dist < minDistance) {
                             minDistance = dist;
                             nearestStoreId = option.value;
@@ -226,7 +229,7 @@
                 });
             }
 
-            orderTypeSelect.addEventListener('change', function() {
+            orderTypeSelect.addEventListener('change', function () {
                 if (this.value === 'pickup') {
                     distanceText.textContent = 'Please select which branch you will collect from.';
                 } else {
