@@ -138,6 +138,8 @@ class AuthController extends Controller
         if ($user->role === 'manager') {
             return redirect()->route('branch.dashboard');
         }
-        return redirect()->route('home');
+
+        // Let's redirect regular customers to their new Dashboard
+        return redirect()->route('user.dashboard');
     }
 }
