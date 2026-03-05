@@ -79,7 +79,7 @@
                                                     if (Str::contains($imageSrc, 'images/')) {
                                                         $imageSrc = asset($imageSrc);
                                                     } else {
-                                                        $imageSrc = asset('storage/' . $imageSrc);
+                                                        $imageSrc = asset('' . $imageSrc);
                                                     }
                                                 } elseif (!$imageSrc) {
                                                     $imageSrc = asset('images/placeholder-team.webp');

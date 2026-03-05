@@ -27,7 +27,7 @@
                             </select>
                         </div>
                         <div class="mb-3 text-center">
-                            <img src="{{ (Str::contains($item->image, 'images/') ? asset($item->image) : asset('storage/' . $item->image)) }}"
+                            <img src="{{ (Str::contains($item->image, 'images/') ? asset($item->image) : asset('' . $item->image)) }}"
                                 class="img-fluid rounded shadow-sm mb-3" style="max-height: 300px;">
                             <label class="form-label d-block text-start">Replace Image (Optional)</label>
                             <input type="file" name="image" class="form-control">

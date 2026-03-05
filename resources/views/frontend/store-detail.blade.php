@@ -89,7 +89,7 @@
                         <div class="team-single-image video-gallery-image" data-cursor-text="Play">
                             <a href="{{ $store->video_url ?? '#' }}" class="popup-video">
                                 <figure class="image-anime reveal">
-                                    <img src="{{ $store->image ? (Str::contains($store->image, 'images/') ? asset($store->image) : asset('storage/' . $store->image)) : asset('images/logo_yellow2.png') }}"
+                                    <img src="{{ $store->image ? (Str::contains($store->image, 'images/') ? asset($store->image) : asset('' . $store->image)) : asset('images/logo_yellow2.png') }}"
                                         alt="{{ $store->name }}">
                                 </figure>
                             </a>

@@ -35,7 +35,7 @@
                             @php
                                 $imageSrc = $item->image;
                                 if ($imageSrc && !Str::startsWith($imageSrc, ['http', 'https'])) {
-                                    $imageSrc = Str::contains($imageSrc, 'images/') ? asset($imageSrc) : asset('storage/' . $imageSrc);
+                                    $imageSrc = Str::contains($imageSrc, 'images/') ? asset($imageSrc) : asset('' . $imageSrc);
                                 }
                             @endphp
                             <a href="{{ $imageSrc }}" class="gallery-popup">

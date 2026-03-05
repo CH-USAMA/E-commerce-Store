@@ -106,7 +106,7 @@
                         <h6 class="mb-3 fw-bold">Product Image</h6>
                         @if($product->image)
                             <div class="mb-2">
-                                <img src="{{ (Str::contains($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) }}"
+                                <img src="{{ (Str::contains($product->image, 'images/') ? asset($product->image) : asset('' . $product->image)) }}"
                                     alt="{{ $product->name }}" class="img-fluid rounded shadow-sm">
                             </div>
                         @endif

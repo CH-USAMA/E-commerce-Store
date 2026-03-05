@@ -31,7 +31,7 @@
                                             if (Str::contains($imagePath, 'images/')) {
                                                 $imagePath = asset($imagePath);
                                             } else {
-                                                $imagePath = asset('storage/' . $imagePath);
+                                                $imagePath = asset('' . $imagePath);
                                             }
                                         } elseif (!$imagePath) {
                                             $imagePath = asset('images/placeholder.webp');

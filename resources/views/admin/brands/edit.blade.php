@@ -24,7 +24,7 @@
                         <div class="mb-3 text-center">
                             @if($brand->logo)
                                 <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $brand->logo) }}" alt="{{ $brand->name }}" width="100"
+                                    <img src="{{ asset('' . $brand->logo) }}" alt="{{ $brand->name }}" width="100"
                                         class="rounded shadow-sm">
                                 </div>
                             @endif

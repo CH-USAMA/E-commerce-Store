@@ -97,7 +97,7 @@
                                                         <div class="me-3">
                                                             @php
                                                                 $image = $item->product->image ?? '';
-                                                                $imageSrc = $image ? (Str::contains($image, 'images/') ? asset($image) : asset('storage/' . $image)) : asset('images/placeholder.webp');
+                                                                $imageSrc = $image ? (Str::contains($image, 'images/') ? asset($image) : asset('' . $image)) : asset('images/placeholder.webp');
                                                             @endphp
                                                             <img src="{{ $imageSrc }}" class="rounded shadow-sm"
                                                                 style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #333;">

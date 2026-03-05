@@ -54,7 +54,7 @@
                                 <div class="project-item wow fadeInUp">
                                     <div class="project-image">
                                         <figure class="image-anime">
-                                            <img src="{{ $store->image ? (Str::contains($store->image, 'images/') ? asset($store->image) : asset('storage/' . $store->image)) : asset('images/logo_yellow2.png') }}"
+                                            <img src="{{ $store->image ? (Str::contains($store->image, 'images/') ? asset($store->image) : asset('' . $store->image)) : asset('images/logo_yellow2.png') }}"
                                                 alt="{{ $store->name }}">
                                         </figure>
                                         <div class="project-btn">

@@ -34,7 +34,7 @@
                         <div class="post-item wow fadeInUp">
                             <div class="post-featured-image">
                                 <figure class="image-anime">
-                                    <img src="{{ $post->feature_image ? (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('storage/' . $post->feature_image)) : asset('images/placeholder.webp') }}" alt="">
+                                    <img src="{{ $post->feature_image ? (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('' . $post->feature_image)) : asset('images/placeholder.webp') }}" alt="">
                                 </figure>
                             </div>
                             <div class="post-item-body">

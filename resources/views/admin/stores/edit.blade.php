@@ -25,7 +25,7 @@
                             <label class="form-label">Store Image</label>
                             @if($store->image)
                                 <div class="mb-2">
-                                    <img src="{{ (Str::contains($store->image, 'images/') ? asset($store->image) : asset('storage/' . $store->image)) }}"
+                                    <img src="{{ (Str::contains($store->image, 'images/') ? asset($store->image) : asset('' . $store->image)) }}"
                                         alt="Store" class="rounded shadow-sm" style="height: 100px;">
                                 </div>
                             @endif

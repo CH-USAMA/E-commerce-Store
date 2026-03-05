@@ -62,7 +62,7 @@
                             @foreach($products as $product)
                                 <tr id="cart-row-{{ $product->id }}">
                                     <td>
-                                        <img src="{{ $product->image ? (Str::contains($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) : asset('images/placeholder.webp') }}"
+                                        <img src="{{ $product->image ? (Str::contains($product->image, 'images/') ? asset($product->image) : asset('' . $product->image)) : asset('images/placeholder.webp') }}"
                                             alt="{{ $product->name }}" class="rounded shadow-sm"
                                             style="width: 70px; height: 70px; object-fit: cover; border: 1px solid var(--divider-color);">
                                     </td>

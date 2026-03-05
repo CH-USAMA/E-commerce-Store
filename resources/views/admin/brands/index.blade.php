@@ -25,7 +25,7 @@
                             <tr>
                                 <td class="ps-4">
                                     @if($brand->logo)
-                                        <img src="{{ asset('storage/' . $brand->logo) }}" alt="{{ $brand->name }}" width="50"
+                                        <img src="{{ asset('' . $brand->logo) }}" alt="{{ $brand->name }}" width="50"
                                             class="rounded shadow-sm">
                                     @else
                                         <div class="rounded bg-light d-flex align-items-center justify-content-center fw-bold text-muted"

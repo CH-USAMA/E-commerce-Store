@@ -35,7 +35,7 @@
                     <!-- Post Featured Image Start -->
                     <div class="post-image">
                         <figure class="image-anime">
-                            <img src="{{ $post->feature_image ? (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('storage/' . $post->feature_image)) : asset('images/placeholder.webp') }}"
+                            <img src="{{ $post->feature_image ? (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('' . $post->feature_image)) : asset('images/placeholder.webp') }}"
                                 alt="">
                         </figure>
                     </div>

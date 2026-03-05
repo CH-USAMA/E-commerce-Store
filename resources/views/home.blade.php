@@ -189,7 +189,7 @@
                                     <div class="project-image">
                                         <figure class="image-anime">
                                             <img alt="" loading="lazy"
-                                                src="{{ $store->image ? (Str::contains($store->image, 'images/') ? asset($store->image) : asset('storage/' . $store->image)) : asset('images/JBshop(small).webp') }}" />
+                                                src="{{ $store->image ? (Str::contains($store->image, 'images/') ? asset($store->image) : asset('' . $store->image)) : asset('images/JBshop(small).webp') }}" />
                                         </figure>
                                         <div class="project-btn">
                                             <a href="{{ route('store.detail', $store->id) }}">
@@ -272,7 +272,7 @@
                                     <div class="project-image">
                                         <figure class="image-anime">
                                             <img alt="" loading="lazy"
-                                                src="{{ $product->image ? (Str::contains($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) : asset('images/placeholder.webp') }}" />
+                                                src="{{ $product->image ? (Str::contains($product->image, 'images/') ? asset($product->image) : asset('' . $product->image)) : asset('images/placeholder.webp') }}" />
                                         </figure>
                                         <div class="project-tag">
                                             <a
@@ -316,7 +316,7 @@
                         <div class="post-item wow fadeInUp">
                             <div class="post-featured-image">
                                 <figure class="image-anime">
-                                    <img src="{{ $post->feature_image ? (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('storage/' . $post->feature_image)) : asset('images/placeholder.webp') }}"
+                                    <img src="{{ $post->feature_image ? (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('' . $post->feature_image)) : asset('images/placeholder.webp') }}"
                                         alt="" loading="lazy">
                                 </figure>
                             </div>

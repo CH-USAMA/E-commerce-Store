@@ -31,7 +31,7 @@
             <div class="row">
                 <div class="col-lg-6 mb-4">
                     <div class="product-image wow fadeInUp">
-                        <img src="{{ $product->image ? (Str::contains($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) : asset('images/placeholder.webp') }}"
+                        <img src="{{ $product->image ? (Str::contains($product->image, 'images/') ? asset($product->image) : asset('' . $product->image)) : asset('images/placeholder.webp') }}"
                             alt="{{ $product->name }}" class="img-fluid rounded shadow-sm">
                     </div>
                 </div>

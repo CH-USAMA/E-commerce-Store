@@ -138,6 +138,9 @@ class CartController extends Controller
             $product->cart_subtotal = $product->price * $cart[$product->id];
             return $product;
         });
+        $total = $products->sum('cart_subtotal');
+        $stores = \App\Models\Store::all();
+
         $user = auth()->user();
         $defaultShipping = null;
         if ($user) {

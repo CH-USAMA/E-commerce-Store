@@ -50,7 +50,7 @@
                                 <div class="project-item wow fadeInUp">
                                     <div class="project-image">
                                         <figure class="image-anime">
-                                            <img src="{{ $product->image ? (Str::contains($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) : asset('images/placeholder.webp') }}"
+                                            <img src="{{ $product->image ? (Str::contains($product->image, 'images/') ? asset($product->image) : asset('' . $product->image)) : asset('images/placeholder.webp') }}"
                                                 alt="{{ $product->name }}" loading="lazy">
                                         </figure>
                                         <div class="project-tag">

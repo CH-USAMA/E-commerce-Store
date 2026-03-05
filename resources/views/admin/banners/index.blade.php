@@ -24,7 +24,7 @@
                         @forelse($banners as $banner)
                             <tr>
                                 <td>
-                                    <img src="{{ (Str::contains($banner->image, 'uploads/') || Str::contains($banner->image, 'images/')) ? asset($banner->image) : asset('storage/' . $banner->image) }}"
+                                    <img src="{{ (Str::contains($banner->image, 'uploads/') || Str::contains($banner->image, 'images/')) ? asset($banner->image) : asset('' . $banner->image) }}"
                                         alt="{{ $banner->title }}" width="100">
                                 </td>
                                 <td>{{ $banner->title }}</td>

@@ -33,7 +33,7 @@
                         <div class="mb-3 text-center">
                             @if($service->image)
                                 <div class="mb-2">
-                                    <img src="{{ (Str::contains($service->image, 'images/') ? asset($service->image) : asset('storage/' . $service->image)) }}"
+                                    <img src="{{ (Str::contains($service->image, 'images/') ? asset($service->image) : asset('' . $service->image)) }}"
                                         alt="{{ $service->title }}" class="img-fluid rounded shadow-sm"
                                         style="max-height: 200px;">
                                 </div>
