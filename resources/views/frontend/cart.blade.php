@@ -230,7 +230,7 @@
             @foreach($products as $p)
                 {{ $p->id }}: { qty: {{ $p->cart_quantity }}, price: {{ $p->price }} },
             @endforeach
-                            };
+                                };
 
         function recalcTotal() {
             let total = 0;
@@ -249,11 +249,11 @@
             document.getElementById('qty-' + id).textContent = newQty;
             document.getElementById('sub-' + id).textContent = 'R' + (price * newQty).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             recalcTotal();
-            fetch('{{ route("cart.update") }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ product_id: id, quantity: newQty }) }).then(r => r.json()).then(data => window.updateCartBadge(data.cart_count));
+            fetch('/cart/update', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ product_id: id, quantity: newQty }) }).then(r => r.json()).then(data => window.updateCartBadge(data.cart_count));
         }
 
         function removeItem(id) {
-            fetch('{{ route("cart.remove") }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ product_id: id }) }).then(r => r.json()).then(data => {
+            fetch('/cart/remove', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ product_id: id }) }).then(r => r.json()).then(data => {
                 document.getElementById('cart-row-' + id).remove();
                 delete productData[id];
                 recalcTotal();
@@ -265,7 +265,7 @@
         // Geolocation nearest store
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(pos => {
-                fetch('{{ route("cart.nearest-store") }}', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }) }).then(r => r.json()).then(data => {
+                fetch('/cart/nearest-store', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }) }).then(r => r.json()).then(data => {
                     if (data.success) {
                         document.getElementById('nearest-store-name').textContent = data.store.name;
                         document.getElementById('nearest-store-address').textContent = data.store.address;

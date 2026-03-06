@@ -416,7 +416,7 @@
                                                 class="fas fa-history w-4 text-gold-400"></i> Order History</a>
                                     @endif
                                     <div class="h-px bg-white/5 my-2"></div>
-                                    <form action="{{ route('logout') }}" method="POST">
+                                    <form action="/logout" method="POST">
                                         @csrf
                                         <button type="submit"
                                             class="w-full flex items-center gap-4 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-400/50 hover:text-red-400 hover:bg-red-400/5 transition rounded-xl"><i
@@ -513,10 +513,11 @@
                                 <div class="grid grid-cols-1 gap-4">
                                     <a href="{{ route('admin.dashboard') }}"
                                         class="btn-gold py-4 text-[11px] tracking-widest">View Dashboard</a>
-                                    <form action="{{ route('logout') }}" method="POST">
+                                    <form action="/logout" method="POST">
                                         @csrf
                                         <button type="submit"
-                                            class="w-full bg-red-400/10 text-red-400 hover:bg-red-400/20 py-4 text-[11px] font-black uppercase rounded-xl transition">Log out</button>
+                                            class="w-full bg-red-400/10 text-red-400 hover:bg-red-400/20 py-4 text-[11px] font-black uppercase rounded-xl transition">Log
+                                            out</button>
                                     </form>
                                 </div>
                             @else
@@ -525,10 +526,11 @@
                                         class="btn-gold py-4 text-[11px] tracking-widest">View Dashboard</a>
                                     <a href="{{ route('user.orders.index') }}"
                                         class="btn-gold py-4 text-[11px] tracking-widest opacity-80">Order History</a>
-                                    <form action="{{ route('logout') }}" method="POST">
+                                    <form action="/logout" method="POST">
                                         @csrf
                                         <button type="submit"
-                                            class="w-full bg-red-400/10 text-red-400 hover:bg-red-400/20 py-4 text-[11px] font-black uppercase rounded-xl transition">Log out</button>
+                                            class="w-full bg-red-400/10 text-red-400 hover:bg-red-400/20 py-4 text-[11px] font-black uppercase rounded-xl transition">Log
+                                            out</button>
                                     </form>
                                 </div>
                             @endif

@@ -13,7 +13,7 @@
             </div>
 
             <div class="card-dark rounded-2xl p-6 sm:p-8">
-                <form action="{{ route('register.post') }}" method="POST" x-data="{ billingSame: true }">
+                <form action="/register" method="POST" x-data="{ billingSame: true }">
                     @csrf
 
                     <!-- Personal Info -->

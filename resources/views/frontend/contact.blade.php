@@ -91,7 +91,7 @@
                 <!-- Form Section -->
                 <div class="relative">
                     <div class="absolute -inset-4 bg-gold-400/5 blur-3xl opacity-50 rounded-full"></div>
-                    <form action="{{ route('contact.submit') }}" method="POST"
+                    <form action="/contact" method="POST"
                         class="relative card-dark p-8 md:p-10 rounded-3xl border border-dark-border shadow-2xl">
                         @csrf
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">

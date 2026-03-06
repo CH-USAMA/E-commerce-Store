@@ -17,7 +17,7 @@
 
     <div class="bg-[#050505] min-h-screen py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm">
+            <form action="/checkout" method="POST" id="checkoutForm">
                 @csrf
                 <input type="hidden" name="lat" id="checkout-lat">
                 <input type="hidden" name="lng" id="checkout-lng">

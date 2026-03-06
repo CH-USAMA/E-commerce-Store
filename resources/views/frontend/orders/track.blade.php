@@ -43,7 +43,7 @@
                             Verify your delivery status in our central ledger</p>
                     </div>
 
-                    <form action="{{ route('order.track.submit') }}" method="POST" class="max-w-2xl mx-auto">
+                    <form action="/track-order" method="POST" class="max-w-2xl mx-auto">
                         @csrf
                         <div
                             class="relative flex flex-col sm:flex-row gap-4 p-2 bg-black/40 border border-white/10 rounded-[2rem] shadow-inner">
@@ -78,7 +78,8 @@
                                 <h3 class="text-4xl font-black text-white italic tracking-tighter">#{{ $order->order_number }}
                                 </h3>
                                 <p class="text-[9px] font-black uppercase tracking-widest text-gold-400 mt-2">Placed on
-                                    {{ $order->created_at->format('M d, Y') }}</p>
+                                    {{ $order->created_at->format('M d, Y') }}
+                                </p>
                             </div>
                             <div class="text-center md:text-right">
                                 <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-3">Logistics
@@ -108,7 +109,8 @@
                                             class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">
                                             Logistics Hub</p>
                                         <p class="text-sm font-bold text-white">
-                                            {{ $order->store->name ?? 'Regional Distribution' }}</p>
+                                            {{ $order->store->name ?? 'Regional Distribution' }}
+                                        </p>
                                     </div>
                                     <div>
                                         <p

@@ -23,7 +23,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                 <!-- Guest Checkout -->
-                <form action="{{ route('checkout.guest') }}" method="POST" class="h-full">
+                <form action="/checkout/guest" method="POST" class="h-full">
                     @csrf
                     <button type="submit"
                         class="w-full h-full card-dark rounded-[2rem] p-8 flex flex-col items-center text-center border-white/5 hover:border-gold-400 group transition-all duration-500">
@@ -35,7 +35,8 @@
                         <p class="text-xs text-dark-muted leading-relaxed">No account needed. Quick and easy for one-time
                             orders.</p>
                         <div class="mt-8 text-[10px] font-black uppercase tracking-widest text-gold-400">Continue as Guest
-                            <i class="fas fa-arrow-right ml-1"></i></div>
+                            <i class="fas fa-arrow-right ml-1"></i>
+                        </div>
                     </button>
                 </form>
 
