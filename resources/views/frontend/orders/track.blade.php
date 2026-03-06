@@ -1,171 +1,236 @@
 @extends('layouts.frontend')
 
-@section('title', 'Track Your Order - Jabulani Group')
+@section('title', 'Track Your Logistics - Jabulani Group')
 
 @section('content')
-    <!-- Page Header Start -->
-    <div class="page-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-12">
-                    <div class="page-header-box">
-                        <h1 class="text-anime-style-2" data-cursor="-opaque">Track <span>Your Order</span></h1>
-                        <nav class="wow fadeInUp">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('home') }}">home</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">track order</li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+    <!-- Page Header -->
+    <div class="relative py-24 overflow-hidden bg-dark">
+        <div class="absolute inset-0 opacity-10">
+            <img src="{{ asset('images/qumbu_special_compressed.webp') }}" class="w-full h-full object-cover"
+                alt="Tracking Hero">
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <h1 class="text-5xl lg:text-7xl font-black mb-6 tracking-tight italic">Live <span
+                    class="gradient-text">Tracking</span></h1>
+            <p class="text-gold-400 font-bold uppercase tracking-[0.4em] text-xs mb-8">Real-time status of your material
+                procurement</p>
+            <nav
+                class="flex justify-center items-center gap-2 text-[10px] font-black uppercase tracking-widest text-dark-muted">
+                <a href="{{ route('home') }}" class="hover:text-gold-400 transition">Home</a>
+                <span class="w-1 h-1 rounded-full bg-gold-400/50"></span>
+                <span class="text-gray-400">Order Tracking</span>
+            </nav>
         </div>
     </div>
-    <!-- Page Header End -->
 
-    @include('frontend.partials.ticker')
+    <div class="bg-[#050505] min-h-screen py-24">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    <div class="py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="order-tracking-card bg-dark p-4 p-md-5 rounded shadow-lg border border-secondary mb-5">
-                        <h2 class="h3 text-warning mb-4 text-center">Enter Your Order Number</h2>
-                        <form action="{{ route('order.track.submit') }}" method="POST">
-                            @csrf
-                            <div class="input-group input-group-lg">
-                                <input type="text" name="order_number"
-                                    class="form-control bg-transparent text-white border-secondary"
-                                    placeholder="e.g. JB-20240304-X1Y2Z3"
-                                    value="{{ old('order_number', $order->order_number ?? '') }}" required>
-                                <button class="btn btn-highlighted px-4" type="submit">Track Now</button>
-                            </div>
-                            <p class="text-muted mt-3 text-center small">Your order number can be found in your confirmation
-                                message or email.</p>
-                        </form>
+            <!-- Tracking Search -->
+            <div
+                class="card-dark rounded-[3.5rem] p-12 md:p-16 border-white/5 bg-gradient-to-br from-[#111] to-dark shadow-2xl relative overflow-hidden group mb-16">
+                <div class="absolute -right-16 -top-16 w-64 h-64 bg-gold-400/5 rounded-full blur-[100px]"></div>
+
+                <div class="relative z-10">
+                    <div class="text-center mb-12">
+                        <div
+                            class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gold-400/10 border border-gold-400/20 mb-6">
+                            <i class="fas fa-barcode text-2xl text-gold-400"></i>
+                        </div>
+                        <h2 class="text-3xl font-black text-white italic tracking-tight uppercase">Enter <span
+                                class="text-gold-400">Reference Number</span></h2>
+                        <p class="text-dark-muted text-xs font-black uppercase tracking-widest mt-2 opacity-60 italic">
+                            Verify your delivery status in our central ledger</p>
                     </div>
 
-                    @if(isset($order))
-                        <div class="order-details-card bg-dark p-4 rounded border border-secondary wow fadeInUp">
-                            <div
-                                class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
-                                <div>
-                                    <h3 class="h4 text-warning mb-1">Order #{{ $order->order_number }}</h3>
-                                    <p class="text-muted mb-0">Placed on {{ $order->created_at->format('M d, Y') }}</p>
-                                </div>
-                                <div class="text-end">
-                                    <span
-                                        class="badge bg-{{ $order->status === 'delivered' ? 'success' : ($order->status === 'cancelled' ? 'danger' : 'warning') }} fs-6 px-3 py-2 text-capitalize">
-                                        {{ $order->status }}
-                                    </span>
+                    <form action="{{ route('order.track.submit') }}" method="POST" class="max-w-2xl mx-auto">
+                        @csrf
+                        <div
+                            class="relative flex flex-col sm:flex-row gap-4 p-2 bg-black/40 border border-white/10 rounded-[2rem] shadow-inner">
+                            <input type="text" name="order_number"
+                                class="flex-1 bg-transparent text-white px-8 py-4 focus:outline-none font-bold text-lg placeholder-dark-muted uppercase tracking-wider"
+                                placeholder="e.g. JB-2024..." value="{{ old('order_number', $order->order_number ?? '') }}"
+                                required>
+                            <button type="submit"
+                                class="btn-gold px-12 py-5 rounded-[1.5rem] text-[11px] font-black uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3">
+                                <i class="fas fa-radar text-sm"></i> Initiate Tracking
+                            </button>
+                        </div>
+                        @if($errors->has('order_number'))
+                            <p class="text-red-400 text-[10px] font-black uppercase tracking-widest mt-4 ml-6"><i
+                                    class="fas fa-exclamation-triangle mr-2"></i> {{ $errors->first('order_number') }}</p>
+                        @endif
+                    </form>
+                </div>
+            </div>
+
+            @if(isset($order))
+                <!-- Tracking Results -->
+                <div class="space-y-12">
+
+                    <!-- Status Overview -->
+                    <div class="card-dark rounded-[3rem] p-10 border-gold-400/20 shadow-2xl relative overflow-hidden">
+                        <div
+                            class="flex flex-col md:flex-row justify-between items-center gap-8 border-b border-white/5 pb-10 mb-10">
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-2">Reference
+                                    Identity</p>
+                                <h3 class="text-4xl font-black text-white italic tracking-tighter">#{{ $order->order_number }}
+                                </h3>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-gold-400 mt-2">Placed on
+                                    {{ $order->created_at->format('M d, Y') }}</p>
+                            </div>
+                            <div class="text-center md:text-right">
+                                <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-3">Logistics
+                                    Status</p>
+                                <span
+                                    class="px-8 py-3 rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl italic {{ $order->status === 'delivered' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : ($order->status === 'cancelled' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-gold-400/10 text-gold-400 border border-gold-400/20') }}">
+                                    {{ $order->status }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <!-- Info -->
+                            <div class="space-y-8">
+                                <h4
+                                    class="text-[10px] font-black uppercase tracking-widest text-dark-muted italic border-l-2 border-gold-400 pl-4">
+                                    Requisition Details</h4>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <p
+                                            class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">
+                                            Consignee</p>
+                                        <p class="text-sm font-bold text-white">{{ $order->customer_name }}</p>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">
+                                            Logistics Hub</p>
+                                        <p class="text-sm font-bold text-white">
+                                            {{ $order->store->name ?? 'Regional Distribution' }}</p>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">
+                                            Dispatch Mode</p>
+                                        <p class="text-sm font-bold text-white uppercase">{{ $order->order_type }}</p>
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">
+                                            Financial Method</p>
+                                        <p class="text-sm font-bold text-white uppercase">{{ $order->payment_method }}</p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="row mb-4">
-                                <div class="col-md-6 mb-3 mb-md-0">
-                                    <h4 class="h6 text-warning text-uppercase mb-3">Order Information</h4>
-                                    <p class="text-white mb-1"><strong>Customer:</strong> {{ $order->customer_name }}</p>
-                                    <p class="text-white mb-1"><strong>Store:</strong> {{ $order->store->name ?? 'N/A' }}</p>
-                                    <p class="text-white mb-1"><strong>Type:</strong> {{ ucfirst($order->order_type) }}</p>
-                                    <p class="text-white mb-0"><strong>Payment:</strong>
-                                        {{ strtoupper($order->payment_method) }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h4 class="h6 text-warning text-uppercase mb-3">Shipping Address</h4>
-                                    <p class="text-white mb-0">
+                            <!-- Address -->
+                            <div class="space-y-8">
+                                <h4
+                                    class="text-[10px] font-black uppercase tracking-widest text-dark-muted italic border-l-2 border-gold-400 pl-4">
+                                    Delivery Terminal</h4>
+                                <div class="bg-black/40 p-6 rounded-3xl border border-white/5 shadow-inner">
+                                    <p class="text-sm text-gray-300 leading-relaxed font-medium">
                                         {{ $order->customer_address }}<br>
-                                        {{ $order->customer_city }}, {{ $order->customer_postal_code }}
+                                        <span class="text-white font-black">{{ $order->customer_city }},
+                                            {{ $order->customer_postal_code }}</span>
                                     </p>
                                 </div>
                             </div>
-
-                            <div class="table-responsive">
-                                <table class="table table-dark table-borderless align-middle">
-                                    <thead class="border-bottom border-secondary">
-                                        <tr>
-                                            <th>Product</th>
-                                            <th class="text-center">Qty</th>
-                                            <th class="text-end">Price</th>
-                                            <th class="text-end">Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($order->items as $item)
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="me-3">
-                                                            @php
-                                                                $image = $item->product->image ?? '';
-                                                                $imageSrc = $image ? (Str::contains($image, 'images/') ? asset($image) : asset('' . $image)) : asset('images/placeholder.webp');
-                                                            @endphp
-                                                            <img src="{{ $imageSrc }}" class="rounded shadow-sm"
-                                                                style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #333;">
-                                                        </div>
-                                                        <span
-                                                            class="text-white">{{ $item->product->name ?? 'Deleted Product' }}</span>
-                                                    </div>
-                                                </td>
-                                                <td class="text-center text-white">{{ $item->quantity }}</td>
-                                                <td class="text-end text-white">R {{ number_format($item->price, 2) }}</td>
-                                                <td class="text-end text-white">R
-                                                    {{ number_format($item->price * $item->quantity, 2) }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                    <tfoot class="border-top border-secondary">
-                                        <tr>
-                                            <td colspan="3" class="text-end text-muted fw-bold py-3">Subtotal:</td>
-                                            <td class="text-end text-white py-3">R
-                                                {{ number_format($order->total - $order->vat, 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="3" class="text-end text-muted fw-bold py-2">VAT (15%):</td>
-                                            <td class="text-end text-white py-2">R {{ number_format($order->vat, 2) }}</td>
-                                        </tr>
-                                        <tr class="fs-5">
-                                            <td colspan="3" class="text-end text-warning fw-bold py-3">Total Amount:</td>
-                                            <td class="text-end text-warning fw-bold py-3">R
-                                                {{ number_format($order->total, 2) }}</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-
-                            @if($order->notes)
-                                <div class="mt-4 p-3 bg-secondary bg-opacity-10 rounded border border-secondary border-dashed">
-                                    <h5 class="h6 text-warning mb-2">Order Notes:</h5>
-                                    <p class="text-muted mb-0 italic">{{ $order->notes }}</p>
-                                </div>
-                            @endif
                         </div>
-                    @endif
+                    </div>
+
+                    <!-- Items Manifest -->
+                    <div
+                        class="card-dark rounded-[3rem] p-10 border-white/5 relative overflow-hidden bg-gradient-to-t from-black/[0.1] to-transparent">
+                        <h4
+                            class="text-[10px] font-black uppercase tracking-widest text-dark-muted italic mb-8 pb-4 border-b border-white/5">
+                            Inventory Manifest</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="text-[9px] font-black uppercase tracking-widest text-dark-muted">
+                                        <th class="pb-6">Material Unit</th>
+                                        <th class="pb-6 text-center">Volume</th>
+                                        <th class="pb-6 text-right">Unit Price</th>
+                                        <th class="pb-6 text-right">Accumulated</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    @foreach($order->items as $item)
+                                        <tr class="group hover:bg-white/[0.02] transition-all">
+                                            <td class="py-6 pr-4">
+                                                <div class="flex items-center gap-4">
+                                                    <div
+                                                        class="w-14 h-14 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0 group-hover:border-gold-400/30 transition-all duration-500">
+                                                        @php
+                                                            $image = $item->product->image ?? '';
+                                                            $imageSrc = $image ? (Str::contains($image, 'images/') ? asset($image) : asset('' . $image)) : asset('images/placeholder.webp');
+                                                        @endphp
+                                                        <img src="{{ $imageSrc }}"
+                                                            class="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700">
+                                                    </div>
+                                                    <span
+                                                        class="text-sm font-bold text-white italic group-hover:text-gold-400 transition-all">{{ $item->product->name ?? 'Material Specification' }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-6 text-center font-black text-gray-400 italic">{{ $item->quantity }}</td>
+                                            <td class="py-6 text-right font-black text-gray-400 italic">
+                                                R{{ number_format($item->price, 2) }}</td>
+                                            <td class="py-6 text-right font-black text-white italic tracking-tighter">
+                                                R{{ number_format($item->price * $item->quantity, 2) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3"
+                                            class="pt-10 text-right text-[10px] font-black uppercase tracking-widest text-dark-muted">
+                                            Ledger Subtotal</td>
+                                        <td class="pt-10 text-right text-lg font-black text-white italic">
+                                            R{{ number_format($order->total - $order->vat, 2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"
+                                            class="pt-4 text-right text-[10px] font-black uppercase tracking-widest text-dark-muted">
+                                            Taxation (VAT 15%)</td>
+                                        <td class="pt-4 text-right text-lg font-black text-gold-400 italic">
+                                            R{{ number_format($order->vat, 2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"
+                                            class="pt-10 text-right text-[10px] font-black uppercase tracking-widest text-white border-t border-white/5 mt-6">
+                                            Total Finalized Amount</td>
+                                        <td
+                                            class="pt-10 text-right text-4xl font-black text-gold-400 italic tracking-tighter border-t border-white/5 mt-6">
+                                            R{{ number_format($order->total, 2) }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        @if($order->notes)
+                            <div class="mt-12 p-8 bg-gold-400/[0.03] rounded-[2rem] border border-gold-400/20 border-dashed">
+                                <h5 class="text-[10px] font-black uppercase tracking-widest text-gold-400 mb-4 italic">Execution
+                                    Notes:</h5>
+                                <p class="text-sm text-gray-400 italic leading-relaxed">{{ $order->notes }}</p>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Contact Footer -->
+                    <div class="text-center pt-12">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-dark-muted mb-6 italic">Need manual
+                            logistics coordination?</p>
+                        <div class="flex justify-center gap-6">
+                            <a href="https://wa.me/27660684585"
+                                class="btn-outline-gold px-10 py-4 text-[11px] rounded-full">Contact Transport Team</a>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 @endsection
-
-@push('css')
-    <style>
-        .order-tracking-card {
-            background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
-        }
-
-        .order-details-card {
-            background: #111;
-        }
-
-        .table-dark {
-            background: transparent;
-        }
-
-        .border-dashed {
-            border-style: dashed !important;
-        }
-
-        .italic {
-            font-style: italic;
-        }
-    </style>
-@endpush

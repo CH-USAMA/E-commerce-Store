@@ -59,7 +59,7 @@
                 </table>
             </div>
             <div class="p-4">
-                {{ $stores->links() }}
+                {{ $stores->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>

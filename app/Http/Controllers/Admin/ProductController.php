@@ -9,13 +9,13 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = \App\Models\Product::with('category', 'brand')->paginate(20);
+        $products = \App\Models\Product::with('category', 'subcategory', 'brand')->paginate(20);
         return view('admin.products.index', compact('products'));
     }
 
     public function create()
     {
-        $categories = \App\Models\Category::all();
+        $categories = \App\Models\Category::topLevel()->with('children')->get();
         $brands = \App\Models\Brand::all();
         $stores = \App\Models\Store::all();
         return view('admin.products.create', compact('categories', 'brands', 'stores'));
@@ -29,10 +29,13 @@ class ProductController extends Controller
             'sku' => 'required|string|unique:products,sku',
             'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
+            'subcategory_id' => 'nullable|exists:categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'price' => 'required|numeric',
             'vat_rate' => 'required|numeric',
             'is_featured' => 'boolean',
+            'is_top_selling' => 'boolean',
+            'is_new_arrival' => 'boolean',
             'image' => 'nullable|image|max:2048',
             'stocks' => 'nullable|array',
             'stocks.*' => 'numeric',
@@ -41,6 +44,10 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
+
+        $validated['is_featured'] = $request->has('is_featured');
+        $validated['is_top_selling'] = $request->has('is_top_selling');
+        $validated['is_new_arrival'] = $request->has('is_new_arrival');
 
         $product = \App\Models\Product::create($validated);
 
@@ -62,7 +69,7 @@ class ProductController extends Controller
 
     public function edit(\App\Models\Product $product)
     {
-        $categories = \App\Models\Category::all();
+        $categories = \App\Models\Category::topLevel()->with('children')->get();
         $brands = \App\Models\Brand::all();
         $stores = \App\Models\Store::with([
             'stocks' => function ($q) use ($product) {
@@ -80,10 +87,13 @@ class ProductController extends Controller
             'sku' => 'required|string|unique:products,sku,' . $product->id,
             'description' => 'nullable|string',
             'category_id' => 'required|exists:categories,id',
+            'subcategory_id' => 'nullable|exists:categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'price' => 'required|numeric',
             'vat_rate' => 'required|numeric',
             'is_featured' => 'boolean',
+            'is_top_selling' => 'boolean',
+            'is_new_arrival' => 'boolean',
             'image' => 'nullable|image|max:2048',
             'stocks' => 'nullable|array',
             'stocks.*' => 'numeric',
@@ -96,6 +106,10 @@ class ProductController extends Controller
             }
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
+
+        $validated['is_featured'] = $request->has('is_featured');
+        $validated['is_top_selling'] = $request->has('is_top_selling');
+        $validated['is_new_arrival'] = $request->has('is_new_arrival');
 
         $product->update($validated);
 

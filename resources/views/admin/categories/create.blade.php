@@ -7,7 +7,7 @@
         <div class="col-md-6">
             <div class="border-0 shadow-sm card">
                 <div class="p-4 card-body">
-                    <form action="{{ route('admin.categories.store') }}" method="POST">
+                    <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Category Name</label>
@@ -18,6 +18,10 @@
                             <label class="form-label">Slug</label>
                             <input type="text" name="slug" id="slug" class="form-control" required
                                 placeholder="building-materials">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category Image</label>
+                            <input type="file" name="image" class="form-control">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Parent Category</label>

@@ -104,6 +104,29 @@ class CartController extends Controller
         return response()->json(['cart_count' => array_sum($cart)]);
     }
 
+    public function nearestStore(Request $request)
+    {
+        $request->validate([
+            'lat' => 'required|numeric',
+            'lng' => 'required|numeric',
+        ]);
+
+        $store = $this->storeService->findNearestStore($request->lat, $request->lng);
+
+        if ($store) {
+            return response()->json([
+                'success' => true,
+                'store' => [
+                    'id' => $store->id,
+                    'name' => $store->name,
+                    'address' => $store->address,
+                ]
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'No stores found.']);
+    }
+
     public function checkoutAuth()
     {
         if (auth()->check()) {
@@ -159,7 +182,7 @@ class CartController extends Controller
             'customer_address' => 'required|string',
             'customer_city' => 'required|string|max:100',
             'customer_postal_code' => 'required|string|max:10',
-            'payment_method' => 'required|in:cod,eft,payfast',
+            'payment_method' => 'required|in:eft,payfast',
             'order_type' => 'required|in:pickup,delivery',
             'store_id' => 'required|exists:stores,id',
             'lat' => 'nullable|numeric',

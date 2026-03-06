@@ -73,6 +73,16 @@
                                 {{ $product->is_featured ? 'checked' : '' }}>
                             <label class="form-check-label" for="featuredSwitch">Featured Product</label>
                         </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" name="is_top_selling" value="1"
+                                id="topSellingSwitch" {{ $product->is_top_selling ? 'checked' : '' }}>
+                            <label class="form-check-label" for="topSellingSwitch">Top Selling Item</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" name="is_new_arrival" value="1"
+                                id="newArrivalSwitch" {{ $product->is_new_arrival ? 'checked' : '' }}>
+                            <label class="form-check-label" for="newArrivalSwitch">New Arrival</label>
+                        </div>
                     </div>
                 </div>
 
@@ -80,11 +90,27 @@
                     <div class="p-4 card-body">
                         <h6 class="mb-3 fw-bold">Organization</h6>
                         <div class="mb-3">
-                            <label class="form-label">Category</label>
-                            <select name="category_id" class="form-select" required>
+                            <label class="form-label">Main Category <span class="text-danger">*</span></label>
+                            <select name="category_id" id="main-category" class="form-select" required>
+                                <option value="">Select Category</option>
                                 @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ $product->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                    <option value="{{ $category->id }}" data-children="{{ $category->children->toJson() }}" {{ $product->category_id == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sub-Category</label>
+                            <select name="subcategory_id" id="sub-category" class="form-select">
+                                <option value="">Select Sub-Category</option>
+                                @if($product->category && $product->category->children)
+                                    @foreach($product->category->children as $child)
+                                        <option value="{{ $child->id }}" {{ $product->subcategory_id == $child->id ? 'selected' : '' }}>
+                                            {{ $child->name }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                         <div class="mb-3">
@@ -131,6 +157,19 @@
     </form>
 
     <script>
+        document.getElementById('main-category').addEventListener('change', function () {
+            const selected = this.options[this.selectedIndex];
+            const children = JSON.parse(selected.dataset.children || '[]');
+            const subSelect = document.getElementById('sub-category');
+            subSelect.innerHTML = '<option value="">Select Sub-Category</option>';
+            children.forEach(function (child) {
+                const opt = document.createElement('option');
+                opt.value = child.id;
+                opt.textContent = child.name;
+                subSelect.appendChild(opt);
+            });
+        });
+
         document.getElementById('name').addEventListener('input', function () {
             let slug = this.value.toLowerCase()
                 .replace(/[^\w ]+/g, '')

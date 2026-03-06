@@ -59,17 +59,12 @@
                                 <td class="ps-4">
                                     @php
                                         $imagePath = $product->image;
-                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https'])) {
-                                            if (Str::contains($imagePath, 'images/')) {
-                                                $imagePath = asset($imagePath);
-                                            } else {
-                                                $imagePath = asset('' . $imagePath);
-                                            }
-                                        } elseif (!$imagePath) {
-                                            $imagePath = asset('images/placeholder.webp');
+                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https', 'images/'])) {
+                                            $imagePath = 'images/' . $imagePath;
                                         }
+                                        $finalUrl = $imagePath ? asset($imagePath) : asset('images/placeholder.webp');
                                     @endphp
-                                    <img src="{{ $imagePath }}" alt="{{ $product->name }}" width="50" class="rounded shadow-sm">
+                                    <img src="{{ $finalUrl }}" alt="{{ $product->name }}" width="50" class="rounded shadow-sm">
                                 </td>
                                 <td>
                                     <div class="fw-bold">{{ $product->name }}</div>
@@ -107,7 +102,7 @@
                 </table>
             </div>
             <div class="p-4">
-                {{ $products->links() }}
+                {{ $products->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>

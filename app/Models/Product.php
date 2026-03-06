@@ -14,17 +14,25 @@ class Product extends Model
         'slug',
         'description',
         'category_id',
+        'subcategory_id',
         'brand_id',
         'sku',
         'price',
         'vat_rate',
         'is_featured',
+        'is_top_selling',
+        'is_new_arrival',
         'image',
     ];
 
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function subcategory()
+    {
+        return $this->belongsTo(Category::class, 'subcategory_id');
     }
 
     public function brand()

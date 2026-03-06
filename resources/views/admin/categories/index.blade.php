@@ -14,7 +14,8 @@
                 <table class="table mb-0 align-middle table-hover">
                     <thead class="bg-light">
                         <tr>
-                            <th class="ps-4">Name</th>
+                            <th class="ps-4">Image</th>
+                            <th>Name</th>
                             <th>Slug</th>
                             <th>Parent Category</th>
                             <th class="text-end pe-4">Action</th>
@@ -23,7 +24,24 @@
                     <tbody>
                         @forelse($categories as $category)
                             <tr>
-                                <td class="ps-4 fw-bold">{{ $category->name }}</td>
+                                <td class="ps-4">
+                                    @if($category->image)
+                                        <img src="{{ (Str::contains($category->image, 'images/') ? asset($category->image) : asset('storage/' . $category->image)) }}"
+                                            alt="{{ $category->name }}"
+                                            style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;">
+                                    @else
+                                        <div class="bg-light d-flex align-items-center justify-content-center text-muted"
+                                            style="width: 40px; height: 40px; border-radius: 8px;">
+                                            <i class="fas fa-folder"></i>
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="fw-bold">
+                                    @if($category->parent_id)
+                                        <span class="text-muted ms-3"><i class="fas fa-level-up-alt fa-rotate-90 me-2"></i></span>
+                                    @endif
+                                    {{ $category->name }}
+                                </td>
                                 <td><code>{{ $category->slug }}</code></td>
                                 <td>{{ $category->parent->name ?? '--' }}</td>
                                 <td class="text-end pe-4">

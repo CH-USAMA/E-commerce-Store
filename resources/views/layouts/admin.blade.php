@@ -231,13 +231,13 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/blog*') ? 'active' : '' }}"
+                                <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}"
                                     href="{{ route('admin.blog.index') }}">
                                     <i class="fas fa-newspaper me-2"></i> Blog Posts
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/blog-categories*') ? 'active' : '' }}"
+                                <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.blog-categories.*') ? 'active' : '' }}"
                                     href="{{ route('admin.blog-categories.index') }}">
                                     <i class="fas fa-tags me-2"></i> Blog Categories
                                 </a>

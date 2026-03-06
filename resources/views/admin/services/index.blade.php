@@ -27,18 +27,12 @@
                                 <td class="ps-4">
                                     @php
                                         $imagePath = $service->image;
-                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https'])) {
-                                            if (Str::contains($imagePath, 'images/')) {
-                                                $imagePath = asset($imagePath);
-                                            } else {
-                                                $imagePath = asset('' . $imagePath);
-                                            }
-                                        } elseif (!$imagePath) {
-                                            $imagePath = asset('images/placeholder.webp');
+                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https', 'images/'])) {
+                                            $imagePath = 'images/' . $imagePath;
                                         }
+                                        $finalUrl = $imagePath ? asset($imagePath) : asset('images/placeholder.webp');
                                     @endphp
-                                    <img src="{{ $imagePath }}" alt="{{ $service->title }}" width="50"
-                                        class="rounded shadow-sm">
+                                    <img src="{{ $finalUrl }}" alt="{{ $service->title }}" width="50" class="rounded shadow-sm">
                                 </td>
                                 <td class="fw-bold">{{ $service->title }}</td>
                                 <td><i class="bi bi-{{ $service->icon }}"></i> <code>{{ $service->icon }}</code></td>
@@ -67,7 +61,7 @@
                 </table>
             </div>
             <div class="p-4">
-                {{ $services->links() }}
+                {{ $services->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>

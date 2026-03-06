@@ -90,7 +90,7 @@ class AuthController extends Controller
             if (session()->has('cart') && count(session()->get('cart')) > 0) {
                 return redirect()->route('checkout');
             }
-            return redirect()->url('/user/dashboard'); // Will create this route later
+            return redirect()->route('user.dashboard');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Registration failed: ' . $e->getMessage())->withInput();

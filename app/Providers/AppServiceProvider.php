@@ -14,12 +14,9 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        \Illuminate\Pagination\Paginator::useBootstrapFive();
+        \Illuminate\Pagination\Paginator::useTailwind();
 
         if (app()->environment('production')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');

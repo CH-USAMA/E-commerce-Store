@@ -3,191 +3,127 @@
 @section('title', 'Register - Jabulani Group')
 
 @section('content')
-    <!-- Page Header Start -->
-    <div class="page-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-12">
-                    <div class="page-header-box">
-                        <h1 class="text-anime-style-2" data-cursor="-opaque">Register Account</h1>
-                        <nav class="wow fadeInUp">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('home') }}">home</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">register</li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
+    <div class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="w-full max-w-2xl">
+            <div class="text-center mb-8">
+                <img src="{{ asset('images/logo_yellow2.png') }}" alt="Jabulani" class="h-12 w-auto mx-auto mb-5">
+                <h1 class="text-2xl font-black mb-1">Create Your <span class="gradient-text">Account</span></h1>
+                <p class="text-dark-muted text-sm">Already have an account? <a href="{{ route('login') }}"
+                        class="text-gold-400 hover:underline">Sign in</a></p>
             </div>
-        </div>
-    </div>
-    <!-- Page Header End -->
 
-    <div class="py-5">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card bg-dark border-secondary p-4">
-                        <div class="card-body">
-                            <h2 class="h3 text-warning mb-4 text-center">Create Your Account</h2>
-                            <form action="{{ route('register') }}" method="POST">
-                                @csrf
+            <div class="card-dark rounded-2xl p-6 sm:p-8">
+                <form action="{{ route('register.post') }}" method="POST" x-data="{ billingSame: true }">
+                    @csrf
 
-                                <div class="section-title mb-4 mt-4">
-                                    <h3 class="h5 text-warning">Personal Information</h3>
-                                </div>
-                                <div class="row g-3">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label text-white">Full Name</label>
-                                        <input type="text" name="name"
-                                            class="form-control bg-dark text-white border-secondary @error('name') is-invalid @enderror"
-                                            value="{{ old('name') }}" required>
-                                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label text-white">Email Address</label>
-                                        <input type="email" name="email"
-                                            class="form-control bg-dark text-white border-secondary @error('email') is-invalid @enderror"
-                                            value="{{ old('email') }}" required>
-                                        @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label text-white">Password</label>
-                                        <input type="password" name="password"
-                                            class="form-control bg-dark text-white border-secondary @error('password') is-invalid @enderror"
-                                            required>
-                                        @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label text-white">Confirm Password</label>
-                                        <input type="password" name="password_confirmation"
-                                            class="form-control bg-dark text-white border-secondary" required>
-                                    </div>
-                                </div>
-
-                                <div class="section-title mb-4 mt-4">
-                                    <h3 class="h5 text-warning">Shipping Address</h3>
-                                </div>
-                                <div class="row g-3">
-                                    <div class="col-12 mb-3">
-                                        <label class="form-label text-white">Address Line 1</label>
-                                        <input type="text" name="shipping_address_line_1"
-                                            class="form-control bg-dark text-white border-secondary @error('shipping_address_line_1') is-invalid @enderror"
-                                            value="{{ old('shipping_address_line_1') }}" required>
-                                        @error('shipping_address_line_1') <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-12 mb-3">
-                                        <label class="form-label text-white">Address Line 2 (Optional)</label>
-                                        <input type="text" name="shipping_address_line_2"
-                                            class="form-control bg-dark text-white border-secondary @error('shipping_address_line_2') is-invalid @enderror"
-                                            value="{{ old('shipping_address_line_2') }}">
-                                        @error('shipping_address_line_2') <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label text-white">City</label>
-                                        <input type="text" name="shipping_city"
-                                            class="form-control bg-dark text-white border-secondary @error('shipping_city') is-invalid @enderror"
-                                            value="{{ old('shipping_city') }}" required>
-                                        @error('shipping_city') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label text-white">Province</label>
-                                        <input type="text" name="shipping_province"
-                                            class="form-control bg-dark text-white border-secondary @error('shipping_province') is-invalid @enderror"
-                                            value="{{ old('shipping_province') }}" required>
-                                        @error('shipping_province') <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label text-white">Postal Code</label>
-                                        <input type="text" name="shipping_postal_code"
-                                            class="form-control bg-dark text-white border-secondary @error('shipping_postal_code') is-invalid @enderror"
-                                            value="{{ old('shipping_postal_code') }}" required>
-                                        @error('shipping_postal_code') <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <div class="section-title mb-2 mt-4 d-flex align-items-center justify-content-between">
-                                    <h3 class="h5 text-warning mb-0">Billing Address</h3>
-                                    <div class="form-check">
-                                        <input type="hidden" name="billing_same_as_shipping" value="0">
-                                        <input type="checkbox" class="form-check-input" id="billing_same_as_shipping"
-                                            name="billing_same_as_shipping" value="1" {{ old('billing_same_as_shipping', true) ? 'checked' : '' }}>
-                                        <label class="form-check-label text-white" for="billing_same_as_shipping">Same as
-                                            Shipping</label>
-                                    </div>
-                                </div>
-                                <div id="billing-address-section" class="row g-3"
-                                    style="display: {{ old('billing_same_as_shipping', true) ? 'none' : 'flex' }};">
-                                    <div class="col-12 mb-3">
-                                        <label class="form-label text-white">Address Line 1</label>
-                                        <input type="text" name="billing_address_line_1"
-                                            class="form-control bg-dark text-white border-secondary @error('billing_address_line_1') is-invalid @enderror"
-                                            value="{{ old('billing_address_line_1') }}">
-                                        @error('billing_address_line_1') <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-12 mb-3">
-                                        <label class="form-label text-white">Address Line 2 (Optional)</label>
-                                        <input type="text" name="billing_address_line_2"
-                                            class="form-control bg-dark text-white border-secondary @error('billing_address_line_2') is-invalid @enderror"
-                                            value="{{ old('billing_address_line_2') }}">
-                                        @error('billing_address_line_2') <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label text-white">City</label>
-                                        <input type="text" name="billing_city"
-                                            class="form-control bg-dark text-white border-secondary @error('billing_city') is-invalid @enderror"
-                                            value="{{ old('billing_city') }}">
-                                        @error('billing_city') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label text-white">Province</label>
-                                        <input type="text" name="billing_province"
-                                            class="form-control bg-dark text-white border-secondary @error('billing_province') is-invalid @enderror"
-                                            value="{{ old('billing_province') }}">
-                                        @error('billing_province') <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label text-white">Postal Code</label>
-                                        <input type="text" name="billing_postal_code"
-                                            class="form-control bg-dark text-white border-secondary @error('billing_postal_code') is-invalid @enderror"
-                                            value="{{ old('billing_postal_code') }}">
-                                        @error('billing_postal_code') <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn btn-highlighted w-100 py-3 mt-4">Register Account</button>
-                                <p class="text-center mt-3 text-white">Already have an account? <a
-                                        href="{{ route('login') }}" class="text-warning">Login here</a></p>
-                            </form>
+                    <!-- Personal Info -->
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-dark-muted mb-4">Personal Information</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Full Name *</label>
+                            <input type="text" name="name" value="{{ old('name') }}" required
+                                class="w-full bg-dark border @error('name') border-red-500 @else border-dark-border @enderror rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-dark-muted focus:outline-none focus:border-gold-400 transition">
+                            @error('name') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Email Address *</label>
+                            <input type="email" name="email" value="{{ old('email') }}" required
+                                class="w-full bg-dark border @error('email') border-red-500 @else border-dark-border @enderror rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-dark-muted focus:outline-none focus:border-gold-400 transition">
+                            @error('email') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Password *</label>
+                            <input type="password" name="password" required
+                                class="w-full bg-dark border @error('password') border-red-500 @else border-dark-border @enderror rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-dark-muted focus:outline-none focus:border-gold-400 transition">
+                            @error('password') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Confirm Password *</label>
+                            <input type="password" name="password_confirmation" required
+                                class="w-full bg-dark border border-dark-border rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-dark-muted focus:outline-none focus:border-gold-400 transition">
                         </div>
                     </div>
-                </div>
+
+                    <!-- Shipping Address -->
+                    <div class="border-t border-dark-border pt-6 mb-6">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-dark-muted mb-4">Shipping Address</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="sm:col-span-2">
+                                <label class="text-xs text-gray-400 mb-1 block">Street Address *</label>
+                                <input type="text" name="shipping_address_line_1" value="{{ old('shipping_address_line_1') }}" required
+                                    class="w-full bg-dark border @error('shipping_address_line_1') border-red-500 @else border-dark-border @enderror rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-dark-muted focus:outline-none focus:border-gold-400 transition">
+                                @error('shipping_address_line_1') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="text-xs text-gray-400 mb-1 block">Apartment, suite, etc. (optional)</label>
+                                <input type="text" name="shipping_address_line_2" value="{{ old('shipping_address_line_2') }}"
+                                    class="w-full bg-dark border border-dark-border rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-dark-muted focus:outline-none focus:border-gold-400 transition">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 mb-1 block">City *</label>
+                                <input type="text" name="shipping_city" value="{{ old('shipping_city') }}" required
+                                    class="w-full bg-dark border @error('shipping_city') border-red-500 @else border-dark-border @enderror rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-gold-400 transition">
+                                @error('shipping_city') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 mb-1 block">Province *</label>
+                                <input type="text" name="shipping_province" value="{{ old('shipping_province') }}" required
+                                    class="w-full bg-dark border @error('shipping_province') border-red-500 @else border-dark-border @enderror rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-gold-400 transition">
+                                @error('shipping_province') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 mb-1 block">Postal Code *</label>
+                                <input type="text" name="shipping_postal_code" value="{{ old('shipping_postal_code') }}" required
+                                    class="w-full bg-dark border @error('shipping_postal_code') border-red-500 @else border-dark-border @enderror rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-gold-400 transition">
+                                @error('shipping_postal_code') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Billing Address -->
+                    <div class="border-t border-dark-border pt-6 mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-dark-muted">Billing Address</h3>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" x-model="billingSame" name="billing_same_as_shipping" value="1"
+                                    class="w-4 h-4 rounded accent-gold-400">
+                                <span class="text-xs text-gray-400">Same as shipping</span>
+                            </label>
+                        </div>
+                        <div x-show="!billingSame" x-cloak class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="sm:col-span-2">
+                                <label class="text-xs text-gray-400 mb-1 block">Street Address</label>
+                                <input type="text" name="billing_address_line_1" value="{{ old('billing_address_line_1') }}"
+                                    class="w-full bg-dark border border-dark-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-gold-400 transition">
+                                @error('billing_address_line_1') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 mb-1 block">City</label>
+                                <input type="text" name="billing_city" value="{{ old('billing_city') }}"
+                                    class="w-full bg-dark border border-dark-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-gold-400 transition">
+                                @error('billing_city') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 mb-1 block">Province</label>
+                                <input type="text" name="billing_province" value="{{ old('billing_province') }}"
+                                    class="w-full bg-dark border border-dark-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-gold-400 transition">
+                                @error('billing_province') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 mb-1 block">Postal Code</label>
+                                <input type="text" name="billing_postal_code" value="{{ old('billing_postal_code') }}"
+                                    class="w-full bg-dark border border-dark-border rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-gold-400 transition">
+                                @error('billing_postal_code') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="btn-gold w-full flex items-center justify-center gap-2 py-3.5 font-bold rounded-xl text-sm">
+                        <i class="fas fa-user-plus"></i> Create Account & Continue
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 @endsection
-
-@push('js')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const checkbox = document.getElementById('billing_same_as_shipping');
-            const billingSection = document.getElementById('billing-address-section');
-
-            checkbox.addEventListener('change', function () {
-                if (this.checked) {
-                    billingSection.style.display = 'none';
-                } else {
-                    billingSection.style.display = 'flex';
-                }
-            });
-        });
-    </script>
-@endpush

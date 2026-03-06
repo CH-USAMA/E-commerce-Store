@@ -31,12 +31,13 @@ Route::get('/team', [\App\Http\Controllers\HomeController::class, 'team'])->name
 Route::get('/stores', [\App\Http\Controllers\HomeController::class, 'stores'])->name('stores');
 Route::get('/store/{id}', [\App\Http\Controllers\HomeController::class, 'storeDetail'])->name('store.detail');
 Route::get('/specials', [\App\Http\Controllers\HomeController::class, 'specials'])->name('specials');
-Route::get('/contact', [\App\Http\Controllers\HomeController::class, 'contact'])->name('contact');
-Route::post('/contact', [\App\Http\Controllers\HomeController::class, 'submitContact'])->name('contact.submit');
+Route::get('/contact', [App\Http\Controllers\HomeController::class, 'contact'])->name('contact');
+Route::post('/contact', [App\Http\Controllers\HomeController::class, 'submitContact'])->name('contact.submit');
+Route::get('/search', [App\Http\Controllers\HomeController::class, 'search'])->name('search');
 
 // Authentication Routes
 Route::get('/register', [\App\Http\Controllers\AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register']);
+Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register'])->name('register.post');
 Route::get('/login', [\App\Http\Controllers\AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
@@ -49,7 +50,7 @@ Route::post('/cart/remove', [\App\Http\Controllers\CartController::class, 'remov
 Route::get('/cart/count', [\App\Http\Controllers\CartController::class, 'count'])->name('cart.count');
 Route::post('/cart/nearest-store', [\App\Http\Controllers\CartController::class, 'nearestStore'])->name('cart.nearest-store');
 Route::get('/checkout/auth', [\App\Http\Controllers\CartController::class, 'checkoutAuth'])->name('checkout.auth');
-Route::get('/checkout/guest', [\App\Http\Controllers\CartController::class, 'guestCheckout'])->name('checkout.guest');
+Route::post('/checkout/guest', [\App\Http\Controllers\CartController::class, 'guestCheckout'])->name('checkout.guest');
 Route::get('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/order-success', [\App\Http\Controllers\CartController::class, 'orderSuccess'])->name('order.success');

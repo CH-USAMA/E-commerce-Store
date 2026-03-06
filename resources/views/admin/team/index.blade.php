@@ -27,17 +27,12 @@
                                 <td class="ps-4">
                                     @php
                                         $imagePath = $member->image;
-                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https'])) {
-                                            if (Str::contains($imagePath, 'images/')) {
-                                                $imagePath = asset($imagePath);
-                                            } else {
-                                                $imagePath = asset('' . $imagePath);
-                                            }
-                                        } elseif (!$imagePath) {
-                                            $imagePath = asset('images/placeholder.webp');
+                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https', 'images/'])) {
+                                            $imagePath = 'images/' . $imagePath;
                                         }
+                                        $finalUrl = $imagePath ? asset($imagePath) : asset('images/placeholder.webp');
                                     @endphp
-                                    <img src="{{ $imagePath }}" alt="{{ $member->name }}" width="50" height="50"
+                                    <img src="{{ $finalUrl }}" alt="{{ $member->name }}" width="50" height="50"
                                         class="rounded-circle shadow-sm object-fit-cover">
                                 </td>
                                 <td class="fw-bold">{{ $member->name }}</td>
@@ -66,7 +61,7 @@
                 </table>
             </div>
             <div class="p-4">
-                {{ $members->links() }}
+                {{ $members->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>

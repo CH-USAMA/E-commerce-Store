@@ -1,74 +1,78 @@
 @extends('layouts.frontend')
 
-@section('title', 'Checkout Authentication - Jabulani Group')
+@section('title', 'Select Checkout Method - Jabulani Group')
 
 @section('content')
-    <!-- Page Header Start -->
-    <div class="page-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-12">
-                    <div class="page-header-box">
-                        <h1 class="text-anime-style-2" data-cursor="-opaque">Checkout</h1>
-                        <nav class="wow fadeInUp">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('home') }}">home</a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('cart') }}">cart</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">checkout auth</li>
-                            </ol>
-                        </nav>
-                    </div>
+    <div class="relative min-h-[80vh] flex items-center justify-center px-4 py-20 overflow-hidden bg-dark">
+        <!-- Abstract Background Effects -->
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-gold-400/5 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gold-400/5 blur-[120px] rounded-full"></div>
+
+        <div class="w-full max-w-5xl relative z-10">
+            <div class="text-center mb-16">
+                <div
+                    class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/5 border border-white/10 mb-8 shadow-2xl">
+                    <img src="{{ asset('images/logo_yellow2.png') }}" alt="Jabulani" class="h-10 w-auto">
                 </div>
+                <h1 class="text-4xl md:text-5xl font-black mb-6 tracking-tight text-white italic">Almost <span
+                        class="gradient-text">There!</span></h1>
+                <p class="text-dark-muted text-lg max-w-xl mx-auto font-medium">How would you like to proceed with your
+                    selection?</p>
             </div>
-        </div>
-    </div>
-    <!-- Page Header End -->
 
-    <div class="py-5">
-        <div class="container">
-            <div class="row align-items-stretch justify-content-center g-4">
-                <div class="col-lg-5 col-md-6 d-flex">
-                    <div class="card bg-dark border-secondary w-100 p-4">
-                        <div class="card-body text-center d-flex flex-column justify-content-center">
-                            <h2 class="h3 text-warning mb-4">New to Jabulani?</h2>
-                            <p class="text-white mb-4">Create an account to track your orders, save your details for faster
-                                checkout, and view your order history.</p>
-                            <a href="{{ route('register') }}" class="btn btn-highlighted w-100 py-3 mb-3">Register
-                                Account</a>
-                            <div class="text-white mb-3">- OR -</div>
-                            <a href="{{ route('checkout.guest') }}" class="btn btn-outline-warning w-100 py-3">Continue as
-                                Guest</a>
-                        </div>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                <div class="col-lg-5 col-md-6 d-flex">
-                    <div class="card bg-dark border-secondary w-100 p-4">
-                        <div class="card-body">
-                            <h2 class="h3 text-warning mb-4 text-center">Returning Customer</h2>
-                            <form action="{{ url('/login') }}" method="POST">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="form-label text-white">Email Address</label>
-                                    <input type="email" name="email"
-                                        class="form-control bg-dark text-white border-secondary @error('email') is-invalid @enderror"
-                                        value="{{ old('email') }}" required>
-                                    @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label text-white">Password</label>
-                                    <input type="password" name="password"
-                                        class="form-control bg-dark text-white border-secondary" required>
-                                </div>
-                                <div class="mb-4 form-check">
-                                    <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                                    <label class="form-check-label text-white" for="remember">Remember Me</label>
-                                </div>
-                                <button type="submit" class="btn btn-highlighted w-100 py-3">Login to Checkout</button>
-                            </form>
+                <!-- Guest Checkout -->
+                <form action="{{ route('checkout.guest') }}" method="POST" class="h-full">
+                    @csrf
+                    <button type="submit"
+                        class="w-full h-full card-dark rounded-[2rem] p-8 flex flex-col items-center text-center border-white/5 hover:border-gold-400 group transition-all duration-500">
+                        <div
+                            class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-gold-400 transition-all">
+                            <i class="fas fa-bolt text-xl text-dark-muted group-hover:text-dark"></i>
                         </div>
+                        <h3 class="text-lg font-black text-white mb-2 uppercase italic">Guest Checkout</h3>
+                        <p class="text-xs text-dark-muted leading-relaxed">No account needed. Quick and easy for one-time
+                            orders.</p>
+                        <div class="mt-8 text-[10px] font-black uppercase tracking-widest text-gold-400">Continue as Guest
+                            <i class="fas fa-arrow-right ml-1"></i></div>
+                    </button>
+                </form>
+
+                <!-- Signup -->
+                <a href="{{ route('register') }}"
+                    class="card-dark rounded-[2rem] p-8 flex flex-col items-center text-center border-gold-400/20 bg-gradient-to-br from-[#1a1400] to-dark hover:border-gold-400 transition-all duration-500 group relative">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gold-400 flex items-center justify-center mb-6 shadow-lg shadow-gold-400/20">
+                        <i class="fas fa-user-plus text-xl text-dark"></i>
                     </div>
-                </div>
+                    <h3 class="text-lg font-black text-white mb-2 uppercase italic">New Account</h3>
+                    <p class="text-xs text-dark-muted leading-relaxed">Save your details for next time & track orders
+                        easily.</p>
+                    <div class="mt-8 text-[10px] font-black uppercase tracking-widest text-gold-400">Sign Up Now <i
+                            class="fas fa-plus ml-1"></i></div>
+                </a>
+
+                <!-- Login -->
+                <a href="{{ route('login') }}"
+                    class="card-dark rounded-[2rem] p-8 flex flex-col items-center text-center border-white/5 hover:border-gold-400 group transition-all duration-500">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-gold-400 transition-all">
+                        <i class="fas fa-lock text-lg text-dark-muted group-hover:text-dark"></i>
+                    </div>
+                    <h3 class="text-lg font-black text-white mb-2 uppercase italic">Returning User</h3>
+                    <p class="text-xs text-dark-muted leading-relaxed">Sign in to your account to use your saved profile.
+                    </p>
+                    <div class="mt-8 text-[10px] font-black uppercase tracking-widest text-gold-400">Login to Account <i
+                            class="fas fa-sign-in-alt ml-1"></i></div>
+                </a>
+            </div>
+
+            <div class="mt-12 text-center">
+                <a href="{{ route('cart') }}"
+                    class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-dark-muted hover:text-gold-400 transition-all">
+                    <i class="fas fa-chevron-left"></i> Return to Cart
+                </a>
             </div>
         </div>
     </div>

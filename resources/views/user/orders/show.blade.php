@@ -1,168 +1,220 @@
 @extends('layouts.frontend')
 
-@section('title', 'Order ' . $order->order_number . ' - Jabulani Group')
+@section('title', 'Manifest #' . $order->order_number . ' - Jabulani Group')
 
 @section('content')
-    <!-- Page Header Start -->
-    <div class="page-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-12">
-                    <div class="page-header-box">
-                        <h1 class="text-anime-style-2" data-cursor="-opaque">Order Details</h1>
-                        <nav class="wow fadeInUp">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('home') }}">home</a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('user.dashboard') }}">dashboard</a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('user.orders.index') }}">orders</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">{{ $order->order_number }}</li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+    <!-- Page Header -->
+    <div class="relative py-16 overflow-hidden bg-dark">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center sm:text-left">
+            <h1 class="text-3xl lg:text-5xl font-black mb-2 tracking-tight italic text-white uppercase">Manifest <span class="gradient-text">Analysis</span></h1>
+            <nav class="flex justify-center sm:justify-start items-center gap-2 text-[10px] font-black uppercase tracking-widest text-dark-muted">
+                <a href="{{ route('home') }}" class="hover:text-gold-400 transition">Home</a>
+                <span class="w-1 h-1 rounded-full bg-gold-400/50"></span>
+                <a href="{{ route('user.orders.index') }}" class="hover:text-gold-400 transition">Orders</a>
+                <span class="w-1 h-1 rounded-full bg-gold-400/50"></span>
+                <span class="text-gray-400">#{{ $order->order_number }}</span>
+            </nav>
         </div>
     </div>
-    <!-- Page Header End -->
 
-    <div class="py-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 mb-4">
-                    <div class="list-group bg-dark border-secondary rounded overflow-hidden">
-                        <a href="{{ route('user.dashboard') }}" class="list-group-item list-group-item-action bg-dark text-white border-bottom border-secondary border-0">
-                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                        </a>
-                        <a href="{{ route('user.orders.index') }}" class="list-group-item list-group-item-action bg-highlighted text-dark fw-bold">
-                            <i class="fas fa-box me-2"></i> My Orders
-                        </a>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="list-group-item list-group-item-action bg-dark text-danger border-0">
-                                <i class="fas fa-sign-out-alt me-2"></i> Logout
-                            </button>
-                        </form>
+    <div class="bg-[#050505] min-h-screen py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row gap-12">
+
+                <!-- Sidebar Navigation -->
+                <aside class="w-full lg:w-72 flex-shrink-0">
+                    <div class="card-dark rounded-[2.5rem] overflow-hidden border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent sticky top-32">
+                        <nav class="p-4 space-y-2">
+                            <a href="{{ route('user.dashboard') }}"
+                                class="flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest text-dark-muted hover:text-white hover:bg-white/5 transition-all duration-300">
+                                <i class="fas fa-chart-line text-sm"></i> Intelligence
+                            </a>
+                            <a href="{{ route('user.orders.index') }}"
+                                class="flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-white/5 text-gold-400 border border-gold-400/20 shadow-xl transition-all duration-300">
+                                <i class="fas fa-folder-open text-sm"></i> Order Archive
+                            </a>
+                            <div class="h-px bg-white/5 my-4 mx-4"></div>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest text-red-400/50 hover:text-red-400 hover:bg-red-400/5 transition-all duration-300">
+                                    <i class="fas fa-power-off text-sm"></i> Terminate Session
+                                </button>
+                            </form>
+                        </nav>
+                        
+                        <div class="p-8 border-t border-white/5 flex flex-col items-center text-center">
+                            <a href="{{ route('order.track', ['order_number' => $order->order_number]) }}" class="btn-gold w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3">
+                                <i class="fas fa-radar"></i> Public Track
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-9">
-                    <!-- Tracking Status Box -->
-                    <div class="card bg-dark border-secondary mb-4">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h3 class="h4 text-warning mb-0">Order Status: <span class="text-white">{{ ucfirst($order->status) }}</span></h3>
-                                <p class="text-muted mb-0">Order Date: {{ $order->created_at->format('M d, Y h:i A') }}</p>
+                </aside>
+
+                <!-- Detailed Analysis -->
+                <div class="flex-1 space-y-12">
+                    
+                    @php
+                        $statusMap = ['pending'=>1,'processing'=>2,'out_for_delivery'=>3,'ready_for_pickup'=>3,'completed'=>4,'cancelled'=>4];
+                        $step = $statusMap[$order->status] ?? 1;
+                        $cancelled = $order->status === 'cancelled';
+                        $color = $cancelled ? 'rgb(239,68,68)' : '#f5c518';
+                        $statusLabels = ['Order Placed','Processing',$order->order_type == "pickup" ? "Ready for Pickup" : "Out for Delivery",$cancelled ? "Cancelled" : "Completed"];
+                    @endphp
+
+                    <!-- Logistics Pipeline -->
+                    <div class="card-dark rounded-[3rem] p-10 border-white/5 bg-gradient-to-br from-white/[0.02] to-transparent shadow-2xl relative overflow-hidden">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
+                            <div>
+                                <h3 class="text-xl font-black text-white italic tracking-tight uppercase">Logistics <span class="text-gold-400">Pipeline</span></h3>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mt-1 italic">Real-time status of requisition #{{ $order->order_number }}</p>
                             </div>
-                            
-                            <!-- Simplified Tracking UI -->
-                            <div class="position-relative m-4">
-                                <div class="progress" style="height: 4px;">
-                                    @php
-                                        $progress = 0;
-                                        if($order->status == 'pending') $progress = 25;
-                                        elseif($order->status == 'processing') $progress = 50;
-                                        elseif($order->status == 'ready_for_pickup' || $order->status == 'out_for_delivery') $progress = 75;
-                                        elseif($order->status == 'completed') $progress = 100;
-                                        elseif($order->status == 'cancelled') $progress = 100; // Red bar
-                                    @endphp
-                                    <div class="progress-bar {{ $order->status == 'cancelled' ? 'bg-danger' : 'bg-warning' }}" role="progressbar" style="width: {{ $progress }}%" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <div class="d-flex justify-content-between position-absolute top-0 w-100" style="margin-top: -10px;">
-                                    <div class="text-center">
-                                        <div class="rounded-circle {{ $progress >= 25 ? ($order->status == 'cancelled' ? 'bg-danger' : 'bg-warning') : 'bg-secondary' }} d-inline-block" style="width: 24px; height: 24px;"></div>
-                                        <div class="mt-2 text-white small">Pending</div>
+                            <span class="px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest italic border {{ $order->status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20 shadow-[0_0_20px_rgba(34,197,94,0.1)]' : ($cancelled ? 'bg-red-500/10 text-red-400 border-red-500/20 shadow-[0_0_20px_rgba(239,68,68,0.1)]' : 'bg-gold-400/10 text-gold-400 border-gold-400/20 shadow-[0_0_20px_rgba(245,197,24,0.15)]') }}">
+                                {{ $order->status }}
+                            </span>
+                        </div>
+
+                        <!-- Progress visualizer -->
+                        <div class="relative py-12 px-4 max-w-3xl mx-auto">
+                            <!-- Background track -->
+                            <div class="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-[2px] bg-white/5 rounded-full overflow-hidden">
+                                <div class="h-full transition-all duration-1000" style="background:{{ $color }};width:{{ min(100, ($step-1)*33.33) }}%"></div>
+                            </div>
+                            <!-- Milestones -->
+                            <div class="relative flex justify-between">
+                                @foreach($statusLabels as $i => $label)
+                                    <div class="flex flex-col items-center group/step" style="width:20%">
+                                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-black z-10 border-2 transition-all duration-500 {{ ($i+1) <= $step ? 'border-transparent shadow-2xl' : 'border-white/5 bg-dark' }}"
+                                             style="{{ ($i+1) <= $step ? 'background:'.$color.';color:'.($cancelled&&($i+1)==$step?'white':'#0a0a0a') : 'color:#333' }}">
+                                            @if(($i+1) < $step)<i class="fas fa-check text-xs"></i>
+                                            @elseif(($i+1) == $step)<i class="fas fa-{{ $cancelled ? 'times' : 'satellite-dish' }} {{ $cancelled ? '' : 'animate-pulse' }}"></i>
+                                            @else{{ $i+1 }}@endif
+                                        </div>
+                                        <p class="text-[8px] font-black uppercase tracking-widest text-center mt-6 transition-colors duration-500 {{ ($i+1) <= $step ? 'text-white' : 'text-dark-muted opacity-40' }}">{{ $label }}</p>
                                     </div>
-                                    <div class="text-center">
-                                        <div class="rounded-circle {{ $progress >= 50 ? ($order->status == 'cancelled' ? 'bg-danger' : 'bg-warning') : 'bg-secondary' }} d-inline-block" style="width: 24px; height: 24px;"></div>
-                                        <div class="mt-2 text-white small">Processing</div>
-                                    </div>
-                                    <div class="text-center">
-                                        <div class="rounded-circle {{ $progress >= 75 ? ($order->status == 'cancelled' ? 'bg-danger' : 'bg-warning') : 'bg-secondary' }} d-inline-block" style="width: 24px; height: 24px;"></div>
-                                        <div class="mt-2 text-white small">{{ $order->order_type == 'pickup' ? 'Ready' : 'Shipping' }}</div>
-                                    </div>
-                                    <div class="text-center">
-                                        <div class="rounded-circle {{ $progress == 100 ? ($order->status == 'cancelled' ? 'bg-danger' : 'bg-warning') : 'bg-secondary' }} d-inline-block" style="width: 24px; height: 24px;"></div>
-                                        <div class="mt-2 text-white small">{{ $order->status == 'cancelled' ? 'Cancelled' : 'Completed' }}</div>
-                                    </div>
-                                </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
 
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-6">
-                            <div class="card bg-dark border-secondary h-100">
-                                <div class="card-body">
-                                    <h4 class="h5 text-warning mb-3">Customer Details</h4>
-                                    <p class="text-white mb-1"><strong>Name:</strong> {{ $order->customer_name }}</p>
-                                    <p class="text-white mb-1"><strong>Email:</strong> {{ $order->customer_email }}</p>
-                                    <p class="text-white mb-1"><strong>Phone:</strong> {{ $order->customer_phone }}</p>
-                                    <p class="text-white mb-0"><strong>Address:</strong><br>{{ $order->customer_address }}<br>{{ $order->customer_city }}, {{ $order->customer_postal_code }}</p>
+                    <!-- Manifest Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Consignee Intelligence -->
+                        <div class="card-dark rounded-[2.5rem] p-10 border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">
+                            <h4 class="text-[10px] font-black uppercase tracking-widest text-dark-muted italic border-l-2 border-gold-400 pl-4 mb-8">Consignee Intelligence</h4>
+                            <div class="space-y-6">
+                                <div>
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-2 opacity-50">Legal Entity</p>
+                                    <p class="text-lg font-black text-white italic tracking-tighter">{{ $order->customer_name }}</p>
+                                </div>
+                                <div class="flex gap-12">
+                                    <div>
+                                        <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">Auth Signal</p>
+                                        <p class="text-xs font-bold text-gray-300">{{ $order->customer_email }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">Terminal</p>
+                                        <p class="text-xs font-bold text-gray-300">{{ $order->customer_phone }}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-2 opacity-50">Dispatch Coordinates</p>
+                                    <p class="text-xs text-gray-300 leading-relaxed font-medium bg-black/40 p-4 rounded-2xl border border-white/5 shadow-inner">
+                                        {{ $order->customer_address }}<br>
+                                        <span class="text-white font-black">{{ $order->customer_city }}, {{ $order->customer_postal_code }}</span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="card bg-dark border-secondary h-100">
-                                <div class="card-body">
-                                    <h4 class="h5 text-warning mb-3">Order Info</h4>
-                                    <p class="text-white mb-1"><strong>Type:</strong> {{ ucfirst($order->order_type) }}</p>
-                                    <p class="text-white mb-1"><strong>Payment:</strong> {{ strtoupper($order->payment_method) }}</p>
-                                    @if($order->store)
-                                        <p class="text-white mb-1"><strong>Store:</strong> {{ $order->store->name }}</p>
-                                        @if($order->order_type == 'pickup')
-                                            <p class="text-white small mb-0">{{ $order->store->address }}</p>
+
+                        <!-- Logistics Configuration -->
+                        <div class="card-dark rounded-[2.5rem] p-10 border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">
+                            <h4 class="text-[10px] font-black uppercase tracking-widest text-dark-muted italic border-l-2 border-gold-400 pl-4 mb-8">Logistics Configuration</h4>
+                            <div class="space-y-8">
+                                <div class="grid grid-cols-2 gap-8 pb-8 border-b border-white/5">
+                                    <div>
+                                        <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-2 opacity-50">Dispatch Type</p>
+                                        <div class="flex items-center gap-3 text-white font-black italic">
+                                            <i class="fas fa-truck-ramp-box text-gold-400 opacity-40"></i>
+                                            <span class="uppercase tracking-widest text-xs">{{ $order->order_type }}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-2 opacity-50">Settlement</p>
+                                        <div class="flex items-center gap-3 text-white font-black italic">
+                                            <i class="fas fa-vault text-gold-400 opacity-40"></i>
+                                            <span class="uppercase tracking-widest text-xs">{{ $order->payment_method }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if($order->store)
+                                <div class="pt-2">
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-3 opacity-50">Assigned Logistics Hub</p>
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gold-400 flex-shrink-0">
+                                            <i class="fas fa-warehouse text-lg"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-black text-white italic">{{ $order->store->name }}</p>
+                                            <p class="text-[9px] font-bold text-dark-muted uppercase tracking-widest mt-1">Regional Fulfillment Node</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                                @if($order->notes)
+                                <div class="bg-gold-400/[0.02] p-5 rounded-2xl border border-gold-400/10 border-dashed">
+                                    <p class="text-[8px] font-black uppercase tracking-widest text-gold-400 mb-2">Manifest Notes</p>
+                                    <p class="text-[10px] text-gray-400 italic leading-relaxed">{{ $order->notes }}</p>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Audit -->
+                    <div class="card-dark rounded-[3rem] p-10 border-white/5">
+                        <h4 class="text-[10px] font-black uppercase tracking-widest text-dark-muted italic mb-8 pb-4 border-b border-white/5">Inventory Manifest Audit</h4>
+                        <div class="space-y-4">
+                            @foreach($order->items as $item)
+                                <div class="group flex items-center gap-6 p-6 rounded-[2rem] border border-white/5 bg-black/40 hover:border-gold-400/30 transition-all duration-500 shadow-inner">
+                                    <div class="w-16 h-16 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0 group-hover:border-gold-400/40 transition-all duration-500">
+                                        @if($item->product)
+                                            <img src="{{ $item->product->image ? asset($item->product->image) : asset('images/placeholder.webp') }}" class="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700">
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center bg-white/5 text-dark-muted"><i class="fas fa-box-archive"></i></div>
                                         @endif
-                                    @endif
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        @if($item->product)
+                                            <a href="{{ route('product.detail', $item->product->slug) }}" class="text-base font-black text-white italic hover:text-gold-400 transition-all tracking-tighter">{{ $item->product->name }}</a>
+                                        @else
+                                            <span class="text-sm font-black text-dark-muted uppercase tracking-widest italic opacity-50">Redacted Manifest Entry</span>
+                                        @endif
+                                        <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mt-1 italic">{{ $item->quantity }} units @ R{{ number_format($item->price, 2) }} / unit</p>
+                                    </div>
+                                    <div class="text-right flex-shrink-0">
+                                        <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">Line Total</p>
+                                        <p class="text-lg font-black text-white italic tracking-tighter">R{{ number_format($item->price * $item->quantity, 2) }}</p>
+                                    </div>
                                 </div>
-                            </div>
+                            @endforeach
                         </div>
-                    </div>
 
-                    <div class="card bg-dark border-secondary">
-                        <div class="card-body">
-                            <h4 class="h5 text-warning mb-3">Order Items</h4>
-                            <div class="table-responsive">
-                                <table class="table table-dark table-striped mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Price</th>
-                                            <th>Qty</th>
-                                            <th class="text-end">Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($order->items as $item)
-                                            <tr>
-                                                <td>
-                                                    @if($item->product)
-                                                        <a href="{{ route('product.detail', $item->product->slug) }}" class="text-white text-decoration-none">
-                                                            {{ $item->product->name }}
-                                                        </a>
-                                                    @else
-                                                        Unknown Product
-                                                    @endif
-                                                </td>
-                                                <td>R {{ number_format($item->price, 2) }}</td>
-                                                <td>{{ $item->quantity }}</td>
-                                                <td class="text-end">R {{ number_format($item->price * $item->quantity, 2) }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="3" class="text-end text-muted">Subtotal (excl VAT)</td>
-                                            <td class="text-end text-white">R {{ number_format($order->total - $order->vat, 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="3" class="text-end text-muted">VAT (15%)</td>
-                                            <td class="text-end text-white">R {{ number_format($order->vat, 2) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="3" class="text-end fw-bold text-warning h5">Total</td>
-                                            <td class="text-end fw-bold text-warning h5">R {{ number_format($order->total, 2) }}</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                        <!-- Fiscal Reconciliation -->
+                        <div class="mt-12 flex flex-col md:flex-row justify-end items-end gap-12 pt-12 border-t border-white/5">
+                            <div class="space-y-4 text-right">
+                                <div class="flex justify-end gap-12 text-[9px] font-black uppercase tracking-widest text-dark-muted">
+                                    <span>Raw Valuation</span>
+                                    <span class="text-gray-300">R{{ number_format($order->total - $order->vat, 2) }}</span>
+                                </div>
+                                <div class="flex justify-end gap-12 text-[9px] font-black uppercase tracking-widest text-gold-400">
+                                    <span>Tax Surcharge (VAT 15%)</span>
+                                    <span>R{{ number_format($order->vat, 2) }}</span>
+                                </div>
+                                <div class="flex justify-end gap-12 pt-6 border-t border-white/5">
+                                    <span class="text-[11px] font-black uppercase tracking-[0.3em] text-white italic">Final Settlement Amount</span>
+                                    <span class="text-5xl font-black text-gold-400 italic tracking-tighter">R{{ number_format($order->total, 2) }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>

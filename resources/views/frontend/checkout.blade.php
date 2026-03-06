@@ -1,175 +1,223 @@
 @extends('layouts.frontend')
 
-@section('title', 'Checkout - Jabulani Group')
+@section('title', 'Finalize Your Order - Jabulani Group')
 
 @section('content')
-    <!-- Page Header Start -->
-    <div class="page-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-12">
-                    <div class="page-header-box">
-                        <h1 class="text-anime-style-2" data-cursor="-opaque">Checkout</h1>
-                        <nav class="wow fadeInUp">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('home') }}">home</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">checkout</li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+    <!-- Page Header -->
+    <div class="relative py-16 overflow-hidden bg-dark">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center sm:text-left">
+            <h1 class="text-3xl lg:text-5xl font-black mb-2 tracking-tight italic text-white uppercase">Secure <span class="gradient-text">Procurement</span></h1>
+            <nav class="flex justify-center sm:justify-start items-center gap-2 text-[10px] font-black uppercase tracking-widest text-dark-muted">
+                <a href="{{ route('cart') }}" class="hover:text-gold-400 transition">Return to Cart</a>
+                <span class="w-1 h-1 rounded-full bg-gold-400/50"></span>
+                <span class="text-gray-400">Checkout Documentation</span>
+            </nav>
         </div>
     </div>
-    <!-- Page Header End -->
 
-    <div class="py-5">
-        <div class="container">
+    <div class="bg-[#050505] min-h-screen py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm">
                 @csrf
                 <input type="hidden" name="lat" id="checkout-lat">
                 <input type="hidden" name="lng" id="checkout-lng">
 
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="section-title mb-4">
-                            <h2 class="h3 text-warning">Shipping & Personal Details</h2>
-                        </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label text-white">Full Name</label>
-                                <input type="text" name="customer_name"
-                                    class="form-control bg-dark text-white border-secondary @error('customer_name') is-invalid @enderror"
-                                    value="{{ old('customer_name', isset($user) ? $user->name : '') }}" required>
-                                @error('customer_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-white">Email Address</label>
-                                <input type="email" name="customer_email"
-                                    class="form-control bg-dark text-white border-secondary @error('customer_email') is-invalid @enderror"
-                                    value="{{ old('customer_email', isset($user) ? $user->email : '') }}" required>
-                                @error('customer_email') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-white">Phone Number</label>
-                                <input type="text" name="customer_phone"
-                                    class="form-control bg-dark text-white border-secondary @error('customer_phone') is-invalid @enderror"
-                                    value="{{ old('customer_phone') }}" required>
-                                @error('customer_phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label text-white">Shipping Address</label>
-                                <textarea name="customer_address"
-                                    class="form-control bg-dark text-white border-secondary @error('customer_address') is-invalid @enderror"
-                                    rows="3"
-                                    required>{{ old('customer_address', isset($defaultShipping) ? $defaultShipping->address_line_1 . ' ' . $defaultShipping->address_line_2 : '') }}</textarea>
-                                @error('customer_address') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-white">City</label>
-                                <input type="text" name="customer_city"
-                                    class="form-control bg-dark text-white border-secondary @error('customer_city') is-invalid @enderror"
-                                    value="{{ old('customer_city', isset($defaultShipping) ? $defaultShipping->city : '') }}"
-                                    required>
-                                @error('customer_city') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-white">Postal Code</label>
-                                <input type="text" name="customer_postal_code"
-                                    class="form-control bg-dark text-white border-secondary @error('customer_postal_code') is-invalid @enderror"
-                                    value="{{ old('customer_postal_code', isset($defaultShipping) ? $defaultShipping->postal_code : '') }}"
-                                    required>
-                                @error('customer_postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
+                    <!-- Left: Procurement Details -->
+                    <div class="lg:col-span-2 space-y-8">
 
-                        <div class="section-title mt-5 mb-4">
-                            <h2 class="h3 text-warning">Payment Method</h2>
-                        </div>
-                        <div class="payment-methods bg-dark p-4 rounded border border-secondary">
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="payment_method" id="pay-cod" value="cod"
-                                    checked>
-                                <label class="form-check-label text-white" for="pay-cod">
-                                    Cash on Delivery (COD)
-                                </label>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="payment_method" id="pay-eft" value="eft">
-                                <label class="form-check-label text-white" for="pay-eft">
-                                    Bank Transfer (EFT)
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment_method" id="pay-fast"
-                                    value="payfast">
-                                <label class="form-check-label text-white" for="pay-fast">
-                                    Online Payment (PayFast)
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="section-title mt-5 mb-4">
-                            <h2 class="h3 text-warning">Order Type & Branch</h2>
-                        </div>
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label text-white">Select Service Type</label>
-                                <select name="order_type" id="order_type"
-                                    class="form-select bg-dark text-white border-secondary">
-                                    <option value="delivery" selected>Home Delivery</option>
-                                    <option value="pickup">Store Pickup</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-white">Nearest Store / Preferred Branch</label>
-                                <select name="store_id" id="store_id"
-                                    class="form-select bg-dark text-white border-secondary">
-                                    @foreach($stores as $store)
-                                        <option value="{{ $store->id }}" data-lat="{{ $store->lat }}"
-                                            data-lng="{{ $store->lng }}" {{ $loop->first ? 'selected' : '' }}>
-                                            {{ $store->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <small id="store-distance" class="text-info d-block mt-1"></small>
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="form-label text-white">Order Notes (Optional)</label>
-                            <textarea name="notes" class="form-control bg-dark text-white border-secondary"
-                                rows="2"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4">
-                        <div class="card bg-dark border-secondary">
-                            <div class="card-body">
-                                <h4 class="card-title text-warning mb-4">Order Summary</h4>
-                                <ul class="list-group list-group-flush mb-4">
-                                    @foreach($products as $product)
-                                        <li
-                                            class="list-group-item bg-transparent text-secondary d-flex justify-content-between align-items-center border-secondary px-0">
-                                            <div>
-                                                <span class="text-white">{{ $product->name }}</span>
-                                                <br><small>Qty: {{ $product->cart_quantity }}</small>
-                                            </div>
-                                            <span class="text-white">R {{ number_format($product->cart_subtotal, 2) }}</span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                                <div class="d-flex justify-content-between h4 text-warning mb-4">
-                                    <span>Total:</span>
-                                    <span>R {{ number_format($total, 2) }}</span>
+                        <!-- Shipping Details -->
+                        <div class="card-dark rounded-[2.5rem] p-8 border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent shadow-2xl relative overflow-hidden group">
+                            
+                            <div class="flex items-center gap-4 mb-8 border-b border-white/5 pb-4">
+                                <div class="w-10 h-10 rounded-xl bg-gold-400 text-dark flex items-center justify-center font-black text-base italic shadow-xl">01</div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white italic uppercase">Order <span class="text-gold-400">Details</span></h3>
+                                    <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted">Contact & Delivery Information</p>
                                 </div>
-                                <button type="submit" class="btn btn-highlighted w-100 py-3">Place Order Now</button>
-                                <p class="text-center mt-3 small text-muted">By placing your order, you agree to our Terms &
-                                    Conditions.</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Full Name</label>
+                                    <input type="text" name="customer_name" required
+                                        value="{{ old('customer_name', isset($user) ? $user->name : '') }}"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Email</label>
+                                    <input type="email" name="customer_email" required
+                                        value="{{ old('customer_email', isset($user) ? $user->email : '') }}"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Phone Number</label>
+                                    <input type="text" name="customer_phone" required value="{{ old('customer_phone') }}"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">City</label>
+                                    <input type="text" name="customer_city" required
+                                        value="{{ old('customer_city', isset($defaultShipping) ? $defaultShipping->city : '') }}"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner">
+                                </div>
+                                <div class="sm:col-span-2 space-y-1.5">
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Delivery Address</label>
+                                    <textarea name="customer_address" required rows="2"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner resize-none font-medium leading-relaxed">{{ old('customer_address', isset($defaultShipping) ? $defaultShipping->address_line_1 . ' ' . $defaultShipping->address_line_2 : '') }}</textarea>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Postal Code</label>
+                                    <input type="text" name="customer_postal_code" required
+                                        value="{{ old('customer_postal_code', isset($defaultShipping) ? $defaultShipping->postal_code : '') }}"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner">
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Payment Selection -->
+                        <div class="card-dark rounded-[2.5rem] p-8 border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent shadow-2xl relative overflow-hidden group">
+                            <div class="flex items-center gap-4 mb-8 border-b border-white/5 pb-4">
+                                <div class="w-10 h-10 rounded-xl bg-gold-400 text-dark flex items-center justify-center font-black text-base italic shadow-xl">02</div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white italic uppercase">Payment <span class="text-gold-400">Method</span></h3>
+                                    <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted">Verified Payment Systems</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                @foreach([
+                                    ['eft', 'fas fa-building-columns', 'Bank EFT', 'Direct Transfer'], 
+                                    ['payfast', 'fas fa-credit-card', 'Online', 'Secure Gateway']
+                                ] as [$val, $icon, $label, $desc])
+                                    <label class="relative cursor-pointer group/opt">
+                                        <input type="radio" name="payment_method" value="{{ $val }}" {{ $val === 'eft' ? 'checked' : '' }} class="peer hidden">
+                                        <div class="h-full bg-black/40 rounded-2xl p-4 border border-white/5 peer-checked:border-gold-400 peer-checked:bg-gold-400/10 transition-all duration-300 flex flex-col items-center text-center">
+                                            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gold-400 mb-3 peer-checked:bg-gold-400 peer-checked:text-dark transition-all duration-300">
+                                                <i class="{{ $icon }} text-sm"></i>
+                                            </div>
+                                            <h4 class="text-xs font-black text-white italic mb-1">{{ $label }}</h4>
+                                            <p class="text-[8px] text-dark-muted font-bold uppercase tracking-widest leading-tight">{{ $desc }}</p>
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Logistics & Notes -->
+                        <div class="card-dark rounded-[2.5rem] p-8 border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent shadow-2xl relative overflow-hidden group">
+                            <div class="flex items-center gap-4 mb-8 border-b border-white/5 pb-4">
+                                <div class="w-10 h-10 rounded-xl bg-gold-400 text-dark flex items-center justify-center font-black text-base italic shadow-xl">03</div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white italic uppercase">Fulfillment <span class="text-gold-400">Hub</span></h3>
+                                    <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted">Logistics & Site Instructions</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Service Type</label>
+                                    <div class="relative">
+                                        <select name="order_type" id="order_type"
+                                            class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 appearance-none transition shadow-inner">
+                                            <option value="delivery">Delivery to Site</option>
+                                            <option value="pickup">Warehouse Pickup</option>
+                                        </select>
+                                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gold-400">
+                                            <i class="fas fa-chevron-down text-[10px]"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Fulfillment Branch</label>
+                                    <div class="relative">
+                                        <select name="store_id" id="store_id"
+                                            class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 appearance-none transition shadow-inner">
+                                            @foreach($stores as $store)
+                                                <option value="{{ $store->id }}" data-lat="{{ $store->lat }}"
+                                                    data-lng="{{ $store->lng }}" {{ $loop->first ? 'selected' : '' }}>{{ $store->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gold-400">
+                                            <i class="fas fa-warehouse text-[10px]"></i>
+                                        </div>
+                                    </div>
+                                    <p id="store-distance" class="text-[8px] font-black text-gold-400 mt-1 italic hidden uppercase tracking-widest"></p>
+                                </div>
+                                <div class="sm:col-span-2 space-y-1.5">
+                                    <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Special Instructions <span class="opacity-40">(Optional)</span></label>
+                                    <textarea name="notes" rows="2"
+                                        class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner resize-none"
+                                        placeholder="Any specific instructions for our team?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
+
+                    <!-- Right: Inventory Summary -->
+                    <div class="lg:sticky lg:top-32">
+                        <div class="card-dark rounded-[2.5rem] p-8 border-gold-400/20 bg-gradient-to-br from-[#111] to-dark shadow-2xl relative overflow-hidden">
+                            <h3 class="text-xl font-black text-white italic mb-8 tracking-tight uppercase">Order <span class="gradient-text">Summary</span></h3>
+
+                            <!-- Mini Item List -->
+                            <div class="space-y-4 mb-8 pb-8 border-b border-white/5 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                                @foreach($products as $product)
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
+                                            <img src="{{ $product->image ? asset($product->image) : asset('images/placeholder.webp') }}" class="w-full h-full object-cover" alt="product" loading="lazy">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-[11px] font-bold text-white truncate italic">{{ $product->name }}</p>
+                                            <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mt-0.5">Qty: {{ $product->cart_quantity }}</p>
+                                        </div>
+                                        <p class="text-xs font-black text-white italic tracking-tighter">R{{ number_format($product->cart_subtotal, 2) }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="space-y-4 text-sm mb-8 pb-8 border-b border-white/5">
+                                <div class="flex justify-between items-center text-dark-muted">
+                                    <p class="text-[9px] font-black uppercase tracking-widest">Subtotal</p>
+                                    <span class="text-sm font-bold tracking-tight">R{{ number_format($total, 2) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted">Tax (VAT Incl)</p>
+                                    <span class="text-[8px] font-black text-gold-400 uppercase tracking-widest bg-gold-400/5 px-2 py-0.5 rounded-full">Included</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-10">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-dark-muted mb-1 italic">Total Requisition</p>
+                                <p class="text-4xl font-black text-gold-400 italic tracking-tighter">
+                                    R{{ number_format($total, 2) }}
+                                </p>
+                            </div>
+
+                            <button type="submit"
+                                class="btn-gold w-full flex items-center justify-center gap-2 py-5 text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl group relative overflow-hidden">
+                                <i class="fas fa-lock text-sm relative z-10"></i> 
+                                <span class="relative z-10">Place Order Now</span>
+                            </button>
+                            
+                            <p class="text-[7px] text-center font-black uppercase tracking-widest text-dark-muted mt-4 italic opacity-40">Secure fulfillment terminal</p>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+                        
+                        <!-- Mini Map context -->
+                        <div class="mt-8 flex items-center justify-center gap-4 text-dark-muted opacity-50 grayscale">
+                            <i class="fas fa-lock text-sm"></i>
+                            <span class="text-[9px] font-black uppercase tracking-widest">End-to-End Encryption Terminal</span>
+                        </div>
+                    </div>
+
                 </div>
             </form>
         </div>
@@ -181,64 +229,46 @@
         document.addEventListener('DOMContentLoaded', function () {
             const storeSelect = document.getElementById('store_id');
             const distanceText = document.getElementById('store-distance');
-            const orderTypeSelect = document.getElementById('order_type');
+            let userInteracted = false;
 
-            function calculateDistance(lat1, lon1, lat2, lon2) {
-                const R = 6371; // km
-                const dLat = (lat2 - lat1) * Math.PI / 180;
-                const dLon = (lon2 - lon1) * Math.PI / 180;
-                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                return R * c;
+            storeSelect.addEventListener('change', () => userInteracted = true);
+
+            function haversine(lat1, lon1, lat2, lon2) {
+                const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             }
 
             function updateDistances(userLat, userLng) {
-                let nearestStoreId = null;
-                let minDistance = Infinity;
-
-                Array.from(storeSelect.options).forEach(option => {
-                    const storeLat = parseFloat(option.getAttribute('data-lat'));
-                    const storeLng = parseFloat(option.getAttribute('data-lng'));
-
-                    if (storeLat && storeLng) {
-                        const dist = calculateDistance(userLat, userLng, storeLat, storeLng);
-                        option.text = `${option.text.split('(')[0].trim()} (${dist.toFixed(1)} km away)`;
-
-                        if (dist < minDistance) {
-                            minDistance = dist;
-                            nearestStoreId = option.value;
-                        }
+                let nearest = null, minDist = Infinity;
+                Array.from(storeSelect.options).forEach(opt => {
+                    const sLat = parseFloat(opt.getAttribute('data-lat')), sLng = parseFloat(opt.getAttribute('data-lng'));
+                    if (sLat && sLng) {
+                        const dist = haversine(userLat, userLng, sLat, sLng);
+                        opt.text = opt.text.split('(')[0].trim() + ` (${dist.toFixed(1)} km)`;
+                        if (dist < minDist) { minDist = dist; nearest = opt.value; }
                     }
                 });
-
-                if (nearestStoreId) {
-                    storeSelect.value = nearestStoreId;
-                    distanceText.textContent = `Auto-selected nearest branch (~${minDistance.toFixed(1)} km)`;
+                
+                if (nearest && !userInteracted) {
+                    storeSelect.value = nearest;
+                    distanceText.textContent = `OPTIMAL DISPATCH HUB IDENTIFIED: ~${minDist.toFixed(1)}KM`;
+                    distanceText.classList.remove('hidden');
+                } else if (minDist !== Infinity) {
+                    distanceText.textContent = `NEAREST HUB: ~${minDist.toFixed(1)}KM AWAY`;
+                    distanceText.classList.remove('hidden');
                 }
             }
 
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    document.getElementById('checkout-lat').value = lat;
-                    document.getElementById('checkout-lng').value = lng;
-                    updateDistances(lat, lng);
-                });
+                navigator.geolocation.getCurrentPosition(pos => {
+                    if (document.getElementById('checkout-lat')) document.getElementById('checkout-lat').value = pos.coords.latitude;
+                    if (document.getElementById('checkout-lng')) document.getElementById('checkout-lng').value = pos.coords.longitude;
+                    updateDistances(pos.coords.latitude, pos.coords.longitude);
+                }, err => {
+                    console.log('Geolocation denied/failed');
+                }, { timeout: 10000 });
             }
-
-            orderTypeSelect.addEventListener('change', function () {
-                if (this.value === 'pickup') {
-                    distanceText.textContent = 'Please select which branch you will collect from.';
-                } else {
-                    // Re-calculate if delivery
-                    const lat = document.getElementById('checkout-lat').value;
-                    const lng = document.getElementById('checkout-lng').value;
-                    if (lat && lng) updateDistances(lat, lng);
-                }
-            });
         });
     </script>
 @endpush
