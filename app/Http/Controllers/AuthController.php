@@ -85,6 +85,16 @@ class AuthController extends Controller
             }
 
             DB::commit();
+
+            // Fire the Registered event to trigger the Verification Email
+            event(new \Illuminate\Auth\Events\Registered($user));
+
+            // Automatically add to newsletter (or update if they somehow exist)
+            \App\Models\NewsletterSubscriber::updateOrCreate(
+                ['email' => $user->email],
+                ['is_subscribed' => true]
+            );
+
             Auth::login($user);
 
             if (session()->has('cart') && count(session()->get('cart')) > 0) {

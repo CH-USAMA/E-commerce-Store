@@ -42,6 +42,13 @@ Route::get('/login', [\App\Http\Controllers\AuthController::class, 'showLogin'])
 Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
+// Email Verification Routes
+Route::prefix('email')->name('verification.')->group(function () {
+    Route::get('/verify', [\App\Http\Controllers\VerificationController::class, 'show'])->name('notice');
+    Route::get('/verify/{id}/{hash}', [\App\Http\Controllers\VerificationController::class, 'verify'])->name('verify');
+    Route::post('/verification-notification', [\App\Http\Controllers\VerificationController::class, 'resend'])->name('send');
+});
+
 // Cart Routes
 Route::get('/cart', [\App\Http\Controllers\CartController::class, 'index'])->name('cart');
 Route::post('/cart/add', [\App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
@@ -51,14 +58,19 @@ Route::get('/cart/count', [\App\Http\Controllers\CartController::class, 'count']
 Route::post('/cart/nearest-store', [\App\Http\Controllers\CartController::class, 'nearestStore'])->name('cart.nearest-store');
 Route::get('/checkout/auth', [\App\Http\Controllers\CartController::class, 'checkoutAuth'])->name('checkout.auth');
 Route::post('/checkout/guest', [\App\Http\Controllers\CartController::class, 'guestCheckout'])->name('checkout.guest');
-Route::get('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
-Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'processCheckout'])->name('checkout.process');
+
+// Protect checkout with verified middleware
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'processCheckout'])->name('checkout.process');
+});
+
 Route::get('/order-success', [\App\Http\Controllers\CartController::class, 'orderSuccess'])->name('order.success');
 Route::get('/track-order', [\App\Http\Controllers\OrderTrackingController::class, 'index'])->name('order.track');
 Route::post('/track-order', [\App\Http\Controllers\OrderTrackingController::class, 'track'])->name('order.track.submit');
 
-// User Portal Routes
-Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
+// User Portal Routes (Protected by verified middleware)
+Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/orders', [\App\Http\Controllers\User\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\User\OrderController::class, 'show'])->name('orders.show');
