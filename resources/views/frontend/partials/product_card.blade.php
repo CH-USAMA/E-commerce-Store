@@ -29,15 +29,15 @@
         <div
             class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <div
-                class="flex items-center gap-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                class="flex flex-col items-center gap-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 w-full px-8">
                 <button
                     onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }})"
-                    class="w-12 h-12 bg-gold-400 rounded-2xl flex items-center justify-center text-dark hover:bg-white transition">
-                    <i class="fas fa-cart-plus"></i>
+                    class="w-full py-3.5 bg-gold-400 rounded-2xl flex items-center justify-center text-dark hover:bg-white transition font-black text-[11px] uppercase tracking-widest shadow-xl">
+                    <i class="fas fa-cart-plus mr-2 text-sm"></i> Add to Cart
                 </button>
                 <a href="{{ route('product.detail', $product->slug) }}"
-                    class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-gold-400 hover:text-dark transition">
-                    <i class="fas fa-eye"></i>
+                    class="w-full py-3 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-white/30 transition font-black text-[10px] uppercase tracking-widest border border-white/10">
+                    View Details
                 </a>
             </div>
         </div>
