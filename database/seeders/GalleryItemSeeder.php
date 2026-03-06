@@ -181,13 +181,8 @@ class GalleryItemSeeder extends Seeder
     ];
 
     foreach ($data as $item) {
-      $matchKey = ['name' => $item['name'] ?? ''];
-      if (isset($item['slug']))
-        $matchKey = ['slug' => $item['slug']];
-      elseif (isset($item['title']))
-        $matchKey = ['title' => $item['title']];
-
-      GalleryItem::updateOrCreate($matchKey, $item);
+      // Use 'image' as unique key since all items share the same title
+      GalleryItem::updateOrCreate(['image' => $item['image']], $item);
     }
   }
 }
