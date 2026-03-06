@@ -144,11 +144,11 @@
                                                 <span class="bg-gold-400 text-dark text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">Featured</span>
                                             </div>
                                         @endif
-                                        {{-- Quick Add on Hover --}}
+                                        {{-- Quick Actions on Hover --}}
                                         <div class="absolute inset-0 bg-dark/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <button onclick="addToCart({{ $product->id }}, '{{ $product->name }}', {{ $product->price }})"
-                                                class="bg-gold-400 text-dark font-black px-6 py-3 rounded-full text-sm uppercase tracking-widest hover:bg-gold-300 transition transform -translate-y-2 group-hover:translate-y-0 delay-75">
-                                                <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                                            <button onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }})"
+                                                class="bg-gold-400 text-dark font-black px-8 py-3.5 rounded-2xl text-[11px] uppercase tracking-widest hover:bg-white transition transform translate-y-4 group-hover:translate-y-0 duration-500 shadow-xl flex items-center gap-2">
+                                                <i class="fas fa-cart-plus text-sm"></i> Add to Cart
                                             </button>
                                         </div>
                                     </div>
