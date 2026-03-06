@@ -12,10 +12,16 @@ class HomeController extends Controller
         $stores = \Illuminate\Support\Facades\Cache::remember('stores_all', 3600, fn() => \App\Models\Store::all());
         $brands = \Illuminate\Support\Facades\Cache::remember('brands', 3600, fn() => \App\Models\Brand::all());
         $categories = \App\Models\Category::topLevel()->with('children')->get();
-        // Fetch products by new flags
+        // Fetch products by new flags, with fallbacks for unflagged databases
         $featuredProducts = \App\Models\Product::with('category', 'subcategory')->where('is_featured', true)->take(12)->get();
         $topSellingProducts = \App\Models\Product::with('category', 'subcategory')->where('is_top_selling', true)->take(10)->get();
+        if ($topSellingProducts->isEmpty()) {
+            $topSellingProducts = \App\Models\Product::with('category', 'subcategory')->inRandomOrder()->take(10)->get();
+        }
         $newArrivalProducts = \App\Models\Product::with('category', 'subcategory')->where('is_new_arrival', true)->take(10)->get();
+        if ($newArrivalProducts->isEmpty()) {
+            $newArrivalProducts = \App\Models\Product::with('category', 'subcategory')->latest()->take(10)->get();
+        }
 
         $latestPosts = \App\Models\BlogPost::with('category')->latest()->take(3)->get();
 

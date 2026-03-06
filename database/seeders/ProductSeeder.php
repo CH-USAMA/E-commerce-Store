@@ -455,6 +455,8 @@ class ProductSeeder extends Seeder
             'description' => '<p>High quality ' . $prodData['name'] . ' ready for bulk purchase.</p>',
             'price' => rand(100, 5000) / 10,
             'is_featured' => (rand(1, 100) > 85),
+            'is_top_selling' => (rand(1, 100) > 85),
+            'is_new_arrival' => (rand(1, 100) > 90),
             'category_id' => $subCategory->parent_id,
             'subcategory_id' => $subCategory->id,
             'image' => $prodData['image'],
