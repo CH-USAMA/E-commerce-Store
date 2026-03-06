@@ -88,6 +88,21 @@
                     class="btn-gold w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
                     <i class="fas fa-sign-in-alt"></i> Sign In
                 </button>
+
+                <div class="relative my-6 px-10">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-white/5"></div>
+                    </div>
+                    <div class="relative flex justify-center text-xs uppercase tracking-widest text-dark-muted">
+                        <span class="bg-[#111] px-2">Or continue with</span>
+                    </div>
+                </div>
+
+                <a href="{{ route('auth.google') }}"
+                    class="w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-3 border border-white/5 bg-black/40 hover:bg-white/5 transition-all duration-300 text-white shadow-xl">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+                    <span>Login with Google</span>
+                </a>
             </form>
 
             <div class="border-t mt-6 pt-6 text-center" style="border-color:#2a2a2a">

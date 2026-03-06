@@ -616,7 +616,8 @@
                     <li><a href="{{ route('contact') }}" class="hover:text-gold-400">Contact Us</a></li>
                     <li><a href="{{ route('order.track') }}" class="hover:text-gold-400">Track Order</a></li>
                     <li><a href="{{ route('login') }}" class="hover:text-gold-400">My Account</a></li>
-                    <li><a href="#" class="hover:text-gold-400">Privacy Policy</a></li>
+                    <li><a href="{{ route('privacy') }}" class="hover:text-gold-400">Privacy Policy</a></li>
+                    <li><a href="{{ route('terms') }}" class="hover:text-gold-400">Terms of Service</a></li>
                 </ul>
             </div>
             <div>

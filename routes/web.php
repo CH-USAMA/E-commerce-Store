@@ -34,6 +34,8 @@ Route::get('/specials', [\App\Http\Controllers\HomeController::class, 'specials'
 Route::get('/contact', [App\Http\Controllers\HomeController::class, 'contact'])->name('contact');
 Route::post('/contact', [App\Http\Controllers\HomeController::class, 'submitContact'])->name('contact.submit');
 Route::get('/search', [App\Http\Controllers\HomeController::class, 'search'])->name('search');
+Route::view('/privacy-policy', 'frontend.privacy')->name('privacy');
+Route::view('/terms-of-service', 'frontend.terms')->name('terms');
 
 // Authentication Routes
 Route::get('/register', [\App\Http\Controllers\AuthController::class, 'showRegister'])->name('register');
@@ -48,6 +50,10 @@ Route::middleware(['auth'])->prefix('email')->name('verification.')->group(funct
     Route::get('/verify/{id}/{hash}', [\App\Http\Controllers\VerificationController::class, 'verify'])->name('verify')->middleware(['signed', 'throttle:6,1']);
     Route::post('/verification-notification', [\App\Http\Controllers\VerificationController::class, 'resend'])->name('send')->middleware(['throttle:6,1']);
 });
+
+// Social Login Routes
+Route::get('auth/google', [\App\Http\Controllers\Auth\SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [\App\Http\Controllers\Auth\SocialAuthController::class, 'handleGoogleCallback']);
 
 // Cart Routes
 Route::get('/cart', [\App\Http\Controllers\CartController::class, 'index'])->name('cart');
