@@ -7,7 +7,7 @@
     <!-- Page Header -->
     <div class="relative pt-32 pb-24 overflow-hidden bg-dark">
         <div class="absolute inset-0 opacity-10">
-            <img src="{{ asset('images/quarry_truck.webp') }}" class="w-full h-full object-cover" alt="Services Hero">
+            <img src="{{ asset('images/Delivery.webp') }}" class="w-full h-full object-cover" alt="Services Hero">
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
             <h1 class="text-5xl lg:text-7xl font-black mb-6 tracking-tight">Our <span class="gradient-text">Services</span>
@@ -93,7 +93,7 @@
                         </div>
                     </div>
                     <div class="relative">
-                        <img src="{{ asset('images/JB_About_Hero.webp') }}"
+                        <img src="{{ asset('images/JABULANI_Fleet.webp') }}"
                             class="rounded-3xl shadow-2xl grayscale hover:grayscale-0 transition-all duration-700"
                             alt="Production" loading="lazy">
                         <div class="absolute -top-10 -left-10 w-40 h-40 bg-gold-400/10 rounded-full blur-3xl"></div>
