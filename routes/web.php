@@ -43,10 +43,10 @@ Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
 // Email Verification Routes
-Route::prefix('email')->name('verification.')->group(function () {
+Route::middleware(['auth'])->prefix('email')->name('verification.')->group(function () {
     Route::get('/verify', [\App\Http\Controllers\VerificationController::class, 'show'])->name('notice');
-    Route::get('/verify/{id}/{hash}', [\App\Http\Controllers\VerificationController::class, 'verify'])->name('verify');
-    Route::post('/verification-notification', [\App\Http\Controllers\VerificationController::class, 'resend'])->name('send');
+    Route::get('/verify/{id}/{hash}', [\App\Http\Controllers\VerificationController::class, 'verify'])->name('verify')->middleware(['signed', 'throttle:6,1']);
+    Route::post('/verification-notification', [\App\Http\Controllers\VerificationController::class, 'resend'])->name('send')->middleware(['throttle:6,1']);
 });
 
 // Cart Routes
@@ -94,6 +94,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
     Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class);
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    Route::post('system/test-email', [\App\Http\Controllers\Admin\SystemController::class, 'sendTestEmail'])->name('system.test-email');
     // ... future CRUDs
 });
 

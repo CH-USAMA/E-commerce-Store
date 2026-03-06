@@ -28,6 +28,15 @@
                 <div class="h2 fw-bold mb-0">{{ $stats['total_stores'] }}</div>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="card bg-white shadow-sm border-0 mb-4 p-3 border-start border-4 border-primary">
+                <div class="text-muted small text-uppercase fw-bold">System Email</div>
+                <form action="{{ route('admin.system.test-email') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-primary mt-2 w-100">Send Test Email</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <div class="row mt-4">
