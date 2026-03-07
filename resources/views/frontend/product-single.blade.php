@@ -6,7 +6,7 @@
 @section('content')
 
     <!-- Hero Section with Background Accent -->
-    <div class="relative pt-32 pb-12 overflow-hidden bg-[#050505]">
+    <div class="relative pt-10 pb-12 overflow-hidden bg-[#050505]">
         <div class="absolute top-0 right-0 w-1/3 h-full bg-gold-400/5 blur-[150px] -z-10 rounded-full"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <nav class="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted mb-8">

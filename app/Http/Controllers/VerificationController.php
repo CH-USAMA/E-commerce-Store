@@ -12,9 +12,13 @@ class VerificationController extends Controller
      */
     public function show(Request $request)
     {
-        return $request->user()->hasVerifiedEmail()
-            ? redirect()->route('user.dashboard')
-            : view('auth.verify');
+        if ($request->user()->hasVerifiedEmail()) {
+            return count(session('cart', [])) > 0
+                ? redirect()->route('cart')
+                : redirect()->route('user.dashboard');
+        }
+
+        return view('auth.verify');
     }
 
     /**
@@ -23,7 +27,10 @@ class VerificationController extends Controller
     public function verify(EmailVerificationRequest $request)
     {
         $request->fulfill();
-        return redirect()->route('user.dashboard')->with('success', 'Email verified successfully!');
+
+        return count(session('cart', [])) > 0
+            ? redirect()->route('cart')->with('success', 'Email verified successfully!')
+            : redirect()->route('user.dashboard')->with('success', 'Email verified successfully!');
     }
 
     /**
@@ -32,7 +39,9 @@ class VerificationController extends Controller
     public function resend(Request $request)
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->route('user.dashboard');
+            return count(session('cart', [])) > 0
+                ? redirect()->route('cart')
+                : redirect()->route('user.dashboard');
         }
 
         $request->user()->sendEmailVerificationNotification();

@@ -191,7 +191,7 @@
                     text: msg,
                     duration: 4000,
                     close: true,
-                    gravity: "top",
+                    gravity: "bottom",
                     position: "right",
                     stopOnFocus: true,
                     style: {
@@ -548,6 +548,7 @@
 
     <!-- Main Content -->
     <main class="flex-grow flex flex-col relative w-full overflow-hidden">
+        <div class="h-24 sm:h-32 w-full flex-shrink-0"></div>
         @if($errors->any())
             <div class="max-w-2xl mx-auto w-full px-4 mt-32 mb-[-64px] z-20">
                 <div class="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 backdrop-blur-xl">

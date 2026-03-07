@@ -5,7 +5,7 @@
 @section('content')
 
     <!-- Page Header -->
-    <div class="relative pt-32 pb-24 overflow-hidden bg-dark">
+    <div class="relative pt-10 pb-24 overflow-hidden bg-dark">
         <div class="absolute inset-0 opacity-15">
             <img src="{{ asset('images/JABULANI_Fleet.webp') }}" class="w-full h-full object-cover" alt="About Hero"
                 loading="lazy">
