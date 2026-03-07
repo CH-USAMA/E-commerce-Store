@@ -156,7 +156,14 @@ class CartController extends Controller
             return redirect()->route('products')->with('error', 'Your cart is empty.');
         }
 
-        if (!auth()->check() && !session()->get('guest_checkout')) {
+        // 1. If logged in, must be verified
+        if (auth()->check()) {
+            if (!auth()->user()->hasVerifiedEmail()) {
+                return redirect()->route('verification.notice')->with('error', 'Please verify your email to proceed with checkout.');
+            }
+        }
+        // 2. If guest, must have guest_checkout session
+        elseif (!session()->get('guest_checkout')) {
             return redirect()->route('checkout.auth');
         }
 
@@ -181,6 +188,17 @@ class CartController extends Controller
 
     public function processCheckout(Request $request)
     {
+        // 1. If logged in, must be verified
+        if (auth()->check()) {
+            if (!auth()->user()->hasVerifiedEmail()) {
+                return redirect()->route('verification.notice')->with('error', 'Please verify your email to proceed with checkout.');
+            }
+        }
+        // 2. If guest, must have guest_checkout session
+        elseif (!session()->get('guest_checkout')) {
+            return redirect()->route('checkout.auth');
+        }
+
         $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',

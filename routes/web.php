@@ -79,7 +79,7 @@ Route::post('/cart/nearest-store', [\App\Http\Controllers\CartController::class,
 Route::get('/checkout/auth', [\App\Http\Controllers\CartController::class, 'checkoutAuth'])->name('checkout.auth');
 Route::post('/checkout/guest', [\App\Http\Controllers\CartController::class, 'guestCheckout'])->name('checkout.guest');
 
-Route::middleware(['auth', 'verified', 'profile.complete'])->group(function () {
+Route::middleware(['profile.complete'])->group(function () {
     Route::get('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
     Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'processCheckout'])->name('checkout.process');
 });
