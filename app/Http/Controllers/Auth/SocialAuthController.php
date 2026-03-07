@@ -29,12 +29,16 @@ class SocialAuthController extends Controller
 
             if ($user) {
                 // Update existing user with google info if not present
-                $user->update([
-                    'google_id' => $googleUser->getId(),
-                    'google_token' => $googleUser->token,
-                    'google_refresh_token' => $googleUser->refreshToken ?? $user->google_refresh_token,
-                    'email_verified_at' => $user->email_verified_at ?? now(),
-                ]);
+                $user->google_id = $googleUser->getId();
+                $user->google_token = $googleUser->token;
+                $user->google_refresh_token = $googleUser->refreshToken ?? $user->google_refresh_token;
+
+                // Ensure they are marked as verified since Google has already verified them
+                if (!$user->email_verified_at) {
+                    $user->email_verified_at = now();
+                }
+
+                $user->save();
             } else {
                 // Create new user
                 $user = User::create([
@@ -60,6 +64,7 @@ class SocialAuthController extends Controller
             return redirect()->intended(route('user.dashboard'))->with('success', 'Logged in successfully with Google!');
 
         } catch (Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Google Login Error: ' . $e->getMessage());
             return redirect()->route('login')->with('error', 'Something went wrong during Google Login. Please try again.');
         }
     }

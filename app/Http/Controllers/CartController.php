@@ -243,6 +243,13 @@ class CartController extends Controller
             \Illuminate\Support\Facades\DB::commit();
             session()->forget('cart');
 
+            // Send Order Confirmation Email
+            try {
+                \Illuminate\Support\Facades\Mail::to($order->customer_email)->send(new \App\Mail\OrderConfirmed($order));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Order Confirmation Email Failed: ' . $e->getMessage());
+            }
+
             return redirect()->route('order.success')->with('order_number', $order->order_number);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\DB::rollBack();
