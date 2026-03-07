@@ -20,7 +20,7 @@
                     selection?</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
                 <!-- Guest Checkout -->
                 <form action="/checkout/guest" method="POST" class="h-full">
@@ -66,6 +66,20 @@
                     </p>
                     <div class="mt-8 text-[10px] font-black uppercase tracking-widest text-gold-400">Login to Account <i
                             class="fas fa-sign-in-alt ml-1"></i></div>
+                </a>
+
+                <!-- Google Login -->
+                <a href="{{ route('auth.google') }}"
+                    class="card-dark rounded-[2rem] p-8 flex flex-col items-center text-center border-white/5 hover:border-gold-400 group transition-all duration-500 bg-gradient-to-br from-[#0a0a0a] to-[#111]">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-white transition-all">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-7 h-7" alt="Google">
+                    </div>
+                    <h3 class="text-lg font-black text-white mb-2 uppercase italic">Google One-Tap</h3>
+                    <p class="text-xs text-dark-muted leading-relaxed">Instantly login or sign up using your Google account.
+                    </p>
+                    <div class="mt-8 text-[10px] font-black uppercase tracking-widest text-gold-400">Continue with Google <i
+                            class="fas fa-arrow-right ml-1"></i></div>
                 </a>
             </div>
 

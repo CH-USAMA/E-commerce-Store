@@ -136,6 +136,10 @@ class CartController extends Controller
         if (empty($cart)) {
             return redirect()->route('products')->with('error', 'Your cart is empty.');
         }
+
+        // Ensure social login returns here
+        session()->put('url.intended', route('checkout'));
+
         return view('frontend.checkout-auth');
     }
 
