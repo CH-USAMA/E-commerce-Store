@@ -49,6 +49,10 @@
                                 class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest {{ request()->routeIs('user.orders.*') && !request()->routeIs('user.dashboard') ? 'bg-gold-400 text-dark shadow-xl' : 'text-dark-muted hover:text-white hover:bg-white/5' }} transition-all duration-300">
                                 <i class="fas fa-shopping-bag text-sm"></i> My Orders
                             </a>
+                            <a href="{{ route('profile.addresses') }}"
+                                class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest {{ request()->is('profile/addresses*') ? 'bg-gold-400 text-dark shadow-xl' : 'text-dark-muted hover:text-white hover:bg-white/5' }} transition-all duration-300">
+                                <i class="fas fa-map-marker-alt text-sm"></i> Shipping Profiles
+                            </a>
                             <div class="h-px bg-white/5 my-4 mx-4"></div>
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf

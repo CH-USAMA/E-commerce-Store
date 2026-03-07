@@ -32,6 +32,12 @@
                             @error('email') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
                         </div>
                         <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Phone Number *</label>
+                            <input type="text" name="phone" value="{{ old('phone') }}" required
+                                class="w-full bg-dark border @error('phone') border-red-500 @else border-dark-border @enderror rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-dark-muted focus:outline-none focus:border-gold-400 transition">
+                            @error('phone') <p class="text-[10px] text-red-400 mt-1 font-bold">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
                             <label class="text-xs text-gray-400 mb-1 block">Password *</label>
                             <input type="password" name="password" required
                                 class="w-full bg-dark border @error('password') border-red-500 @else border-dark-border @enderror rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-dark-muted focus:outline-none focus:border-gold-400 transition">

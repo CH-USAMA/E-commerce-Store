@@ -44,6 +44,19 @@ Route::get('/login', [\App\Http\Controllers\AuthController::class, 'showLogin'])
 Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
+// Profile Completion & Address Management
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/complete', [\App\Http\Controllers\ProfileController::class, 'showCompleteProfile'])->name('profile.complete');
+    Route::post('/profile/complete', [\App\Http\Controllers\ProfileController::class, 'storeCompleteProfile'])->name('profile.complete.store');
+
+    Route::middleware(['profile.complete'])->group(function () {
+        Route::get('/profile/addresses', [\App\Http\Controllers\ProfileController::class, 'manageAddresses'])->name('profile.addresses');
+        Route::post('/profile/addresses', [\App\Http\Controllers\ProfileController::class, 'storeAddress'])->name('profile.addresses.store');
+        Route::delete('/profile/addresses/{address}', [\App\Http\Controllers\ProfileController::class, 'deleteAddress'])->name('profile.addresses.delete');
+        Route::post('/profile/addresses/{address}/default', [\App\Http\Controllers\ProfileController::class, 'setDefaultAddress'])->name('profile.addresses.default');
+    });
+});
+
 // Email Verification Routes
 Route::middleware(['auth'])->prefix('email')->name('verification.')->group(function () {
     Route::get('/verify', [\App\Http\Controllers\VerificationController::class, 'show'])->name('notice');
@@ -65,15 +78,18 @@ Route::post('/cart/nearest-store', [\App\Http\Controllers\CartController::class,
 // Checkout Routes
 Route::get('/checkout/auth', [\App\Http\Controllers\CartController::class, 'checkoutAuth'])->name('checkout.auth');
 Route::post('/checkout/guest', [\App\Http\Controllers\CartController::class, 'guestCheckout'])->name('checkout.guest');
-Route::get('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
-Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'processCheckout'])->name('checkout.process');
+
+Route::middleware(['auth', 'verified', 'profile.complete'])->group(function () {
+    Route::get('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'processCheckout'])->name('checkout.process');
+});
 
 Route::get('/order-success', [\App\Http\Controllers\CartController::class, 'orderSuccess'])->name('order.success');
 Route::get('/track-order', [\App\Http\Controllers\OrderTrackingController::class, 'index'])->name('order.track');
 Route::post('/track-order', [\App\Http\Controllers\OrderTrackingController::class, 'track'])->name('order.track.submit');
 
-// User Portal Routes (Protected by verified middleware)
-Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->name('user.')->group(function () {
+// User Portal Routes (Protected by verified and profile.complete middleware)
+Route::middleware(['auth', 'verified', 'role:user', 'profile.complete'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/orders', [\App\Http\Controllers\User\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\User\OrderController::class, 'show'])->name('orders.show');

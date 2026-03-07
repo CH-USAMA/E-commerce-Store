@@ -38,10 +38,35 @@
                                 </div>
                             </div>
 
+                            @if(auth()->check() && $addresses->count() > 0)
+                                <div class="mb-8 p-6 bg-gold-400/5 border border-gold-400/10 rounded-2xl">
+                                    <label class="block text-[9px] font-black uppercase tracking-widest text-gold-400 mb-4 italic">Select Saved Profile</label>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        @foreach($addresses as $addr)
+                                            <div class="address-profile-card cursor-pointer bg-black/40 border border-white/5 rounded-xl p-4 transition-all hover:border-gold-400/50 group {{ $addr->is_default ? 'border-gold-400/30 ring-1 ring-gold-400/30' : '' }}"
+                                                onclick="selectAddressProfile(this)"
+                                                data-name="{{ $user->name }}"
+                                                data-phone="{{ $user->phone }}"
+                                                data-address="{{ $addr->address_line_1 }} {{ $addr->address_line_2 }}"
+                                                data-city="{{ $addr->city }}"
+                                                data-postal="{{ $addr->postal_code }}">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <span class="text-[10px] font-black text-white uppercase italic">{{ $addr->address_name }}</span>
+                                                    @if($addr->is_default)
+                                                        <i class="fas fa-check-circle text-gold-400 text-[10px]"></i>
+                                                    @endif
+                                                </div>
+                                                <p class="text-[8px] text-dark-muted truncate">{{ $addr->address_line_1 }}</p>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div class="space-y-1.5">
                                     <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Full Name</label>
-                                    <input type="text" name="customer_name" required
+                                    <input type="text" name="customer_name" id="customer_name" required
                                         value="{{ old('customer_name', isset($user) ? $user->name : '') }}"
                                         class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner">
                                 </div>
@@ -53,23 +78,24 @@
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Phone Number</label>
-                                    <input type="text" name="customer_phone" required value="{{ old('customer_phone') }}"
+                                    <input type="text" name="customer_phone" id="customer_phone" required 
+                                        value="{{ old('customer_phone', isset($user) ? $user->phone : '') }}"
                                         class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner">
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">City</label>
-                                    <input type="text" name="customer_city" required
+                                    <input type="text" name="customer_city" id="customer_city" required
                                         value="{{ old('customer_city', isset($defaultShipping) ? $defaultShipping->city : '') }}"
                                         class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner">
                                 </div>
                                 <div class="sm:col-span-2 space-y-1.5">
                                     <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Delivery Address</label>
-                                    <textarea name="customer_address" required rows="2"
+                                    <textarea name="customer_address" id="customer_address" required rows="2"
                                         class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner resize-none font-medium leading-relaxed">{{ old('customer_address', isset($defaultShipping) ? $defaultShipping->address_line_1 . ' ' . $defaultShipping->address_line_2 : '') }}</textarea>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[9px] font-black uppercase tracking-widest text-dark-muted ml-1">Postal Code</label>
-                                    <input type="text" name="customer_postal_code" required
+                                    <input type="text" name="customer_postal_code" id="customer_postal_code" required
                                         value="{{ old('customer_postal_code', isset($defaultShipping) ? $defaultShipping->postal_code : '') }}"
                                         class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-3.5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner">
                                 </div>
@@ -226,6 +252,21 @@
 
 @push('js')
     <script>
+        function selectAddressProfile(element) {
+            // Update fields
+            document.getElementById('customer_name').value = element.dataset.name;
+            document.getElementById('customer_phone').value = element.dataset.phone;
+            document.getElementById('customer_address').value = element.dataset.address;
+            document.getElementById('customer_city').value = element.dataset.city;
+            document.getElementById('customer_postal_code').value = element.dataset.postal;
+
+            // Update UI selection
+            document.querySelectorAll('.address-profile-card').forEach(card => {
+                card.classList.remove('border-gold-400/30', 'ring-1', 'ring-gold-400/30');
+            });
+            element.classList.add('border-gold-400/30', 'ring-1', 'ring-gold-400/30');
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const storeSelect = document.getElementById('store_id');
             const distanceText = document.getElementById('store-distance');

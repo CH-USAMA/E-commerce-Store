@@ -170,11 +170,13 @@ class CartController extends Controller
 
         $user = auth()->user();
         $defaultShipping = null;
+        $addresses = collect();
         if ($user) {
-            $defaultShipping = $user->addresses()->where('type', 'shipping')->where('is_default', true)->first();
+            $addresses = $user->addresses()->latest()->get();
+            $defaultShipping = $addresses->where('is_default', true)->first();
         }
 
-        return view('frontend.checkout', compact('products', 'total', 'stores', 'user', 'defaultShipping'));
+        return view('frontend.checkout', compact('products', 'total', 'stores', 'user', 'defaultShipping', 'addresses'));
     }
 
     public function processCheckout(Request $request)

@@ -61,6 +61,10 @@ class SocialAuthController extends Controller
 
             Auth::login($user);
 
+            if (empty($user->phone)) {
+                return redirect()->route('profile.complete')->with('info', 'Welcome! Please complete your profile to continue.');
+            }
+
             return redirect()->intended(route('user.dashboard'))->with('success', 'Logged in successfully with Google!');
 
         } catch (Exception $e) {

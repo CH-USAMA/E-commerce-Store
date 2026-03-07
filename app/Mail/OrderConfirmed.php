@@ -9,6 +9,9 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Mail\Mailables\Attachment;
+
 class OrderConfirmed extends Mailable
 {
     use Queueable, SerializesModels;
@@ -20,7 +23,7 @@ class OrderConfirmed extends Mailable
      */
     public function __construct(\App\Models\Order $order)
     {
-        $this->order = $order;
+        $this->order = $order->load(['items.product', 'store']);
     }
 
     /**
@@ -39,7 +42,7 @@ class OrderConfirmed extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.order-confirmed',
+            view: 'emails.order-confirmed',
         );
     }
 
@@ -50,6 +53,11 @@ class OrderConfirmed extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        $pdf = Pdf::loadView('pdf.invoice', ['order' => $this->order]);
+
+        return [
+            Attachment::fromData(fn() => $pdf->output(), 'Invoice-' . $this->order->order_number . '.pdf')
+                ->withMime('application/pdf'),
+        ];
     }
 }
