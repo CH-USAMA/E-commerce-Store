@@ -177,7 +177,7 @@
 <body class="flex flex-col min-h-screen" x-data="{ 
     scrolled: false,
     toast: { show: false, message: '', type: 'success' }
-}" @scroll.window="scrolled = (window.pageYOffset > 20)">
+}" @scroll.window="scrolled = (window.pageYOffset > 100)">
 
     <script>
         document.addEventListener('alpine:init', () => {
@@ -548,7 +548,9 @@
 
     <!-- Main Content -->
     <main class="flex-grow flex flex-col relative w-full overflow-hidden">
-        <div class="h-24 sm:h-32 w-full flex-shrink-0"></div>
+        @if(!request()->routeIs('home'))
+            <div class="h-24 sm:h-32 w-full flex-shrink-0"></div>
+        @endif
         @if($errors->any())
             <div class="max-w-2xl mx-auto w-full px-4 mt-32 mb-[-64px] z-20">
                 <div class="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 backdrop-blur-xl">

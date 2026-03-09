@@ -19,14 +19,10 @@
                     {{-- Background Image & Overlay --}}
                     <img src="{{ asset($banner->image) }}" alt="Jabulani Hero"
                         class="absolute inset-0 w-full h-full object-cover object-center" loading="eager" />
-                    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
-                    <div
-                        class="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none">
-                    </div>
 
                     {{-- Content --}}
                     <div class="relative z-20 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-                        <div class="max-w-4xl pt-20">
+                        <div class="max-w-4xl">
                             {{-- Bullet Points --}}
                             <div class="flex flex-wrap items-center gap-3 mb-8 animate-fade-in-up" style="animation-delay: 0.1s;">
                                 @foreach(['Hardware stores', 'Crush & Quarry', 'Building material', 'Construction solutions'] as $bullet)
