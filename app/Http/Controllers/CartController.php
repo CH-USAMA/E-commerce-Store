@@ -113,6 +113,26 @@ class CartController extends Controller
 
         $store = $this->storeService->findNearestStore($request->lat, $request->lng);
 
+        // ✅ Cart-Aware Redirection Logic
+        // If cart has non-"Crush Stone" products AND nearest store is "Jabulani Quarries Tsolo", 
+        // redirect to "Jabulani Hardware Tsolo".
+        if ($store && str_contains(strtolower($store->name), 'quarries')) {
+            $cart = session()->get('cart', []);
+            if (!empty($cart)) {
+                $hasOtherProducts = \App\Models\Product::whereIn('id', array_keys($cart))
+                    ->whereHas('subcategory', function ($query) {
+                        $query->where('name', '!=', 'Crush Stone');
+                    })->exists();
+
+                if ($hasOtherProducts) {
+                    $tsoloHardware = \App\Models\Store::where('name', 'LIKE', '%Hardware Tsolo%')->first();
+                    if ($tsoloHardware) {
+                        $store = $tsoloHardware;
+                    }
+                }
+            }
+        }
+
         if ($store) {
             return response()->json([
                 'success' => true,
