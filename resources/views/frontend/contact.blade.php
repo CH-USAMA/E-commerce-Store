@@ -55,7 +55,7 @@
                             </div>
                             <div>
                                 <h4 class="text-white font-bold mb-1 uppercase text-xs tracking-widest">Email Address</h4>
-                                <p class="text-gray-400 text-sm font-semibold">info@jabulani.co.za</p>
+                                <p class="text-gray-400 text-sm font-semibold">info@jabulanigroupofcompanies.co.za</p>
                                 <p class="text-gray-500 text-xs mt-1">Response within 24h</p>
                             </div>
                         </div>
@@ -74,16 +74,30 @@
                         </div>
                     </div>
 
-                    <!-- Social Presence -->
                     <div class="pt-8 border-t border-dark-border">
                         <p class="text-xs font-black uppercase tracking-[0.2em] text-gold-400 mb-6">Join Our Community</p>
                         <div class="flex gap-4">
-                            @foreach(['facebook-f', 'instagram', 'twitter', 'youtube', 'tiktok'] as $social)
-                                <a href="#"
-                                    class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark hover:border-gold-400 transition duration-300">
-                                    <i class="fab fa-{{ $social }}"></i>
-                                </a>
-                            @endforeach
+                            <a href="https://www.facebook.com/share/18Ca1HgEJG/?mibextid=wwXIfr" target="_blank"
+                                class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark hover:border-gold-400 transition duration-300">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://www.instagram.com/jabulani_group_hardware?igsh=MWJrb2d1d3J6aXJ2ZQ%3D%3D&utm_source=qr"
+                                target="_blank"
+                                class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark hover:border-gold-400 transition duration-300">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="https://youtube.com/@jabulanigroup?si=GgvEK0U6KCtqioxy" target="_blank"
+                                class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark hover:border-gold-400 transition duration-300">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a href="https://www.tiktok.com/@jabulani.logistic" target="_blank"
+                                class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark hover:border-gold-400 transition duration-300">
+                                <i class="fab fa-tiktok"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/company/jabulani-group-of-companies/" target="_blank"
+                                class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark hover:border-gold-400 transition duration-300">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
                         </div>
                     </div>
                 </div>

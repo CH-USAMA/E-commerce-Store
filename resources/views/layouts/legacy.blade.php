@@ -290,7 +290,7 @@
                                         <img alt="" src="{{ asset('images/icon-mail.svg') }}" />
                                     </div>
                                     <div class="footer-contact-content">
-                                        <p>jabulanigroup2002@gmail.com</p>
+                                        <p>info@jabulanigroupofcompanies.co.za</p>
                                     </div>
                                 </div>
                             </div>
@@ -350,6 +350,8 @@
                                             class="fa-brands fa-youtube"></i></a></li>
                                 <li><a href="https://www.tiktok.com/@jabulani.logistic" target="_blank"><i
                                             class="fa-brands fa-tiktok"></i></a></li>
+                                <li><a href="https://www.linkedin.com/company/jabulani-group-of-companies/"
+                                        target="_blank"><i class="fa-brands fa-linkedin-in"></i></a></li>
                             </ul>
                         </div>
                         <!-- Footer Social Link End -->

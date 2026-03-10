@@ -173,7 +173,7 @@
 
         /* Subtle text shadow for readable nav */
         .nav-link-shadow {
-            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
         }
     </style>
     @stack('css')
@@ -590,18 +590,27 @@
                 <p class="text-sm text-dark-muted mb-8 leading-relaxed">Your Reliable Hardware Partner Since 2002.
                     Supplying top-quality building materials and hardware globally with unwavering commitment.</p>
                 <div class="flex space-x-5">
-                    <a href="#"
-                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark transition duration-300"><i
-                            class="fab fa-facebook-f"></i></a>
-                    <a href="#"
-                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark transition duration-300"><i
-                            class="fab fa-instagram"></i></a>
-                    <a href="#"
-                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark transition duration-300"><i
-                            class="fab fa-twitter"></i></a>
-                    <a href="#"
-                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark transition duration-300"><i
-                            class="fab fa-youtube"></i></a>
+                    <a href="https://www.facebook.com/share/18Ca1HgEJG/?mibextid=wwXIfr" target="_blank"
+                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark transition duration-300">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/jabulani_group_hardware?igsh=MWJrb2d1d3J6aXJ2ZQ%3D%3D&utm_source=qr"
+                        target="_blank"
+                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark transition duration-300">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://youtube.com/@jabulanigroup?si=GgvEK0U6KCtqioxy" target="_blank"
+                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark transition duration-300">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@jabulani.logistic" target="_blank"
+                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark transition duration-300">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/jabulani-group-of-companies/" target="_blank"
+                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark transition duration-300">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
                 </div>
             </div>
             <div>
@@ -642,7 +651,7 @@
                     </li>
                     <li class="flex items-center gap-3">
                         <i class="fas fa-envelope text-gold-400"></i>
-                        <span class="truncate">info@jabulani.co.za</span>
+                        <span class="truncate">info@jabulanigroupofcompanies.co.za</span>
                     </li>
                 </ul>
             </div>
