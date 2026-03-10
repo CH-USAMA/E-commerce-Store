@@ -192,6 +192,13 @@ class CartController extends Controller
             $product->cart_subtotal = $product->price * $cart[$product->id];
             return $product;
         });
+
+        $hasOtherProducts = \App\Models\Product::whereIn('id', array_keys($cart))
+            ->whereHas('subcategory', function ($query) {
+                $query->where('name', '!=', 'Crush Stone');
+            })->exists();
+        $cartHasOnlyCrushStone = !$hasOtherProducts;
+
         $total = $products->sum('cart_subtotal');
         $stores = \App\Models\Store::all();
 
@@ -203,7 +210,7 @@ class CartController extends Controller
             $defaultShipping = $addresses->where('is_default', true)->first();
         }
 
-        return view('frontend.checkout', compact('products', 'total', 'stores', 'user', 'defaultShipping', 'addresses'));
+        return view('frontend.checkout', compact('products', 'total', 'stores', 'user', 'defaultShipping', 'addresses', 'cartHasOnlyCrushStone'));
     }
 
     public function processCheckout(Request $request)

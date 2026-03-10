@@ -271,6 +271,7 @@
             const storeSelect = document.getElementById('store_id');
             const distanceText = document.getElementById('store-distance');
             let userInteracted = false;
+            const cartHasOnlyCrushStone = @json($cartHasOnlyCrushStone ?? false);
 
             storeSelect.addEventListener('change', () => userInteracted = true);
 
@@ -292,8 +293,21 @@
                 });
                 
                 if (nearest && !userInteracted) {
+                    let overriddenDist = minDist;
+                    const nearestOpt = storeSelect.querySelector(`option[value="${nearest}"]`);
+                    
+                    if (nearestOpt && nearestOpt.text.toLowerCase().includes('quarries') && !cartHasOnlyCrushStone) {
+                        const tsoloHardwareOpt = Array.from(storeSelect.options).find(opt => opt.text.toLowerCase().includes('hardware tsolo'));
+                        if (tsoloHardwareOpt) {
+                            nearest = tsoloHardwareOpt.value;
+                            const sLat = parseFloat(tsoloHardwareOpt.getAttribute('data-lat'));
+                            const sLng = parseFloat(tsoloHardwareOpt.getAttribute('data-lng'));
+                            overriddenDist = haversine(userLat, userLng, sLat, sLng);
+                        }
+                    }
+
                     storeSelect.value = nearest;
-                    distanceText.textContent = `OPTIMAL DISPATCH HUB IDENTIFIED: ~${minDist.toFixed(1)}KM`;
+                    distanceText.textContent = `OPTIMAL DISPATCH HUB IDENTIFIED: ~${overriddenDist.toFixed(1)}KM`;
                     distanceText.classList.remove('hidden');
                 } else if (minDist !== Infinity) {
                     distanceText.textContent = `NEAREST HUB: ~${minDist.toFixed(1)}KM AWAY`;
