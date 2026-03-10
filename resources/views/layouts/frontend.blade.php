@@ -170,6 +170,11 @@
             height: 40px;
             background: transparent;
         }
+
+        /* Subtle text shadow for readable nav */
+        .nav-link-shadow {
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+        }
     </style>
     @stack('css')
 </head>
@@ -248,7 +253,7 @@
     <!-- Header -->
 
     <header class="fixed top-0 left-0 right-0 z-[100] transition-all duration-500"
-        :class="scrolled ? 'py-2 bg-black/80 backdrop-blur-2xl border-b border-white/5 shadow-2xl' : 'py-6 bg-transparent'"
+        :class="scrolled ? 'py-2 bg-black/90 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)]' : 'py-7 bg-transparent'"
         x-data="{ mobileMenuOpen: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center transition-all duration-500"
@@ -268,22 +273,22 @@
                 <!-- Desktop Nav (Sleek Latest Design) -->
                 <nav class="hidden lg:flex items-center space-x-1">
                     <a href="{{ route('home') }}"
-                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {{ request()->routeIs('home') ? 'bg-gold-400 text-dark' : 'text-white hover:bg-white/5' }}">Home</a>
+                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all nav-link-shadow {{ request()->routeIs('home') ? 'bg-gold-400 text-dark' : 'text-white hover:bg-white/5' }}">Home</a>
 
                     <a href="{{ route('about') }}"
-                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {{ request()->routeIs('about') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">About
+                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all nav-link-shadow {{ request()->routeIs('about') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">About
                         Us</a>
 
                     <a href="{{ route('products') }}"
-                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {{ request()->routeIs('products*') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Products</a>
+                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all nav-link-shadow {{ request()->routeIs('products*') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Products</a>
 
                     <a href="{{ route('stores') }}"
-                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {{ request()->routeIs('stores') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Stores</a>
+                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all nav-link-shadow {{ request()->routeIs('stores') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Stores</a>
 
                     <!-- Pages Dropdown (Synced with index.html) -->
                     <div class="relative group">
                         <span
-                            class="cursor-default px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all {{ request()->routeIs('services*') || request()->routeIs('blog*') || request()->routeIs('team*') || request()->routeIs('testimonials*') || request()->routeIs('gallery*') || request()->routeIs('video*') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                            class="cursor-default px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all nav-link-shadow {{ request()->routeIs('services*') || request()->routeIs('blog*') || request()->routeIs('team*') || request()->routeIs('testimonials*') || request()->routeIs('gallery*') || request()->routeIs('video*') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
                             Pages <i
                                 class="fas fa-chevron-down text-[7px] opacity-40 group-hover:rotate-180 transition-transform"></i>
                         </span>
@@ -345,14 +350,14 @@
                     </div>
 
                     <a href="{{ route('specials') }}"
-                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {{ request()->routeIs('specials') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Specials</a>
+                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all nav-link-shadow {{ request()->routeIs('specials') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Specials</a>
 
                     <a href="{{ route('contact') }}"
-                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {{ request()->routeIs('contact') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Contact
+                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all nav-link-shadow {{ request()->routeIs('contact') ? 'text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Contact
                         Us</a>
 
                     <a href="{{ route('order.track') }}"
-                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all {{ request()->routeIs('order.track') ? 'bg-white/10 text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                        class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all nav-link-shadow {{ request()->routeIs('order.track') ? 'bg-white/10 text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
                         <i class="fas fa-truck-fast text-[9px]"></i> Track Delivery
                     </a>
 

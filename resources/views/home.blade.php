@@ -8,21 +8,30 @@
     @if(count($banners) > 0)
         <div x-data="{ activeSlide: 0, interval: null }"
             x-init="interval = setInterval(() => { activeSlide = activeSlide === {{ count($banners) - 1 }} ? 0 : activeSlide + 1 }, 7000)"
-            class="relative w-full h-[85vh] min-h-[600px] overflow-hidden bg-black">
+            class="relative w-full h-[calc(100vh-60px)] min-h-[600px] overflow-hidden bg-black">
 
             @foreach($banners as $index => $banner)
-                <div x-show="activeSlide === {{ $index }}" x-transition:enter="transition ease-out duration-1000"
-                    x-transition:enter-start="opacity-0 scale-105" x-transition:enter-end="opacity-100 scale-100"
-                    x-transition:leave="transition ease-in duration-1000" x-transition:leave-start="opacity-100 scale-100"
-                    x-transition:leave-end="opacity-0 scale-105" class="absolute inset-0 z-10 w-full h-full" style="display: none;">
+                <div x-show="activeSlide === {{ $index }}" x-transition:enter="transition ease-in-out duration-1000 transform"
+                    x-transition:enter-start="opacity-0 translate-x-full" x-transition:enter-end="opacity-100 translate-x-0"
+                    x-transition:leave="transition ease-in-out duration-1000 transform"
+                    x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 -translate-x-full"
+                    class="absolute inset-0 z-10 w-full h-full" style="display: none;">
 
-                    {{-- Background Image & Overlay --}}
+                    {{-- Background Image & Subtle Shadows --}}
                     <img src="{{ asset($banner->image) }}" alt="Jabulani Hero"
                         class="absolute inset-0 w-full h-full object-cover object-center" loading="eager" />
 
+                    {{-- Top & Bottom Subtle Overlays for Readability --}}
+                    <div
+                        class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-black/80 via-black/20 to-transparent z-10 pointer-events-none">
+                    </div>
+                    <div
+                        class="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/60 to-transparent z-10 pointer-events-none">
+                    </div>
+
                     {{-- Content --}}
                     <div class="relative z-20 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-                        <div class="max-w-4xl">
+                        <div class="max-w-4xl pt-32 md:pt-40">
                             {{-- Bullet Points --}}
                             <div class="flex flex-wrap items-center gap-3 mb-8 animate-fade-in-up" style="animation-delay: 0.1s;">
                                 @foreach(['Hardware stores', 'Crush & Quarry', 'Building material', 'Construction solutions'] as $bullet)
