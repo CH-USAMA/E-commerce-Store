@@ -8,8 +8,12 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold">Order Filters</h5>
-                    <a href="{{ route('admin.orders.fake') }}" class="btn btn-sm btn-outline-primary">Create Fake Order
-                        (Demo)</a>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('admin.orders.export', request()->all()) }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-file-csv me-1"></i> Export CSV
+                        </a>
+                        <a href="{{ route('admin.orders.fake') }}" class="btn btn-sm btn-outline-primary">Create Fake Order (Demo)</a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.orders.index') }}" method="GET" class="row g-3">
@@ -46,6 +50,15 @@
                         <div class="col-md-2">
                             <label class="form-label">To Date</label>
                             <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Per Page</label>
+                            <select name="per_page" class="form-select">
+                                <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                                <option value="20" {{ request('per_page') == 20 || !request('per_page') ? 'selected' : '' }}>20</option>
+                                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                            </select>
                         </div>
                         <div class="col-md-2 d-flex align-items-end">
                             <div class="btn-group w-100">

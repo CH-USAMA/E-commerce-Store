@@ -96,6 +96,7 @@ Route::middleware(['auth', 'verified', 'role:user', 'profile.complete'])->prefix
     Route::get('/orders/{order}', [\App\Http\Controllers\User\OrderController::class, 'show'])->name('orders.show');
     Route::get('/notifications', [\App\Http\Controllers\User\NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/mark-read', [\App\Http\Controllers\User\NotificationController::class, 'markAllRead'])->name('notifications.mark-read');
+    Route::get('/orders-export', [\App\Http\Controllers\User\OrderController::class, 'export'])->name('orders.export');
 });
 
 // Admin Routes
@@ -112,6 +113,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('blog', \App\Http\Controllers\Admin\BlogPostController::class);
     Route::resource('blog-categories', \App\Http\Controllers\Admin\BlogCategoryController::class);
     Route::resource('gallery', \App\Http\Controllers\Admin\GalleryItemController::class);
+    Route::get('orders/export', [\App\Http\Controllers\Admin\OrderController::class, 'export'])->name('orders.export');
     Route::get('orders/fake', [\App\Http\Controllers\Admin\OrderController::class, 'createFakeOrder'])->name('orders.fake');
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
     Route::post('orders/{order}/confirm-payment', [\App\Http\Controllers\Admin\OrderController::class, 'confirmPayment'])->name('orders.confirm-payment');

@@ -74,9 +74,13 @@
                         class="card-dark rounded-[2.5rem] p-8 border-white/5 bg-gradient-to-t from-white/[0.01] to-transparent">
                         <div class="flex items-center justify-between mb-10 border-b border-white/5 pb-6">
                             <h3 class="text-xs font-black uppercase tracking-widest text-white italic">Order History</h3>
-                            <span
-                                class="text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted">{{ $orders->total() }}
-                                Total Orders</span>
+                            <div class="flex items-center gap-6">
+                                <a href="{{ route('user.orders.export') }}" class="text-[9px] font-black uppercase tracking-widest text-gold-400 hover:text-white transition flex items-center gap-2">
+                                    <i class="fas fa-file-csv"></i> Export History
+                                </a>
+                                <span class="w-1 h-1 rounded-full bg-white/20"></span>
+                                <span class="text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted">{{ $orders->total() }} Total Orders</span>
+                            </div>
                         </div>
 
                         @if($orders->count() > 0)
@@ -126,8 +130,19 @@
                                 @endforeach
                             </div>
 
-                            <div class="mt-12">
-                                {{ $orders->links() }}
+                            <div class="mt-12 flex flex-col md:flex-row items-center justify-between gap-8">
+                                <div class="flex-1">
+                                    {{ $orders->links() }}
+                                </div>
+                                <form action="{{ route('user.orders.index') }}" method="GET" class="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                                    <span class="text-[9px] font-black uppercase tracking-widest text-dark-muted">Show</span>
+                                    <select name="per_page" onchange="this.form.submit()" class="bg-transparent text-[10px] font-black uppercase tracking-widest text-white border-none focus:ring-0 cursor-pointer">
+                                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }} class="bg-dark">10</option>
+                                        <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }} class="bg-dark">20</option>
+                                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }} class="bg-dark">50</option>
+                                    </select>
+                                    <span class="text-[9px] font-black uppercase tracking-widest text-dark-muted">Orders</span>
+                                </form>
                             </div>
                         @else
                             <div class="text-center py-20 bg-black/20 rounded-[2.5rem] border border-white/5 border-dashed">

@@ -28,10 +28,63 @@ class OrderController extends Controller
             $query->whereDate('created_at', '<=', $request->date_to);
         }
 
-        $orders = $query->latest()->paginate(20);
+        $perPage = $request->get('per_page', 20);
+        $orders = $query->latest()->paginate($perPage)->withQueryString();
         $stores = \App\Models\Store::all();
 
         return view('admin.orders.index', compact('orders', 'stores'));
+    }
+
+    public function export(Request $request)
+    {
+        $query = \App\Models\Order::with(['store', 'user']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('store_id')) {
+            $query->where('store_id', $request->store_id);
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $orders = $query->latest()->get();
+
+        $filename = "orders-export-" . date('Y-m-d-His') . ".csv";
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = ['Order #', 'Customer', 'Email', 'Phone', 'Branch', 'Total', 'Status', 'Type', 'Date'];
+
+        $callback = function() use($orders, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            foreach ($orders as $order) {
+                fputcsv($file, [
+                    $order->order_number,
+                    $order->customer_name,
+                    $order->customer_email,
+                    $order->customer_phone,
+                    $order->store->name ?? 'N/A',
+                    $order->total,
+                    $order->status,
+                    $order->order_type,
+                    $order->created_at->format('Y-m-d H:i')
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function createFakeOrder()
