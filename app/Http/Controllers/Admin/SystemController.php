@@ -18,4 +18,26 @@ class SystemController extends Controller
             return back()->with('error', 'Mail Error: ' . $e->getMessage());
         }
     }
+
+    public function payments()
+    {
+        $settings = \App\Models\Setting::all()->pluck('value', 'key');
+        return view('admin.settings.payments', compact('settings'));
+    }
+
+    public function updatePayments(Request $request)
+    {
+        $data = $request->validate([
+            'stripe_public_key' => 'nullable|string',
+            'stripe_secret_key' => 'nullable|string',
+            'stripe_enabled' => 'nullable|in:0,1',
+            'max_delivery_km' => 'nullable|numeric|min:0',
+        ]);
+
+        foreach ($data as $key => $value) {
+            \App\Models\Setting::updateOrCreate(['key' => $key], ['value' => $value ?? '']);
+        }
+
+        return back()->with('success', 'Payment gateway settings updated successfully.');
+    }
 }

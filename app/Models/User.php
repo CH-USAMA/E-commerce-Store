@@ -27,6 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'google_refresh_token',
         'email_verified_at',
         'phone',
+        'cart_data',
     ];
 
     /**
@@ -47,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'cart_data' => 'array',
     ];
 
     public function orders()

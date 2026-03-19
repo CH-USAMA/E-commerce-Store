@@ -179,7 +179,8 @@
             <div class="greeting">Hello {{ $order->customer_name }},</div>
             <p>Thank you for choosing <strong>Jabulani Group</strong>. We are pleased to confirm that your order
                 <strong>#{{ $order->order_number }}</strong> has been received and is currently being prepared for
-                fulfillment.</p>
+                fulfillment.
+            </p>
 
             <div class="order-info">
                 <p><strong>Order Status:</strong> {{ ucfirst($order->status) }}</p>

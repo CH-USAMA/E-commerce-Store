@@ -52,6 +52,10 @@
                                 class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest bg-gold-400 text-dark shadow-xl transition-all duration-300">
                                 <i class="fas fa-shopping-bag text-sm"></i> My Orders
                             </a>
+                            <a href="{{ route('user.notifications.index') }}"
+                                class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest text-dark-muted hover:text-white hover:bg-white/5 transition-all duration-300">
+                                <i class="fas fa-bell text-sm"></i> Alert Center
+                            </a>
                             <div class="h-px bg-white/5 my-4 mx-4"></div>
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
@@ -87,7 +91,7 @@
                                             </div>
                                             <div>
                                                 <div class="flex items-center gap-3">
-                                                    <p class="text-lg font-black text-white italic tracking-tighter">
+                                                    <p class="text-lg font-black text-white italic tracking-tighter" title="{{ $order->manifest }}">
                                                         Order #{{ $order->order_number }}</p>
                                                     <span
                                                         class="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-white/5 text-dark-muted border border-white/10">{{ $order->order_type }}</span>
@@ -108,8 +112,8 @@
                                             </div>
                                             <div class="flex items-center gap-4">
                                                 <span
-                                                    class="px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest italic shadow-lg border {{ $order->status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20' : ($order->status === 'pending' ? 'bg-gold-400/10 text-gold-400 border-gold-400/20' : ($order->status === 'cancelled' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20')) }}">
-                                                    {{ ucfirst($order->status) }}
+                                                    class="px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest italic shadow-lg border {{ in_array($order->status, ['completed', 'delivered']) ? 'bg-green-500/10 text-green-400 border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)]' : ($order->status === 'pending' ? 'bg-gold-400/10 text-gold-400 border-gold-400/20' : ($order->status === 'cancelled' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20')) }}">
+                                                    {{ $order->status === 'delivered' ? 'Completed' : ucfirst($order->status) }}
                                                 </span>
                                                 <a href="{{ route('user.orders.show', $order) }}"
                                                     class="btn-outline-gold group px-6 py-3 text-[9px] font-black uppercase tracking-widest rounded-full flex items-center gap-2">

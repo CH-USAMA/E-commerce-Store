@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         :root {
             --jabulani-orange: #FF8C00;
@@ -254,6 +255,18 @@
                                     <i class="fas fa-user-friends me-2"></i> Team Members
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/settings/payments*') ? 'active' : '' }}"
+                                    href="{{ route('admin.settings.payments') }}">
+                                    <i class="fas fa-credit-card me-2"></i> Payment Settings
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/marketing*') ? 'active' : '' }}"
+                                    href="{{ route('admin.marketing.index') }}">
+                                    <i class="fas fa-bullhorn me-2"></i> Marketing Push
+                                </a>
+                            </li>
                         </ul>
 
                         <div class="nav-item mt-2 border-top border-secondary pt-3 pb-4">
@@ -275,12 +288,51 @@
                     <div class="container-fluid px-0">
                         <span class="navbar-brand h1 mb-0">@yield('title', 'Dashboard')</span>
                         <div class="d-flex align-items-center">
-                            <span class="me-3">{{ auth()->user()->name }}</span>
+                            <!-- Notification Bell -->
+                            <div class="dropdown me-4">
+                                <a href="#" class="text-dark position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="far fa-bell fs-5"></i>
+                                    @if(auth()->user()->unreadNotifications->count() > 0)
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem; padding: 0.25rem 0.4rem;">
+                                            {{ auth()->user()->unreadNotifications->count() }}
+                                        </span>
+                                    @endif
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0" aria-labelledby="notificationDropdown" style="width: 320px; max-height: 480px; overflow-y: auto;">
+                                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+                                        <h6 class="mb-0 fw-bold small text-uppercase tracking-wider">Operational Alerts</h6>
+                                        <a href="{{ route('admin.notifications.mark-all-read') }}" class="text-[10px] text-primary text-decoration-none fw-bold">Clear All</a>
+                                    </div>
+                                    <div class="notification-list">
+                                        @forelse(auth()->user()->notifications->take(10) as $notification)
+                                            <a href="{{ $notification->data['url'] ?? '#' }}" class="dropdown-item p-3 border-bottom {{ $notification->read_at ? 'opacity-50' : 'bg-primary bg-opacity-10' }}" style="white-space: normal;">
+                                                <div class="d-flex gap-3">
+                                                    <div class="flex-shrink-0">
+                                                        @if(($notification->data['type'] ?? '') === 'new_order')
+                                                            <div class="bg-warning bg-opacity-20 text-warning rounded-circle p-2"><i class="fas fa-shopping-cart fa-xs"></i></div>
+                                                        @else
+                                                            <div class="bg-info bg-opacity-20 text-info rounded-circle p-2"><i class="fas fa-info-circle fa-xs"></i></div>
+                                                        @endif
+                                                    </div>
+                                                    <div>
+                                                        <p class="mb-1 text-sm fw-bold leading-sm" style="font-size: 0.8rem;">{{ $notification->data['message'] }}</p>
+                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ $notification->created_at->diffForHumans() }}</small>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        @empty
+                                            <div class="p-4 text-center text-muted small">No active alerts detected</div>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            </div>
+
+                            <span class="me-3 small fw-bold text-muted">{{ auth()->user()->name }}</span>
                             <div class="flex-shrink-0 dropdown">
                                 <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle"
                                     id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}" alt="mdo"
-                                        width="32" height="32" class="rounded-circle">
+                                    <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=FF8C00&color=fff" alt="mdo"
+                                        width="32" height="32" class="rounded-circle shadow-sm">
                                 </a>
                             </div>
                         </div>

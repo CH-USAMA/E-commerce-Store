@@ -75,6 +75,7 @@ Route::post('/cart/update', [\App\Http\Controllers\CartController::class, 'updat
 Route::post('/cart/remove', [\App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/count', [\App\Http\Controllers\CartController::class, 'count'])->name('cart.count');
 Route::post('/cart/nearest-store', [\App\Http\Controllers\CartController::class, 'nearestStore'])->name('cart.nearest-store');
+Route::get('/cart/clear', [\App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
 // Checkout Routes
 Route::get('/checkout/auth', [\App\Http\Controllers\CartController::class, 'checkoutAuth'])->name('checkout.auth');
 Route::post('/checkout/guest', [\App\Http\Controllers\CartController::class, 'guestCheckout'])->name('checkout.guest');
@@ -93,6 +94,8 @@ Route::middleware(['auth', 'verified', 'role:user', 'profile.complete'])->prefix
     Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/orders', [\App\Http\Controllers\User\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\User\OrderController::class, 'show'])->name('orders.show');
+    Route::get('/notifications', [\App\Http\Controllers\User\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/mark-read', [\App\Http\Controllers\User\NotificationController::class, 'markAllRead'])->name('notifications.mark-read');
 });
 
 // Admin Routes
@@ -111,10 +114,19 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('gallery', \App\Http\Controllers\Admin\GalleryItemController::class);
     Route::get('orders/fake', [\App\Http\Controllers\Admin\OrderController::class, 'createFakeOrder'])->name('orders.fake');
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
+    Route::post('orders/{order}/confirm-payment', [\App\Http\Controllers\Admin\OrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
     Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class);
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-    Route::post('system/test-email', [\App\Http\Controllers\Admin\SystemController::class, 'sendTestEmail'])->name('system.test-email');
-    // ... future CRUDs
+    Route::get('settings/payments', [\App\Http\Controllers\Admin\SystemController::class, 'payments'])->name('settings.payments');
+    Route::post('settings/payments', [\App\Http\Controllers\Admin\SystemController::class, 'updatePayments'])->name('settings.payments.update');
+    
+    // Marketing & Notifications
+    Route::get('notifications/mark-all-read', [\App\Http\Controllers\Admin\MarketingController::class, 'markAllRead'])->name('notifications.mark-all-read');
+    Route::get('marketing', [\App\Http\Controllers\Admin\MarketingController::class, 'index'])->name('marketing.index');
+    Route::get('marketing/create', [\App\Http\Controllers\Admin\MarketingController::class, 'create'])->name('marketing.create');
+    Route::post('marketing', [\App\Http\Controllers\Admin\MarketingController::class, 'push'])->name('marketing.push');
+    Route::post('marketing/{campaign}/resend', [\App\Http\Controllers\Admin\MarketingController::class, 'resend'])->name('marketing.resend');
+    Route::delete('marketing/{campaign}', [\App\Http\Controllers\Admin\MarketingController::class, 'destroy'])->name('marketing.destroy');
 });
 
 // Store Manager Routes

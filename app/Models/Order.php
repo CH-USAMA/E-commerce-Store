@@ -27,6 +27,12 @@ class Order extends Model
         'customer_address',
         'customer_city',
         'customer_postal_code',
+        'payment_screenshot',
+        'payment_confirmed_at',
+    ];
+
+    protected $casts = [
+        'payment_confirmed_at' => 'datetime',
     ];
 
     public function user()
@@ -42,5 +48,12 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function getManifestAttribute()
+    {
+        return $this->items->loadMissing('product')->map(function($item) {
+            return ($item->product->name ?? 'Unknown') . ' (x' . $item->quantity . ')';
+        })->implode(', ');
     }
 }

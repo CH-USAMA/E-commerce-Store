@@ -16,6 +16,16 @@
                 <form action="/register" method="POST" x-data="{ billingSame: true }">
                     @csrf
 
+                    @if ($errors->any())
+                        <div class="bg-red-500/10 border border-red-500 rounded-xl p-4 mb-6">
+                            <ul class="list-disc list-inside text-sm text-red-500">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <!-- Personal Info -->
                     <h3 class="text-xs font-bold uppercase tracking-widest text-dark-muted mb-4">Personal Information</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">

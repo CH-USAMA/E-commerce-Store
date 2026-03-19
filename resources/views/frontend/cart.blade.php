@@ -36,14 +36,6 @@
 
     <div class="bg-[#050505] min-h-screen py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="mb-10 text-center md:text-left">
-                <h1 class="text-3xl lg:text-5xl font-black tracking-tight text-white uppercase italic">
-                    Your <span class="gradient-text">Materials Cart</span>
-                </h1>
-                <p class="text-[10px] text-dark-muted font-black uppercase tracking-[0.2em] mt-2">
-                    {{ $products->count() }} line items currently staged for procurement
-                </p>
-            </div>
 
             @if($products->count() > 0)
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
@@ -117,7 +109,10 @@
 
                         <div class="mt-10 flex flex-col sm:flex-row items-center justify-between gap-6">
                             <a href="{{ route('products') }}" class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted hover:text-gold-400 transition flex items-center gap-4 py-4 px-10 border border-white/10 rounded-2xl bg-white/5">
-                                <i class="fas fa-arrow-left"></i> Continue Procurement
+                                <i class="fas fa-arrow-left"></i> Return to Catalog
+                            </a>
+                            <a href="{{ route('cart.clear') }}" onclick="return confirm('Secure clearance? This will purge all items from current staging.')" class="text-[10px] font-black uppercase tracking-[0.3em] text-red-400/50 hover:text-red-400 transition flex items-center gap-4 py-4 px-10 border border-white/10 rounded-2xl bg-white/5">
+                                <i class="fas fa-trash-alt"></i> Empty Cart
                             </a>
                             <div class="flex items-center gap-6">
                                 <a href="https://wa.me/27660684585" target="_blank" class="flex items-center gap-3 text-green-500 hover:text-green-400 transition-all font-black uppercase text-[10px] tracking-widest">
@@ -131,7 +126,7 @@
                     <div class="lg:sticky lg:top-36">
                         <div class="card-dark p-8 rounded-[2.5rem] bg-gradient-to-br from-white/[0.04] to-transparent shadow-2xl space-y-8">
                             <div>
-                                <h4 class="text-xs font-black uppercase tracking-[0.4em] text-gold-400 mb-6 border-b border-gold-400/20 pb-2 italic">Procurement Summary</h4>
+                                <h4 class="text-xs font-black uppercase tracking-[0.4em] text-gold-400 mb-6 border-b border-gold-400/20 pb-2 italic">Order Summary</h4>
                                 <div class="space-y-4">
                                     <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-dark-muted">
                                         <span>Items Count:</span>
@@ -178,7 +173,7 @@
                         <i class="fas fa-cart-arrow-down text-3xl text-dark-muted relative z-10"></i>
                     </div>
                     <h2 class="text-3xl font-black text-white italic mb-4 tracking-tight uppercase">Cart Status: Inactive</h2>
-                    <p class="text-dark-muted text-xs mb-10 max-w-sm mx-auto leading-relaxed font-bold uppercase tracking-widest px-8">No inventory items detected in current session. Initialize procurement to continue.</p>
+                    <p class="text-dark-muted text-xs mb-10 max-w-sm mx-auto leading-relaxed font-bold uppercase tracking-widest px-8">No inventory items detected in current session. Initialize order to continue.</p>
                     <a href="{{ route('products') }}" class="btn-gold px-12 py-5 text-[10px] font-black uppercase tracking-widest rounded-full shadow-2xl">Return to Catalog</a>
                 </div>
             @endif

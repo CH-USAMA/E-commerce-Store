@@ -5,18 +5,50 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Order;
+use App\Notifications\NewOrderNotification;
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
 
 class CartController extends Controller
 {
     protected $storeService;
+
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2) {
+        if (!$lat1 || !$lon1 || !$lat2 || !$lon2) return 0;
+        $earthRadius = 6371;
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+        $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
+        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        return $earthRadius * $c;
+    }
 
     public function __construct(\App\Services\StoreService $storeService)
     {
         $this->storeService = $storeService;
     }
 
+    private function syncCartToDb() {
+        if (auth()->check()) {
+            auth()->user()->update(['cart_data' => session()->get('cart', [])]);
+        }
+    }
+
     public function index()
     {
+        if (auth()->check()) {
+            $user = auth()->user();
+            $sessionCart = session()->get('cart', []);
+            // If session is empty but DB has data, restore it
+            if (empty($sessionCart) && !empty($user->cart_data)) {
+                session()->put('cart', $user->cart_data);
+            } 
+            // If session has data but DB is empty or different, sync session to DB
+            elseif (!empty($sessionCart)) {
+                $this->syncCartToDb();
+            }
+        }
+
         $cart = session()->get('cart', []);
         $total = 0;
 
@@ -52,6 +84,7 @@ class CartController extends Controller
         }
 
         session()->put('cart', $cart);
+        $this->syncCartToDb();
 
         $totalItems = array_sum($cart);
 
@@ -79,6 +112,7 @@ class CartController extends Controller
         }
 
         session()->put('cart', $cart);
+        $this->syncCartToDb();
 
         return response()->json([
             'success' => true,
@@ -91,6 +125,7 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
         unset($cart[$request->product_id]);
         session()->put('cart', $cart);
+        $this->syncCartToDb();
 
         return response()->json([
             'success' => true,
@@ -102,6 +137,15 @@ class CartController extends Controller
     {
         $cart = session()->get('cart', []);
         return response()->json(['cart_count' => array_sum($cart)]);
+    }
+    
+    public function clear()
+    {
+        session()->forget('cart');
+        if (auth()->check()) {
+            auth()->user()->update(['cart_data' => null]);
+        }
+        return redirect()->route('cart')->with('success', 'Your cart has been cleared.');
     }
 
     public function nearestStore(Request $request)
@@ -171,6 +215,13 @@ class CartController extends Controller
 
     public function checkout()
     {
+        if (auth()->check()) {
+            $user = auth()->user();
+            if (empty(session('cart')) && !empty($user->cart_data)) {
+                session()->put('cart', $user->cart_data);
+            }
+        }
+
         $cart = session()->get('cart', []);
         if (empty($cart)) {
             return redirect()->route('products')->with('error', 'Your cart is empty.');
@@ -235,9 +286,9 @@ class CartController extends Controller
             'customer_postal_code' => 'required|string|max:10',
             'payment_method' => 'required|in:eft,payfast',
             'order_type' => 'required|in:pickup,delivery',
-            'store_id' => 'required|exists:stores,id',
             'lat' => 'nullable|numeric',
             'lng' => 'nullable|numeric',
+            'payment_screenshot' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         $cart = session()->get('cart', []);
@@ -247,7 +298,19 @@ class CartController extends Controller
 
         // Store selection logic
         $storeId = $request->store_id;
-        // If it was supposed to be auto-detected but user didn't change it, we stick with what they sent or what JS calculated.
+        $store = \App\Models\Store::find($storeId);
+        
+        // Distance Check for Delivery
+        $finalOrderType = $request->order_type;
+        if ($request->order_type === 'delivery' && $request->lat && $request->lng && $store) {
+            $dist = $this->calculateDistance($request->lat, $request->lng, $store->lat, $store->lng);
+            $maxDistance = \App\Models\Setting::where('key', 'max_delivery_km')->first()?->value ?? 300;
+            
+            if ($dist > $maxDistance) {
+                $finalOrderType = 'pickup';
+                session()->flash('info', "Location exceeds {$maxDistance}km delivery radius ({$dist}km). Strategy adjusted to Warehouse Pickup.");
+            }
+        }
 
         \Illuminate\Support\Facades\DB::beginTransaction();
         try {
@@ -257,15 +320,15 @@ class CartController extends Controller
                 $total += $p->price * $cart[$p->id];
             }
 
-            $order = Order::create([
+            $orderData = [
                 'order_number' => 'JB-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
                 'user_id' => auth()->id(),
                 'store_id' => $storeId,
                 'total' => $total,
-                'vat' => $total * 0.15, // Assuming 15% VAT
+                'vat' => $total * 0.15,
                 'status' => 'pending',
                 'payment_method' => $request->payment_method,
-                'order_type' => $request->order_type,
+                'order_type' => $finalOrderType,
                 'notes' => $request->notes,
                 'lat' => $request->lat,
                 'lng' => $request->lng,
@@ -275,7 +338,42 @@ class CartController extends Controller
                 'customer_address' => $request->customer_address,
                 'customer_city' => $request->customer_city,
                 'customer_postal_code' => $request->customer_postal_code,
-            ]);
+            ];
+
+            // Auto-update user profile if missing data
+            if (auth()->check()) {
+                $user = auth()->user();
+                $updateData = [];
+                if (empty($user->phone)) $updateData['phone'] = $request->customer_phone;
+                // You might also want to save the address as a default address if none exists
+                if (!empty($updateData)) {
+                    $user->update($updateData);
+                }
+
+                if ($user->addresses()->count() === 0) {
+                    $user->addresses()->create([
+                        'address_name' => 'Default Site',
+                        'address_line_1' => $request->customer_address,
+                        'city' => $request->customer_city,
+                        'postal_code' => $request->customer_postal_code,
+                        'is_default' => true
+                    ]);
+                }
+            }
+
+            if ($request->hasFile('payment_screenshot')) {
+                $file = $request->file('payment_screenshot');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('payments'), $filename);
+                $orderData['payment_screenshot'] = 'payments/' . $filename;
+            }
+
+            // For EFT, we might want to override status
+            if ($request->payment_method === 'eft') {
+                $orderData['status'] = 'awaiting_payment';
+            }
+
+            $order = Order::create($orderData);
 
             foreach ($products as $p) {
                 \App\Models\OrderItem::create([
@@ -287,28 +385,80 @@ class CartController extends Controller
                 ]);
             }
 
+            // Notify Admins of new order
+            $admins = \App\Models\User::where('role', 'admin')->get();
+            \Illuminate\Support\Facades\Notification::send($admins, new NewOrderNotification($order));
+
             \Illuminate\Support\Facades\DB::commit();
             session()->forget('cart');
-
-            // Send Order Confirmation Email
-            try {
-                \Illuminate\Support\Facades\Mail::to($order->customer_email)->send(new \App\Mail\OrderConfirmed($order));
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Order Confirmation Email Failed: ' . $e->getMessage());
+            if (auth()->check()) {
+                auth()->user()->update(['cart_data' => null]);
             }
 
-            return redirect()->route('order.success')->with('order_number', $order->order_number);
+            if ($request->payment_method === 'payfast') {
+                $stripeEnabled = \App\Models\Setting::where('key', 'stripe_enabled')->first()?->value === '1';
+                $stripeSecret = \App\Models\Setting::where('key', 'stripe_secret_key')->first()?->value;
+
+                if ($stripeEnabled && $stripeSecret) {
+                    Stripe::setApiKey($stripeSecret);
+
+                    $lineItems = [];
+                    foreach ($products as $p) {
+                        $lineItems[] = [
+                            'price_data' => [
+                                'currency' => 'zar',
+                                'product_data' => [
+                                    'name' => $p->name,
+                                ],
+                                'unit_amount' => $p->price * 100, // Stripe uses cents
+                            ],
+                            'quantity' => $cart[$p->id],
+                        ];
+                    }
+
+                    $session = Session::create([
+                        'payment_method_types' => ['card'],
+                        'line_items' => $lineItems,
+                        'mode' => 'payment',
+                        'success_url' => route('order.success') . '?order_number=' . $order->order_number,
+                        'cancel_url' => route('checkout'),
+                        'metadata' => [
+                            'order_id' => $order->id,
+                        ],
+                    ]);
+
+                    return redirect($session->url);
+                }
+            }
+
+            return redirect()->route('order.success')->with('order_number', $order->order_number)->with('order_id', $order->id);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\DB::rollBack();
             return back()->with('error', 'Something went wrong. Please try again. ' . $e->getMessage());
         }
     }
 
-    public function orderSuccess()
+    public function orderSuccess(Request $request)
     {
-        $orderNumber = session('order_number');
-        if (!$orderNumber)
+        $orderNumber = $request->order_number ?? session('order_number');
+        if (!$orderNumber) {
             return redirect()->route('home');
-        return view('frontend.order-success', compact('orderNumber'));
+        }
+
+        $order = Order::where('order_number', $orderNumber)->first();
+        
+        // If coming back from Stripe (payfast) and still pending, mark as processing
+        if ($order && $order->payment_method === 'payfast' && $order->status === 'pending') {
+            $order->update(['status' => 'processing']);
+            
+            // Send confirmation email automatically for Stripe success
+            try {
+                \Illuminate\Support\Facades\Mail::to($order->customer_email)->send(new \App\Mail\OrderConfirmed($order));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Stripe Order Email Failed: ' . $e->getMessage());
+            }
+        }
+
+        return view('frontend.order-success', compact('orderNumber', 'order'));
     }
 }

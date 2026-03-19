@@ -13,27 +13,41 @@
             <div
                 class="card-dark rounded-[3.5rem] p-12 md:p-20 border-gold-400/20 text-center relative overflow-hidden bg-gradient-to-b from-white/[0.03] to-transparent shadow-2xl">
 
-                <!-- Animated Success Icon -->
-                <div
-                    class="inline-flex items-center justify-center w-28 h-28 rounded-full bg-gold-400 text-dark mb-12 shadow-[0_0_80px_rgba(245,197,24,0.3)] animate-pulse">
-                    <i class="fas fa-check text-4xl"></i>
-                </div>
+                @if($order && $order->status === 'awaiting_payment')
+                    <div
+                        class="inline-flex items-center justify-center w-28 h-28 rounded-full bg-orange-500 text-white mb-12 shadow-[0_0_80px_rgba(249,115,22,0.3)] animate-pulse">
+                        <i class="fas fa-clock text-4xl"></i>
+                    </div>
 
-                <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight tracking-tight">Order <span
-                        class="gradient-text">Confirmed!</span></h1>
+                    <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight tracking-tight">Requisition <span
+                            class="text-orange-500">Received</span></h1>
 
-                <div class="inline-block bg-white/5 border border-white/10 rounded-2xl px-8 py-4 mb-10">
-                    <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-1">Confirmation Number
-                    </p>
-                    <p class="text-3xl font-black text-gold-400 tracking-tighter">#{{ $orderNumber }}</p>
-                </div>
+                    <div class="space-y-6 text-gray-400 text-lg leading-relaxed mb-12 max-w-xl mx-auto font-light">
+                        <p>Your requisition tracking code <span class="text-white font-bold">#{{ $order->order_number }}</span> has been logged. Since you selected <span class="text-white font-bold">Bank EFT</span>, your order is currently in a <span class="text-orange-500 font-bold italic uppercase tracking-widest text-xs">Waiting for Payment Verification</span> state.</p>
+                        <p class="text-sm">Once our finance team confirms the transaction settlement (Proof of Payment), your official order confirmation will be dispatched to your email address.</p>
+                    </div>
+                @else
+                    <div
+                        class="inline-flex items-center justify-center w-28 h-28 rounded-full bg-gold-400 text-dark mb-12 shadow-[0_0_80px_rgba(245,197,24,0.3)] animate-pulse">
+                        <i class="fas fa-check text-4xl"></i>
+                    </div>
 
-                <div class="space-y-6 text-gray-400 text-lg leading-relaxed mb-12 max-w-xl mx-auto font-light">
-                    <p>Thank you for choosing <span class="text-white font-bold">Jabulani Group</span>. We've received your
-                        order and our processing team is already in motion.</p>
-                    <p class="text-sm">A branch manager will contact you shortly to coordinate the delivery logistics or
-                        collection timing.</p>
-                </div>
+                    <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight tracking-tight">Order <span
+                            class="gradient-text">Confirmed!</span></h1>
+
+                    <div class="inline-block bg-white/5 border border-white/10 rounded-2xl px-8 py-4 mb-10">
+                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-1">Confirmation Number
+                        </p>
+                        <p class="text-3xl font-black text-gold-400 tracking-tighter">#{{ $orderNumber }}</p>
+                    </div>
+
+                    <div class="space-y-6 text-gray-400 text-lg leading-relaxed mb-12 max-w-xl mx-auto font-light">
+                        <p>Thank you for choosing <span class="text-white font-bold">Jabulani Group</span>. We've received your
+                            order and our processing team is already in motion.</p>
+                        <p class="text-sm">A branch manager will contact you shortly to coordinate the delivery logistics or
+                            collection timing.</p>
+                    </div>
+                @endif
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <a href="{{ route('home') }}"

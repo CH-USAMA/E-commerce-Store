@@ -49,6 +49,10 @@
                                 class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest {{ request()->routeIs('user.orders.*') && !request()->routeIs('user.dashboard') ? 'bg-gold-400 text-dark shadow-xl' : 'text-dark-muted hover:text-white hover:bg-white/5' }} transition-all duration-300">
                                 <i class="fas fa-shopping-bag text-sm"></i> My Orders
                             </a>
+                            <a href="{{ route('user.notifications.index') }}"
+                                class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest {{ request()->routeIs('user.notifications.*') ? 'bg-gold-400 text-dark shadow-xl' : 'text-dark-muted hover:text-white hover:bg-white/5' }} transition-all duration-300">
+                                <i class="fas fa-bell text-sm"></i> Alert Center
+                            </a>
                             <a href="{{ route('profile.addresses') }}"
                                 class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest {{ request()->is('profile/addresses*') ? 'bg-gold-400 text-dark shadow-xl' : 'text-dark-muted hover:text-white hover:bg-white/5' }} transition-all duration-300">
                                 <i class="fas fa-map-marker-alt text-sm"></i> Shipping Profiles
@@ -81,6 +85,7 @@
                             <p class="text-gray-400 text-sm font-medium max-w-lg leading-relaxed">It's great to see you again. Here's a quick look at your recent activity and orders.</p>
                         </div>
                     </div>
+
 
                     <!-- Statistics Grids -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

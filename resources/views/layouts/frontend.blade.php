@@ -187,10 +187,16 @@
     <script>
         document.addEventListener('alpine:init', () => {
             window.showToast = (msg, type = 'success') => {
-                const bgColor = type === 'success' ? 'linear-gradient(to right, #00b09b, #96c93d)' : 'linear-gradient(to right, #ff5f6d, #ffc371)';
-                const icon = type === 'success'
-                    ? '<i class="fas fa-check-circle" style="color: white; margin-right: 8px;"></i>'
-                    : '<i class="fas fa-exclamation-triangle" style="color: white; margin-right: 8px;"></i>';
+                let bgColor = 'linear-gradient(to right, #00b09b, #96c93d)';
+                let icon = '<i class="fas fa-check-circle" style="color: white; margin-right: 8px;"></i>';
+                
+                if (type === 'error') {
+                    bgColor = 'linear-gradient(to right, #ff5f6d, #ffc371)';
+                    icon = '<i class="fas fa-exclamation-triangle" style="color: white; margin-right: 8px;"></i>';
+                } else if (type === 'info') {
+                    bgColor = 'linear-gradient(to right, #2193b0, #6dd5ed)';
+                    icon = '<i class="fas fa-info-circle" style="color: white; margin-right: 8px;"></i>';
+                }
 
                 Toastify({
                     text: msg,
@@ -247,13 +253,22 @@
                     }, 500);
                 @endif
             @endif
+
+            @if(session()->has('info'))
+                @php $msg = session()->pull('info'); @endphp
+                @if(is_string($msg) && strlen(trim($msg)) > 0)
+                    setTimeout(() => {
+                        window.showToast(`{{ $msg }}`, 'info');
+                    }, 500);
+                @endif
+            @endif
         });
     </script>
 
     <!-- Header -->
 
     <header class="fixed top-0 left-0 right-0 z-[100] transition-all duration-500"
-        :class="scrolled ? 'py-2 bg-black/90 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)]' : 'py-7 bg-transparent'"
+        :class="scrolled ? 'py-2 bg-black/90 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)]' : 'py-4 bg-transparent'"
         x-data="{ mobileMenuOpen: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center transition-all duration-500"
@@ -441,6 +456,69 @@
 
                 <!-- Actions -->
                 <div class="flex items-center space-x-4 md:space-x-4">
+                    <!-- Notifications -->
+                    @auth
+                        <div class="relative group" x-data="{ open: false }">
+                            <button @click="open = !open"
+                                class="relative w-12 h-12 flex items-center justify-center text-gray-300 hover:text-gold-400 hover:bg-white/5 rounded-2xl transition-all duration-300">
+                                <i class="fas fa-bell text-lg"></i>
+                                @php $unreadCount = auth()->user()->unreadNotifications->count(); @endphp
+                                @if($unreadCount > 0)
+                                    <span class="absolute top-2 right-2 bg-red-500 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full shadow-lg ring-2 ring-black/50">
+                                        {{ $unreadCount }}
+                                    </span>
+                                @endif
+                            </button>
+                            <div x-show="open" @click.away="open = false"
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                class="absolute right-0 mt-3 w-80 bg-[#0f0f0f] border border-white/10 rounded-[1.5rem] shadow-2xl py-4 z-50 p-2 overflow-hidden"
+                                style="display:none;">
+                                <div class="px-4 py-3 mb-2 bg-white/5 rounded-xl flex justify-between items-center">
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-gold-400 italic">Alert Center</p>
+                                    <a href="{{ route('user.notifications.mark-read') }}" class="text-[8px] font-black text-dark-muted uppercase hover:text-white transition">Clear All</a>
+                                </div>
+                                <div class="max-h-96 overflow-y-auto space-y-1">
+                                    @forelse(auth()->user()->unreadNotifications->take(5) as $notification)
+                                        <a href="{{ $notification->data['url'] ?? '#' }}" class="block p-4 rounded-2xl hover:bg-white/5 transition-all bg-white/[0.03] border border-white/5 shadow-inner">
+                                            <div class="flex items-start gap-4">
+                                                <div class="w-8 h-8 rounded-xl bg-gold-400/10 flex items-center justify-center text-gold-400 flex-shrink-0">
+                                                    @if(($notification->data['type'] ?? '') === 'status_change')
+                                                        <i class="fas fa-sync-alt fa-xs"></i>
+                                                    @elseif(($notification->data['type'] ?? '') === 'marketing')
+                                                        <i class="fas fa-bullhorn fa-xs"></i>
+                                                    @else
+                                                        <i class="fas fa-bell fa-xs"></i>
+                                                    @endif
+                                                </div>
+                                                <div class="flex-grow min-w-0">
+                                                    <div class="flex items-center justify-between mb-1">
+                                                        <p class="text-[10px] font-black text-white italic truncate uppercase">{{ $notification->data['title'] ?? 'Order Update' }}</p>
+                                                        <span class="text-[7px] text-dark-muted font-black uppercase">{{ $notification->created_at->diffForHumans(null, true) }}</span>
+                                                    </div>
+                                                    <p class="text-[9px] text-gray-400 line-clamp-2 leading-relaxed">{{ $notification->data['message'] }}</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @empty
+                                        <div class="py-12 text-center">
+                                            <div class="w-12 h-12 rounded-full bg-white/5 mx-auto mb-4 flex items-center justify-center opacity-30">
+                                                <i class="fas fa-bell-slash text-xl text-dark-muted"></i>
+                                            </div>
+                                            <p class="text-[10px] font-black text-dark-muted uppercase tracking-widest opacity-40 italic">System Secured. No alerts found.</p>
+                                        </div>
+                                    @endforelse
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-white/5 text-center">
+                                    <a href="{{ route('user.dashboard') }}" class="text-[9px] font-black text-gold-400 uppercase tracking-widest hover:text-white transition-all flex items-center justify-center gap-2">
+                                        Open Full Dashboard Activity <i class="fas fa-chevron-right text-[7px]"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endauth
+
                     <!-- Cart -->
                     <a href="{{ route('cart') }}"
                         class="relative w-12 h-12 flex items-center justify-center text-gray-300 hover:text-gold-400 hover:bg-white/5 rounded-2xl transition-all duration-300">

@@ -48,6 +48,10 @@
                                 class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest bg-white/5 text-gold-400 border border-gold-400/20 shadow-xl transition-all duration-300">
                                 <i class="fas fa-shopping-bag text-sm"></i> My Orders
                             </a>
+                            <a href="{{ route('user.notifications.index') }}"
+                                class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest text-dark-muted hover:text-white hover:bg-white/5 transition-all duration-300">
+                                <i class="fas fa-bell text-sm"></i> Alert Center
+                            </a>
                             <div class="h-px bg-white/5 my-4 mx-4"></div>
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
@@ -70,7 +74,16 @@
                 <div class="flex-1 space-y-8">
                     
                     @php
-                        $statusMap = ['pending'=>1,'processing'=>2,'out_for_delivery'=>3,'ready_for_pickup'=>3,'completed'=>4,'cancelled'=>4];
+                        $statusMap = [
+                            'pending' => 1,
+                            'processing' => 2,
+                            'shipped' => 3,
+                            'out_for_delivery' => 3,
+                            'ready_for_pickup' => 3,
+                            'delivered' => 4,
+                            'completed' => 4,
+                            'cancelled' => 4,
+                        ];
                         $step = $statusMap[$order->status] ?? 1;
                         $cancelled = $order->status === 'cancelled';
                         $color = $cancelled ? 'rgb(239,68,68)' : '#f5c518';

@@ -80,7 +80,7 @@
                     <tbody>
                         @forelse($orders as $order)
                             <tr>
-                                <td class="ps-4 fw-bold text-primary">{{ $order->order_number }}</td>
+                                <td class="ps-4 fw-bold text-primary" title="{{ $order->manifest }}">{{ $order->order_number }}</td>
                                 <td>
                                     <div>{{ $order->customer_name }}</div>
                                     <small class="text-muted">{{ $order->customer_phone }}</small>

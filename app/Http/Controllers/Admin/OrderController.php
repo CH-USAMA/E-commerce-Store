@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Notifications\OrderStatusChangedNotification;
 
 class OrderController extends Controller
 {
@@ -82,12 +83,43 @@ class OrderController extends Controller
     public function update(Request $request, \App\Models\Order $order)
     {
         $request->validate([
-            'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
+            'status' => 'required|in:awaiting_payment,pending,processing,shipped,delivered,cancelled',
         ]);
 
         $order->update(['status' => $request->status]);
 
-        return back()->with('success', 'Order status updated successfully.');
+        // Notify User of status change
+        if ($order->user) {
+            $order->user->notify(new OrderStatusChangedNotification($order));
+        }
+
+        return back()->with('success', 'Order status updated and customer notified.');
+    }
+
+    public function confirmPayment(\App\Models\Order $order)
+    {
+        if ($order->status !== 'awaiting_payment') {
+            return back()->with('error', 'Only orders awaiting payment can be confirmed.');
+        }
+
+        $order->update([
+            'status' => 'processing',
+            'payment_confirmed_at' => now(),
+        ]);
+
+        // Notify User of status change (Confirmation)
+        if ($order->user) {
+            $order->user->notify(new OrderStatusChangedNotification($order));
+        }
+
+        // Send confirmation email now
+        try {
+            \Illuminate\Support\Facades\Mail::to($order->customer_email)->send(new \App\Mail\OrderConfirmed($order));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Admin Payment Confirmation Email Failed: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'Payment confirmed! Final order documentation has been dispatched to the customer.');
     }
 
     public function destroy(\App\Models\Order $order)
