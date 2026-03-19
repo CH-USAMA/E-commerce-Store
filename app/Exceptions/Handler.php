@@ -44,5 +44,9 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        $this->renderable(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            return back()->with('error', 'The uploaded artifact/file exceeds the institution\'s logistics pipeline capacity. Please ensure your documentation is under 2MB.');
+        });
     }
 }

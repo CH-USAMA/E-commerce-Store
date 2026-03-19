@@ -15,14 +15,13 @@
         </div>
     </div>
 
-    <div x-data="{ 
-        step: 1, 
+    <div x-data="{
+        step: 1,
         paymentMethod: 'eft',
         orderType: 'delivery',
         distance: 0,
         fileName: '',
         maxDeliveryKm: {{ \App\Models\Setting::where('key', 'max_delivery_km')->first()?->value ?? 300 }},
-        canDeliver: true,
         selectedAddressId: {{ $defaultShipping->id ?? 0 }},
         setPayment(method) { this.paymentMethod = method; },
         selectAddress(addr, id) {
@@ -34,10 +33,24 @@
         },
         useCurrentLocation() {
             if (window.triggerGeolocation) window.triggerGeolocation();
+        },
+        validateFile(event) {
+            const file = event.target.files[0];
+            if (file && file.size > 2 * 1024 * 1024) {
+                if (window.showToast) {
+                    window.showToast('Validation Failed: Artifact exceeds 2MB limit.', 'error');
+                } else {
+                    alert('Validation Failed: Artifact exceeds 2MB limit.');
+                }
+                event.target.value = '';
+                this.fileName = '';
+                return;
+            }
+            this.fileName = file ? file.name : '';
         }
     }" class="bg-[#050505] min-h-screen py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
+
             <form action="/checkout" method="POST" id="checkoutForm" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="lat" id="checkout-lat">
@@ -47,7 +60,7 @@
 
                     <!-- Left: Order Details (Steps) -->
                     <div class="lg:col-span-8 space-y-6">
-                        
+
                         <!-- Header Progress -->
                         <div class="flex items-center gap-8 mb-4 px-2">
                             @foreach(['Shipping', 'Payment', 'Review'] as $i => $label)
@@ -119,27 +132,28 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div class="md:col-span-2 space-y-2">
                                     <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Official Delivery Destination</label>
-                                    <input type="text" name="customer_address" id="customer_address" required 
+                                    <input type="text" name="customer_address" id="customer_address" required
                                         value="{{ old('customer_address', $defaultShipping->address_line_1 ?? '') }}"
                                         class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-base text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner placeholder:text-gray-700"
                                         placeholder="Enter full site address...">
                                 </div>
                                 <div class="space-y-2">
                                     <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">City / Region</label>
-                                    <input type="text" name="customer_city" id="customer_city" required 
+                                    <input type="text" name="customer_city" id="customer_city" required
                                         value="{{ old('customer_city', $defaultShipping->city ?? '') }}"
                                         class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-base text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all">
                                 </div>
                                 <div class="space-y-2" x-data="{ postal: '{{ old('customer_postal_code', $defaultShipping->postal_code ?? '') }}' }">
                                     <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1 flex justify-between">
-                                        Postal Code
+                                        Postal Code <span class="opacity-40 font-bold italic tracking-normal">(OPTIONAL)</span>
                                         <span x-show="postal && !/^\d+$/.test(postal)" class="text-red-400 text-[8px] animate-pulse">Numeric Only Required</span>
                                     </label>
-                                    <input type="text" name="customer_postal_code" id="customer_postal_code" required 
+                                    <input type="text" name="customer_postal_code" id="customer_postal_code"
                                         inputmode="numeric"
                                         x-model="postal"
                                         :class="postal && !/^\d+$/.test(postal) ? 'border-red-400/50 bg-red-400/5' : 'border-white/10 bg-black/40'"
-                                        class="w-full rounded-2xl px-6 py-4 text-base text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all border">
+                                        class="w-full rounded-2xl px-6 py-4 text-base text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all border"
+                                        placeholder="0000">
                                 </div>
                             </div>
 
@@ -196,66 +210,119 @@
                                 </div>
 
                                 <!-- Bank Accounts Styled -->
-                                <div x-show="paymentMethod === 'eft'" x-transition.opacity class="space-y-6">
-                                    <h5 class="text-[11px] font-black uppercase tracking-[0.3em] text-gold-400 italic mb-4">Official Settlement Accounts</h5>
+                                <div x-show="paymentMethod === 'eft'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-8">
+                                    <div class="flex items-center justify-between mb-4 mt-8">
+                                        <h5 class="text-[11px] font-black uppercase tracking-[0.4em] text-gold-400 italic">Official Settlement Channels</h5>
+                                        <span class="text-[8px] font-black text-dark-muted uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">Tap to Copy Account</span>
+                                    </div>
+
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         @foreach([
-                                            ['FNB', 'Moin Hardware', '62866895166'],
-                                            ['FNB', 'JB Builder Choice', '63070014740'],
-                                            ['Standard Bank', 'Moin Hardware', '272322091']
-                                        ] as [$bank, $name, $acc])
-                                            <div class="p-6 bg-white/[0.02] border border-white/10 rounded-2xl hover:border-gold-400/30 transition-all group">
-                                                <div class="flex items-center justify-between mb-4">
-                                                    <span class="text-[9px] font-black text-gold-400 uppercase tracking-widest">{{ $bank }}</span>
-                                                    <i class="fas fa-circle-check text-white/10 text-xs"></i>
+                                            ['FNB', 'Moin Hardware', '62866895166', '628'],
+                                            ['FNB', 'JB Builder Choice', '63070014740', '630'],
+                                            ['Standard Bank', 'Moin Hardware', '272322091', '051']
+                                        ] as [$bank, $name, $acc, $code])
+                                            <div class="relative p-6 bg-gradient-to-br from-white/[0.03] to-transparent border border-white/10 rounded-[2rem] hover:border-gold-400/40 transition-all group cursor-pointer overflow-hidden shadow-2xl"
+                                                @click="copyToClipboard('{{ $acc }}', '{{ $bank }} Account')">
+
+                                                <!-- Bank Aura -->
+                                                <div class="absolute -top-12 -right-12 w-24 h-24 bg-white/5 blur-2xl rounded-full group-hover:bg-gold-400/10 transition-colors"></div>
+
+                                                <div class="relative z-10">
+                                                    <div class="flex items-center justify-between mb-6">
+                                                        <div class="px-3 py-1 bg-white/5 rounded-lg border border-white/5 group-hover:border-gold-400/30 transition-all">
+                                                            <span class="text-[9px] font-black text-gold-400 uppercase tracking-widest">{{ $bank }}</span>
+                                                        </div>
+                                                        <i class="fas fa-copy text-white/10 group-hover:text-gold-400 transition-colors text-sm"></i>
+                                                    </div>
+
+                                                    <p class="text-[10px] font-black text-dark-muted uppercase tracking-tighter mb-1 opacity-60">Beneficiary</p>
+                                                    <p class="text-xs font-black text-white uppercase italic mb-3 leading-tight">{{ $name }}</p>
+
+                                                    <p class="text-[10px] font-black text-dark-muted uppercase tracking-tighter mb-1 opacity-60">Account Number</p>
+                                                    <p class="text-xl font-black text-white tracking-[0.1em] font-mono group-hover:text-gold-400 transition-colors">{{ $acc }}</p>
                                                 </div>
-                                                <p class="text-xs font-black text-white uppercase italic mb-1">{{ $name }}</p>
-                                                <p class="text-xl font-black text-white tracking-widest font-mono">{{ $acc }}</p>
                                             </div>
                                         @endforeach
                                     </div>
 
                                     <!-- Instructional Message -->
-                                    <div class="mt-8 p-6 bg-gold-400/5 border border-gold-400/20 rounded-3xl flex items-start gap-5 shadow-2xl">
-                                        <div class="w-12 h-12 rounded-2xl bg-gold-400/10 flex items-center justify-center text-gold-400 flex-shrink-0 border border-gold-400/20">
-                                            <i class="fas fa-circle-info text-xl"></i>
+                                    <div class="mt-8 p-8 bg-gold-400/[0.03] border border-gold-400/20 rounded-[2.5rem] flex items-start gap-6 shadow-2xl relative overflow-hidden">
+                                        <div class="absolute top-0 right-0 p-4 opacity-5">
+                                            <i class="fas fa-receipt text-6xl text-gold-400"></i>
                                         </div>
-                                        <div class="text-[10px] font-black uppercase tracking-[0.1em] leading-relaxed text-gray-300 italic">
-                                            Kindly make payment in these accounts to confirm your order and send the screenshot on our <span class="text-green-500">WhatsApp</span> or upload it below. <span class="text-gold-400">Upon payment confirmation from administration, you will receive a formal confirmation email.</span>
+                                        <div class="w-14 h-14 rounded-2xl bg-gold-400/10 flex items-center justify-center text-gold-400 flex-shrink-0 border border-gold-400/20 shadow-inner">
+                                            <i class="fas fa-circle-info text-2xl"></i>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <h4 class="text-xs font-black uppercase tracking-widest text-white italic">Settlement Instructions</h4>
+                                            <p class="text-[10px] font-medium tracking-wide leading-relaxed text-gray-400">
+                                                Please utilize the account details above to finalize your transaction. Use your <strong>Order Number</strong> as the primary reference. <span class="text-gold-400 font-black">Once funds are cleared, your confirmation documentation will be dispatched.</span>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- POP Upload Card in Col-12 -->
-                            <div x-show="paymentMethod === 'eft'" x-transition.opacity class="card-dark rounded-[2.5rem] p-10 border-dashed border-2 border-gold-400/20 bg-gold-400/[0.02] transition-all">
-                                <div class="flex flex-col md:flex-row items-center gap-10">
-                                    <div class="flex-1">
-                                        <h4 class="text-xl font-black text-white italic uppercase mb-2">Proof of <span class="text-gold-400">Payment</span></h4>
-                                        <p class="text-xs text-dark-muted font-medium pr-10">Upload your transaction settlement documentation (JPG, PNG or PDF) to expedite the order review process. Max file size: 2MB.</p>
-                                        
-                                        <!-- File Status Indicator -->
-                                        <div x-show="fileName" class="mt-4 p-3 bg-gold-400/10 border border-gold-400/30 rounded-xl inline-flex items-center gap-3">
-                                            <i class="fas fa-file-circle-check text-gold-400"></i>
-                                            <span class="text-[10px] font-black uppercase tracking-widest text-white italic">Linked: <span x-text="fileName" class="text-gold-400"></span></span>
-                                        </div>
-                                        <div x-show="!fileName" class="mt-4 p-3 bg-white/5 border border-white/10 rounded-xl inline-flex items-center gap-3 opacity-50">
-                                            <i class="fas fa-file-circle-exclamation text-dark-muted"></i>
-                                            <span class="text-[10px] font-black uppercase tracking-widest text-dark-muted italic">No Documentation Linked</span>
-                                        </div>
-                                    </div>
-                                    <div class="w-full md:w-auto">
-                                        <label class="flex flex-col items-center gap-4 cursor-pointer p-8 bg-black/40 border border-white/10 rounded-3xl hover:border-gold-400/40 transition-all group">
-                                            <div class="w-16 h-16 rounded-full bg-gold-400 flex items-center justify-center text-dark text-xl shadow-2xl group-hover:scale-110 transition-transform">
-                                                <i class="fas fa-file-arrow-up"></i>
+                            <!-- POP Upload Card - Decoupled & Premium -->
+                            <div x-show="paymentMethod === 'eft'"
+                                x-transition:enter="transition ease-out duration-500 delay-100"
+                                x-transition:enter-start="opacity-0 translate-y-8"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                class="card-dark rounded-[3rem] p-10 border-white/5 bg-gradient-to-br from-white/[0.02] to-transparent shadow-3xl relative overflow-hidden group">
+
+                                <div class="relative z-10">
+                                    <div class="flex flex-col lg:flex-row items-center gap-12">
+                                        <div class="flex-1 text-center lg:text-left">
+                                            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-gold-400/10 border border-gold-400/20 rounded-full mb-6">
+                                                <i class="fas fa-shield-check text-[10px] text-gold-400"></i>
+                                                <span class="text-[9px] font-black uppercase tracking-widest text-gold-400 italic">Financial Verification Node</span>
                                             </div>
-                                            <div class="text-center">
-                                                <input type="file" name="payment_screenshot" class="hidden" @change="fileName = $event.target.files[0].name">
-                                                <span class="text-[10px] font-black uppercase tracking-widest text-white" x-text="fileName ? 'Replace Documentation' : 'Select Documentation'"></span>
+                                            <h4 class="text-2xl font-black text-white italic uppercase mb-3">Settlement <span class="gradient-text">Documentation</span></h4>
+                                            <p class="text-xs text-dark-muted font-medium mb-8 max-w-sm mx-auto lg:mx-0 leading-relaxed italic">
+                                                Upload your Proof of Payment (JPG, PNG, PDF) to bypass manual audit delays. Visual confirmation accelerates your dispatch queue priority.
+                                            </p>
+
+                                            <!-- Interactive File Tray -->
+                                            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                                                <div x-show="fileName" class="px-6 py-4 bg-gold-400/10 border border-gold-400/30 rounded-2xl flex items-center gap-4 animate-bounce-slow">
+                                                    <div class="w-8 h-8 rounded-full bg-gold-400 flex items-center justify-center text-dark text-xs">
+                                                        <i class="fas fa-check"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-0.5">Linked Artifact</p>
+                                                        <p class="text-[10px] font-black text-white truncate max-w-[150px]" x-text="fileName"></p>
+                                                    </div>
+                                                </div>
+                                                <div x-show="!fileName" class="px-6 py-4 bg-white/[0.03] border border-white/10 rounded-2xl flex items-center gap-4 opacity-40">
+                                                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-dark-muted text-xs">
+                                                        <i class="fas fa-upload"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-0.5">Idle Pipeline</p>
+                                                        <p class="text-[10px] font-black text-dark-muted">No POP Documentation</p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </label>
+                                        </div>
+
+                                        <div class="w-full lg:w-1/3">
+                                            <label class="relative block group cursor-pointer">
+                                                <input type="file" name="payment_screenshot" class="hidden" @change="validateFile($event)">
+                                                <div class="aspect-square rounded-[2.5rem] bg-black/40 border-2 border-dashed border-white/10 group-hover:border-gold-400/50 transition-all flex flex-col items-center justify-center p-8 text-center bg-gradient-to-t from-white/[0.02] to-transparent shadow-inner">
+                                                    <div class="w-20 h-20 rounded-full bg-gold-400/10 border border-gold-400/20 flex items-center justify-center text-gold-400 text-3xl mb-4 group-hover:scale-110 transition-transform group-hover:bg-gold-400 group-hover:text-dark shadow-[0_0_30px_rgba(234,179,8,0.1)] group-hover:shadow-[0_0_40px_rgba(234,179,8,0.3)]">
+                                                        <i class="fas fa-cloud-arrow-up"></i>
+                                                    </div>
+                                                    <h5 class="text-xs font-black text-white uppercase italic mb-1">Select File</h5>
+                                                    <p class="text-[8px] font-black text-dark-muted uppercase tracking-widest">DRAG & DROP READY</p>
+                                                </div>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <!-- Background Accents -->
+                                <div class="absolute bottom-0 right-0 w-64 h-64 bg-gold-400/5 blur-[100px] rounded-full -mb-32 -mr-32"></div>
                             </div>
 
                             <div class="flex justify-between items-center pt-6">
@@ -311,11 +378,11 @@
                                             <option value="delivery" x-show="canDeliver">Site Delivery</option>
                                             <option value="pickup">Warehouse Pickup</option>
                                         </select>
-                                        <div class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gold-400 opacity-40 group-hover:opacity-100 transition-opacity">
-                                            <i class="fas fa-truck-fast text-xs"></i>
                                         </div>
                                     </div>
-                                    <!-- Distance Restriction Alert -->
+                                </div>
+
+                                <!-- Distance Restriction Alert -->
                                     <div x-show="!canDeliver" x-transition.opacity class="p-6 bg-red-400/5 border border-red-400/10 rounded-[2rem] flex items-start gap-5 mt-8 shadow-2xl border-dashed">
                                         <div class="w-12 h-12 rounded-2xl bg-red-400/10 flex items-center justify-center text-red-400 flex-shrink-0 border border-red-400/20 shadow-inner">
                                             <i class="fas fa-truck-slash text-xl"></i>
@@ -328,17 +395,22 @@
                                             </p>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="md:col-span-2 space-y-2">
+                                    <div class="md:col-span-2 space-y-2">
                                     <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Operations Notes <span class="opacity-30 tracking-normal ml-2">(OPTIONAL)</span></label>
                                     <textarea name="notes" rows="3"
                                         class="w-full bg-black/40 border border-white/10 rounded-3xl px-6 py-5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner resize-none font-medium"
                                         placeholder="Specific site access details or logistics notes?"></textarea>
                                 </div>
+
+                            <div class="flex items-center justify-between py-6 mb-10 border-b border-white/5 text-[10px] font-black uppercase tracking-widest">
+                                <button type="button" @click="step = 2" class="text-dark-muted hover:text-white transition">
+                                    <i class="fas fa-chevron-left mr-2"></i> Payment Re-selection
+                                </button>
+                                <span class="text-dark-muted italic opacity-40">System Release v2.4</span>
                             </div>
 
-                            <div class="bg-gold-400/5 border border-gold-400/10 rounded-[2rem] p-8 mb-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div class="bg-gold-400/5 border border-gold-400/10 rounded-[2rem] p-8 flex flex-col md:flex-row items-center justify-between gap-8">
                                 <div class="flex items-center gap-6">
                                     <div class="w-20 h-20 rounded-full bg-white/[0.03] border border-white/5 flex items-center justify-center text-gold-400 text-3xl shadow-xl">
                                         <i class="fas fa-file-invoice-dollar"></i>
@@ -356,20 +428,13 @@
                                     </span>
                                 </button>
                             </div>
-
-                            <div class="flex items-center justify-between pt-6 border-t border-white/5 text-[10px] font-black uppercase tracking-widest">
-                                <button type="button" @click="step = 2" class="text-dark-muted hover:text-white transition">
-                                    <i class="fas fa-chevron-left mr-2"></i> Payment Re-selection
-                                </button>
-                                <span class="text-dark-muted italic opacity-40">System Release v2.4</span>
-                            </div>
                         </div>
 
                     </div>
 
                     <!-- Right: Quick Manifest (Enhanced) -->
                     <div class="lg:col-span-4 lg:sticky lg:top-24 space-y-8">
-                        <div class="card-dark rounded-[3rem] p-10 border-gold-400/20 bg-gradient-to-br from-[#0c0c0c] to-black shadow-3xl relative overflow-hidden group">
+                        <div class="card-dark rounded-[3rem] p-8 md:p-12 border-gold-400/20 bg-gradient-to-br from-[#0c0c0c] to-black shadow-3xl relative overflow-hidden group">
                             
                             <!-- Animated Background Decor -->
                             <div class="absolute -top-24 -right-24 w-48 h-48 bg-gold-400/5 blur-[80px] rounded-full group-hover:bg-gold-400/10 transition-colors"></div>
@@ -380,34 +445,44 @@
                             </div>
 
                             <!-- Expanded Item List -->
-                            <div class="space-y-6 mb-10 pb-10 border-b border-white/5 max-h-[450px] overflow-y-auto custom-scrollbar pr-4">
+                            <div class="space-y-6 mb-10 pb-10 border-b border-white/5 max-h-[600px] overflow-y-auto custom-scrollbar pr-4">
                                 @foreach($products as $product)
                                     <div class="flex items-center gap-5 group/item">
                                         <div class="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 border border-white/10 group-hover/item:border-gold-400/40 transition-all shadow-xl">
-                                            <img src="{{ $product->image ? asset($product->image) : asset('images/placeholder.webp') }}" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" alt="product" loading="lazy">
+                                            @php
+                                                $imgCheckSrc = 'images/placeholder.webp';
+                                                if ($product->image && file_exists(public_path($product->image))) {
+                                                    $imgCheckSrc = implode('/', array_map('rawurlencode', explode('/', $product->image)));
+                                                }
+                                            @endphp
+                                            <img src="{{ asset($imgCheckSrc) }}" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" alt="product" loading="lazy">
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-black text-white truncate italic uppercase tracking-tight group-hover/item:text-gold-400 transition-colors">{{ $product->name }}</p>
+                                            <p class="text-sm font-black text-white italic uppercase tracking-tight group-hover/item:text-gold-400 transition-colors" title="{{ $product->name }}">{{ $product->name }}</p>
                                             <div class="flex items-center gap-3 mt-1.5">
                                                 <span class="text-[9px] font-black uppercase tracking-widest text-dark-muted">Qty: {{ $product->cart_quantity }}</span>
                                                 <span class="w-1 h-1 rounded-full bg-white/10"></span>
                                                 <span class="text-[10px] font-black text-white italic">R{{ number_format($product->price, 2) }}</span>
                                             </div>
                                         </div>
-                                        <p class="text-sm font-black text-white italic tracking-tighter">R{{ number_format($product->cart_subtotal, 2) }}</p>
+                                        <div class="text-right flex-shrink-0">
+                                            <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">Line Total</p>
+                                            <p class="text-sm font-black text-white italic tracking-tighter">R{{ number_format($product->cart_subtotal, 2) }}</p>
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>
 
-                            <div class="space-y-4 mb-4">
-                                <p class="text-[11px] font-black uppercase tracking-[0.2em] text-dark-muted italic">Total Order Value</p>
+                            <div class="space-y-6 pt-10 border-t border-white/5">
+                                <p class="text-[11px] font-black uppercase tracking-[0.3em] text-dark-muted italic mb-2 opacity-50">Total Order Value</p>
                                 <div class="flex flex-col">
-                                    <p class="text-6xl font-black text-gold-400 italic tracking-tighter leading-none mb-2">
+                                    <p class="text-5xl font-black text-gold-400 italic tracking-tighter leading-none mb-6">
                                         R{{ number_format($total, 2) }}
                                     </p>
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-full h-[1px] bg-white/5"></div>
-                                        <span class="text-[8px] font-black text-dark-muted uppercase tracking-widest whitespace-nowrap">Inclusive Order Pricing</span>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-[1px] bg-gold-400/20"></div>
+                                        <span class="text-[8px] font-black text-white/40 uppercase tracking-[0.2em] whitespace-nowrap italic">All-Inclusive Order Pricing</span>
+                                        <div class="flex-1 h-[1px] bg-white/5"></div>
                                     </div>
                                 </div>
                             </div>
@@ -430,6 +505,12 @@
 
 @push('js')
     <script>
+        function copyToClipboard(text, label) {
+            navigator.clipboard.writeText(text).then(() => {
+                window.showToast(label + ' Copied to Clipboard', 'info');
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const storeSelect = document.getElementById('store_id');
             const distanceText = document.getElementById('store-distance');

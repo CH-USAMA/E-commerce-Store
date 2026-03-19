@@ -283,7 +283,7 @@ class CartController extends Controller
             'customer_phone' => 'required|string|max:20',
             'customer_address' => 'required|string',
             'customer_city' => 'required|string|max:100',
-            'customer_postal_code' => 'required|string|max:10',
+            'customer_postal_code' => 'nullable|string|max:10',
             'payment_method' => 'required|in:eft,payfast',
             'order_type' => 'required|in:pickup,delivery',
             'lat' => 'nullable|numeric',

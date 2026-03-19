@@ -129,7 +129,7 @@
                                 @php
                                     $imgPath = $product->image;
                                     if ($imgPath && !Str::startsWith($imgPath, ['http', 'https', '/'])) {
-                                        $imgPath = asset($imgPath);
+                                        $imgPath = asset(implode('/', array_map('rawurlencode', explode('/', $imgPath))));
                                     } elseif (!$imgPath) {
                                         $imgPath = asset('images/placeholder.webp');
                                     }

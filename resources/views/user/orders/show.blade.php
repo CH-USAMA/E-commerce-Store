@@ -207,7 +207,13 @@
                                 <div class="group flex items-center gap-6 p-6 rounded-3xl border border-white/5 bg-black/40 hover:border-gold-400/30 transition-all duration-500 shadow-inner">
                                     <div class="w-16 h-16 rounded-xl overflow-hidden border border-white/10 flex-shrink-0 group-hover:border-gold-400/40 transition-all duration-500">
                                         @if($item->product)
-                                            <img src="{{ $item->product->image ? asset($item->product->image) : asset('images/placeholder.webp') }}" class="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700">
+                                            @php
+                                                $imgOrderSrc = 'images/placeholder.webp';
+                                                if ($item->product->image && file_exists(public_path($item->product->image))) {
+                                                    $imgOrderSrc = implode('/', array_map('rawurlencode', explode('/', $item->product->image)));
+                                                }
+                                            @endphp
+                                            <img src="{{ asset($imgOrderSrc) }}" class="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center bg-white/5 text-dark-muted"><i class="fas fa-box-archive"></i></div>
                                         @endif
@@ -232,12 +238,12 @@
                         <div class="mt-12 flex flex-col md:flex-row justify-end items-end gap-12 pt-12 border-t border-white/5">
                             <div class="space-y-4 text-right">
                                 <div class="flex justify-end gap-12 text-[9px] font-black uppercase tracking-widest text-dark-muted">
-                                    <span>Subtotal</span>
-                                    <span class="text-gray-300">R {{ number_format($order->total - $order->vat, 2) }}</span>
+                                    <span>Order Subtotal</span>
+                                    <span class="text-gray-300">R {{ number_format($order->total, 2) }}</span>
                                 </div>
-                                <div class="flex justify-end gap-12 text-[9px] font-black uppercase tracking-widest text-gold-400">
-                                    <span>VAT (15%)</span>
-                                    <span>R {{ number_format($order->vat, 2) }}</span>
+                                <div class="hidden flex justify-end gap-12 text-[9px] font-black uppercase tracking-widest text-gold-400">
+                                    <span>VAT (0%)</span>
+                                    <span>R 0.00</span>
                                 </div>
                                 <div class="flex justify-end gap-12 pt-6 border-t border-white/5">
                                     <span class="text-[11px] font-black uppercase tracking-[0.3em] text-white italic">Total Amount</span>

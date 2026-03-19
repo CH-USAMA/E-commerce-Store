@@ -138,7 +138,7 @@
             <table>
                 <tr>
                     <td>
-                        <div class="title">Tax Invoice</div>
+                        <div class="title">Invoice</div>
                         <p style="margin-top: 10px;">
                             <strong>Order Number:</strong> {{ $order->order_number }}<br>
                             <strong>Invoice Date:</strong> {{ $order->created_at->format('d M Y') }}<br>
@@ -151,7 +151,6 @@
                             123 Logistics Way<br>
                             Johannesburg, 2000<br>
                             South Africa<br>
-                            <strong>VAT Reg:</strong> 4123456789<br>
                             <strong>Email:</strong> finance@jabulanigroup.co.za
                         </p>
                     </td>
@@ -209,16 +208,8 @@
 
         <div class="summary">
             <table>
-                <tr>
-                    <td>Subtotal (Excl. VAT)</td>
-                    <td style="text-align: right;">R{{ number_format($order->total - $order->vat, 2) }}</td>
-                </tr>
-                <tr>
-                    <td>VAT (15%)</td>
-                    <td style="text-align: right;">R{{ number_format($order->vat, 2) }}</td>
-                </tr>
                 <tr class="total">
-                    <td>Total (Incl. VAT)</td>
+                    <td>Total Amount</td>
                     <td style="text-align: right; color: #EAB308;">R{{ number_format($order->total, 2) }}</td>
                 </tr>
             </table>
@@ -227,9 +218,11 @@
         <div style="clear: both; margin-top: 60px;">
             <p><strong>Payment Method:</strong> {{ strtoupper($order->payment_method) }}</p>
             @if($order->payment_method === 'eft')
-                <div style="background: #fdf6b2; padding: 15px; border-radius: 4px; font-size: 11px;">
-                    <strong>Bank Details for EFT:</strong><br>
-                    Bank: Standard Bank | Account: 123456789 | Branch: 051001<br>
+                <div style="background: #fdf6b2; padding: 15px; border-radius: 4px; font-size: 10px;">
+                    <strong>Official Settlement Accounts for EFT:</strong><br>
+                    1. FNB | Moin Hardware | 62866895166 | Code: 628<br>
+                    2. FNB | JB Builder Choice | 63070014740 | Code: 630<br>
+                    3. Standard Bank | Moin Hardware | 272322091 | Code: 051<br>
                     Reference: <strong>{{ $order->order_number }}</strong>
                 </div>
             @endif

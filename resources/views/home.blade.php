@@ -152,7 +152,13 @@
                         <a href="{{ route('products', ['category' => $category->slug]) }}"
                             class="group relative aspect-[4/5] rounded-[2rem] overflow-hidden bg-dark-card border border-white/5 hover:border-gold-400/40 transition-all duration-500">
                             {{-- Image --}}
-                            <img src="{{ asset($category->image ?? 'images/placeholder.webp') }}"
+                            @php
+                                $catImgSrc = 'images/placeholder.webp';
+                                if ($category->image && file_exists(public_path($category->image))) {
+                                    $catImgSrc = implode('/', array_map('rawurlencode', explode('/', $category->image)));
+                                }
+                            @endphp
+                            <img src="{{ asset($catImgSrc) }}"
                                 class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 group-hover:sepia-[.5] group-hover:hue-rotate-[-30deg] transition-all duration-700 opacity-80 group-hover:opacity-100"
                                 alt="{{ $category->name }}">
 

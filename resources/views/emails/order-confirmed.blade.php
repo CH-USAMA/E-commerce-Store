@@ -183,7 +183,6 @@
             </p>
 
             <div class="order-info">
-                <p><strong>Order Status:</strong> {{ ucfirst($order->status) }}</p>
                 <p><strong>Date:</strong> {{ $order->created_at->format('M d, Y H:i') }}</p>
                 <p><strong>Payment Method:</strong> {{ strtoupper($order->payment_method) }}</p>
                 <p><strong>Order Type:</strong> {{ ucfirst($order->order_type) }}</p>
@@ -221,16 +220,8 @@
 
             <div class="totals" style="width: 100%;">
                 <div style="float: right; width: 200px;">
-                    <div class="total-row">
-                        <span>Subtotal:</span>
-                        <span>R{{ number_format($order->total - $order->vat, 2) }}</span>
-                    </div>
-                    <div class="total-row">
-                        <span>VAT (15%):</span>
-                        <span>R{{ number_format($order->vat, 2) }}</span>
-                    </div>
                     <div class="total-row grand-total">
-                        <span>Total:</span>
+                        <span>Total Amount:</span>
                         <span>R{{ number_format($order->total, 2) }}</span>
                     </div>
                 </div>
