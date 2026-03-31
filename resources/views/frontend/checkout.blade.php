@@ -128,6 +128,34 @@
                                     </div>
                                 </div>
                             @endif
+                            @if(!auth()->check())
+                                <div class="mb-10 border-b border-white/5 pb-10">
+                                    <label class="block text-[10px] font-black uppercase tracking-widest text-gold-400 mb-6 italic flex items-center gap-2">
+                                        <i class="fas fa-id-card text-[8px]"></i> Personal Identity
+                                    </label>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Full Name</label>
+                                            <input type="text" name="customer_name" required value="{{ old('customer_name') }}"
+                                                class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-base text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner placeholder:text-gray-700"
+                                                placeholder="Enter your name...">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Email Address</label>
+                                            <input type="email" name="customer_email" required value="{{ old('customer_email') }}"
+                                                class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-base text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner placeholder:text-gray-700"
+                                                placeholder="john@example.com">
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Phone Number</label>
+                                            <input type="text" name="customer_phone" required value="{{ old('customer_phone') }}"
+                                                class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-base text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner placeholder:text-gray-700"
+                                                placeholder="+27 ...">
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div class="md:col-span-2 space-y-2">
@@ -157,10 +185,12 @@
                                 </div>
                             </div>
 
-                            <!-- Hidden Profile Fields (Admin logic will handle saving if profile is empty) -->
-                            <input type="hidden" name="customer_name" value="{{ $user->name }}">
-                            <input type="hidden" name="customer_email" value="{{ $user->email }}">
-                            <input type="hidden" name="customer_phone" value="{{ $user->phone }}">
+                            <!-- Profile Fields -->
+                            @if(auth()->check())
+                                <input type="hidden" name="customer_name" value="{{ auth()->user()->name }}">
+                                <input type="hidden" name="customer_email" value="{{ auth()->user()->email }}">
+                                <input type="hidden" name="customer_phone" value="{{ auth()->user()->phone ?? old('customer_phone') }}">
+                            @endif
 
                             <div class="mt-12 flex justify-end">
                                 <button type="button" @click="step = 2" class="btn-gold px-16 py-5 text-xs font-black uppercase tracking-[0.2em] rounded-2xl group shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
