@@ -48,9 +48,12 @@ class SocialAuthController extends Controller
                     'google_token' => $googleUser->token,
                     'google_refresh_token' => $googleUser->refreshToken,
                     'password' => Hash::make(Str::random(24)),
-                    'role' => 'user',
                     'email_verified_at' => now(),
                 ]);
+
+                // Explicitly set role since it's not fillable for security
+                $user->role = 'user';
+                $user->save();
 
                 // Subscribe to newsletter if new
                 NewsletterSubscriber::updateOrCreate(

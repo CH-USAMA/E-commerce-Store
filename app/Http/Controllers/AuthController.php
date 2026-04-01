@@ -46,8 +46,11 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => Hash::make($request->password),
-                'role' => 'user',
             ]);
+            
+            // Explicitly set role since it's not fillable for security
+            $user->role = 'user';
+            $user->save();
 
             // Shipping Address
             Address::create([
