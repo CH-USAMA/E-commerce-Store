@@ -13,13 +13,15 @@ class CartController extends Controller
 {
     protected $storeService;
 
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2) {
-        if (!$lat1 || !$lon1 || !$lat2 || !$lon2) return 0;
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        if (!$lat1 || !$lon1 || !$lat2 || !$lon2)
+            return 0;
         $earthRadius = 6371;
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
-        $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
-        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) * sin($dLon / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         return $earthRadius * $c;
     }
 
@@ -28,7 +30,8 @@ class CartController extends Controller
         $this->storeService = $storeService;
     }
 
-    private function syncCartToDb() {
+    private function syncCartToDb()
+    {
         if (auth()->check()) {
             auth()->user()->update(['cart_data' => session()->get('cart', [])]);
         }
@@ -42,7 +45,7 @@ class CartController extends Controller
             // If session is empty but DB has data, restore it
             if (empty($sessionCart) && !empty($user->cart_data)) {
                 session()->put('cart', $user->cart_data);
-            } 
+            }
             // If session has data but DB is empty or different, sync session to DB
             elseif (!empty($sessionCart)) {
                 $this->syncCartToDb();
@@ -138,7 +141,7 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
         return response()->json(['cart_count' => array_sum($cart)]);
     }
-    
+
     public function clear()
     {
         session()->forget('cart');
@@ -299,13 +302,13 @@ class CartController extends Controller
         // Store selection logic
         $storeId = $request->store_id;
         $store = \App\Models\Store::find($storeId);
-        
+
         // Distance Check for Delivery
         $finalOrderType = $request->order_type;
         if ($request->order_type === 'delivery' && $request->lat && $request->lng && $store) {
             $dist = $this->calculateDistance($request->lat, $request->lng, $store->lat, $store->lng);
             $maxDistance = \App\Models\Setting::where('key', 'max_delivery_km')->first()?->value ?? 300;
-            
+
             if ($dist > $maxDistance) {
                 $finalOrderType = 'pickup';
                 session()->flash('info', "Location exceeds {$maxDistance}km delivery radius ({$dist}km). Strategy adjusted to Warehouse Pickup.");
@@ -344,7 +347,8 @@ class CartController extends Controller
             if (auth()->check()) {
                 $user = auth()->user();
                 $updateData = [];
-                if (empty($user->phone)) $updateData['phone'] = $request->customer_phone;
+                if (empty($user->phone))
+                    $updateData['phone'] = $request->customer_phone;
                 // You might also want to save the address as a default address if none exists
                 if (!empty($updateData)) {
                     $user->update($updateData);
@@ -395,43 +399,58 @@ class CartController extends Controller
                 auth()->user()->update(['cart_data' => null]);
             }
 
-            if ($request->payment_method === 'payfast') {
+            if ($request->payment_method === 'payfast' || $request->payment_method === 'stripe') {
                 $stripeEnabled = \App\Models\Setting::where('key', 'stripe_enabled')->first()?->value === '1';
                 $stripeSecret = \App\Models\Setting::where('key', 'stripe_secret_key')->first()?->value;
 
-                if ($stripeEnabled && $stripeSecret) {
-                    Stripe::setApiKey($stripeSecret);
+                if ($stripeEnabled && !empty($stripeSecret)) {
+                    try {
+                        Stripe::setApiKey($stripeSecret);
 
-                    $lineItems = [];
-                    foreach ($products as $p) {
-                        $lineItems[] = [
-                            'price_data' => [
-                                'currency' => 'zar',
-                                'product_data' => [
-                                    'name' => $p->name,
+                        $lineItems = [];
+                        foreach ($products as $p) {
+                            $lineItems[] = [
+                                'price_data' => [
+                                    'currency' => 'zar',
+                                    'product_data' => [
+                                        'name' => $p->name,
+                                    ],
+                                    'unit_amount' => (int) ($p->price * 100), // Stripe uses cents
                                 ],
-                                'unit_amount' => $p->price * 100, // Stripe uses cents
+                                'quantity' => $cart[$p->id],
+                            ];
+                        }
+
+                        $session = Session::create([
+                            'payment_method_types' => ['card'],
+                            'line_items' => $lineItems,
+                            'mode' => 'payment',
+                            'success_url' => route('order.success') . '?order_number=' . $order->order_number,
+                            'cancel_url' => route('checkout'),
+                            'metadata' => [
+                                'order_id' => $order->id,
+                                'order_number' => $order->order_number,
                             ],
-                            'quantity' => $cart[$p->id],
-                        ];
+                        ]);
+
+                        return redirect($session->url);
+                    } catch (\Exception $stripeEx) {
+                        \Illuminate\Support\Facades\Log::error('Stripe Session Creation Failed: ' . $stripeEx->getMessage());
+                        return redirect()->route('order.success')
+                            ->with('order_number', $order->order_number)
+                            ->with('order_id', $order->id)
+                            ->with('warning', 'Payment gateway initialization failed, but your order has been recorded. Our team will contact you for settlement.');
                     }
-
-                    $session = Session::create([
-                        'payment_method_types' => ['card'],
-                        'line_items' => $lineItems,
-                        'mode' => 'payment',
-                        'success_url' => route('order.success') . '?order_number=' . $order->order_number,
-                        'cancel_url' => route('checkout'),
-                        'metadata' => [
-                            'order_id' => $order->id,
-                        ],
-                    ]);
-
-                    return redirect($session->url);
+                } else {
+                    \Illuminate\Support\Facades\Log::warning('Stripe attempted but not fully configured/enabled.');
+                    return redirect()->route('order.success')
+                        ->with('order_number', $order->order_number)
+                        ->with('order_id', $order->id)
+                        ->with('warning', 'Online payment is currently unavailable. Your order has been placed as a pending request.');
                 }
             }
 
-            return redirect()->route('order.success')->with('order_number', $order->order_number)->with('order_id', $order->id);
+            return redirect()->route('order.success')->with('order_number', $order->order_number)->with('order_id', $order->id)->with('success', 'Order placed successfully!');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\DB::rollBack();
             return back()->with('error', 'Something went wrong. Please try again. ' . $e->getMessage());
@@ -446,11 +465,11 @@ class CartController extends Controller
         }
 
         $order = Order::where('order_number', $orderNumber)->first();
-        
+
         // If coming back from Stripe (payfast) and still pending, mark as processing
         if ($order && $order->payment_method === 'payfast' && $order->status === 'pending') {
             $order->update(['status' => 'processing']);
-            
+
             // Send confirmation email automatically for Stripe success
             try {
                 \Illuminate\Support\Facades\Mail::to($order->customer_email)->send(new \App\Mail\OrderConfirmed($order));
