@@ -22,8 +22,9 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('google_token')->nullable()->change();
-            $table->string('google_refresh_token')->nullable()->change();
+            // Use text instead of string (255) during rollback to prevent truncation errors
+            $table->text('google_token')->nullable()->change();
+            $table->text('google_refresh_token')->nullable()->change();
         });
     }
 };
