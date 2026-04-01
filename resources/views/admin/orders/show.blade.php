@@ -46,7 +46,7 @@
                 $sc = $statusMap[$order->status] ?? 'bg-secondary';
             @endphp
             <span class="badge {{ $sc }}">{{ ucfirst(str_replace('_', ' ', $order->status)) }}</span>
-            <a href="{{ route('admin.orders.invoice', $order->id) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+            <a href="{{ route('admin.orders.invoice', $order) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-file-pdf me-1"></i> Invoice
             </a>
         </div>
@@ -164,7 +164,7 @@
                     <div class="fw-bold" style="font-size: 0.83rem;">Update Status</div>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.orders.update', $order->id) }}" method="POST">
+                    <form action="{{ route('admin.orders.update', $order) }}" method="POST">
                         @csrf @method('PUT')
                         <div class="mb-2">
                             <select name="status" class="form-select">
@@ -218,7 +218,7 @@
                     <span class="fw-bold" style="font-size: 0.83rem;">Payment Verification Documentation</span>
                 </div>
                 @if($order->status == 'awaiting_payment')
-                    <form action="{{ route('admin.orders.confirm-payment', $order->id) }}" method="POST"
+                    <form action="{{ route('admin.orders.confirm-payment', $order) }}" method="POST"
                           onsubmit="return confirm('Verify that funds have cleared in our account?')">
                         @csrf
                         <button type="submit" class="btn btn-jabulani btn-sm">

@@ -12,6 +12,11 @@
 - **Route Model Binding**: Audited and fixed all Blade templates to ensure they use the new secure identifiers.
 - **Asset Security**: Configured CSP to whitelist external CDNs (Tailwind, FontAwesome, Alpine.js) while blocking unauthorized third-party scripts.
 
+### Fixed [Post-Hardening Repairs]
+- **Admin Order Processing**: Resolved a critical regression where "Confirm Payment" and "Update Status" were failing due to route model binding mismatches after the UUID migration.
+- **Notification Data Integrity**: Executed a backend repair script (`tmp/repair_notifications_uuids.php`) to migrate legacy integer-based URLs in the `notifications` table to their new secure UUID equivalents.
+- **Social Login Models**: Patched the `User` model with PHPDoc property declarations to resolve IDE linting errors and improve static analysis for Google Socialite tokens.
+
 ## [2026-04-01] — Phase 3: Premium Operations & User Portal Redesign
 ### Added
 - **Dedicated User Layout**: Created `layouts/user.blade.php` with a sleek glassmorphic sidebar and premium typography for an app-like authenticated experience.

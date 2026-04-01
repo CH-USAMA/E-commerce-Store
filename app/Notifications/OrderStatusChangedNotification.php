@@ -25,7 +25,7 @@ class OrderStatusChangedNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'order_id' => $this->order->id,
+            'order_id' => $this->order->uuid,
             'order_number' => $this->order->order_number,
             'status' => $this->order->status,
             'message' => 'Your order #' . $this->order->order_number . ' status has been updated to ' . ucfirst($this->order->status),

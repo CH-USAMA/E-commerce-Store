@@ -17,12 +17,14 @@ The checkout process handles registration, fulfillment, and payment verification
     - **Fulfillment**: **Pickup** or **Delivery** (delivery radius is restricted by `max_delivery_km` in global settings).
     - **Distance Calculation**: Using the Haversine formula to verify delivery feasibility.
 
-## 3. Order Creation & Payment
-- **Logic**: 
-    - Order is created in `orders` with a unique `JB-YYYYMMDD-XXXXXX` number.
-    - **EFT**: Order status set to `awaiting_payment`. Customer uploads Proof of Payment (`payment_screenshot`).
-    - **Stripe**: Redirected to Stripe Checkout. Upon success, order status is updated to `processing`.
-    - **VAT**: Total VAT (15%) is calculated and stored in the order record.
+## 3. Order Creation & Routing
+- **Routing**: Orders are strictly routed via **UUID** (route key binding) to prevent incremental ID exposure.
+- **Order Number**: A human-friendly `JB-YYYYMMDD-XXXXXX` is generated for invoices and internal lookup.
+- **Payment States**: 
+    - **EFT**: Status set to `awaiting_payment`. Administrative verification of `payment_screenshot` is required.
+    - **Confirmed**: Setting status to `processing` via **Confirm Payment** (Admin) triggers final documentation dispatch.
+    - **Stripe**: Auto-updates to `processing` upon successful webhook callback.
+    - **VAT**: 15% South African VAT is calculated and stored per line-item and total.
 
 ## 4. Administrative Verification
 - **Logic**: 

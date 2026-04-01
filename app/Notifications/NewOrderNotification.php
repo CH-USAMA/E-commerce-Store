@@ -25,13 +25,13 @@ class NewOrderNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'order_id' => $this->order->id,
+            'order_id' => $this->order->uuid,
             'order_number' => $this->order->order_number,
             'customer_name' => $this->order->customer_name,
             'total' => $this->order->total,
             'message' => 'New order received: #' . $this->order->order_number,
             'type' => 'new_order',
-            'url' => route('admin.orders.show', $this->order->id),
+            'url' => route('admin.orders.show', $this->order),
         ];
     }
 }

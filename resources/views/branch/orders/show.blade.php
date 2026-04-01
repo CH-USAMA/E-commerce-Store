@@ -81,7 +81,7 @@
                     <h6 class="mb-0 fw-bold">Update Order Status</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('branch.orders.status', $order->id) }}" method="POST">
+                    <form action="{{ route('branch.orders.status', $order) }}" method="POST">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Current Status: <span
