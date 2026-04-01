@@ -29,19 +29,21 @@ Route::get('/video-gallery', [\App\Http\Controllers\HomeController::class, 'vide
 Route::get('/testimonials', [\App\Http\Controllers\HomeController::class, 'testimonials'])->name('testimonials');
 Route::get('/team', [\App\Http\Controllers\HomeController::class, 'team'])->name('team');
 Route::get('/stores', [\App\Http\Controllers\HomeController::class, 'stores'])->name('stores');
-Route::get('/store/{id}', [\App\Http\Controllers\HomeController::class, 'storeDetail'])->name('store.detail');
+Route::get('/store/{store}', [\App\Http\Controllers\HomeController::class, 'storeDetail'])->name('store.detail');
 Route::get('/specials', [\App\Http\Controllers\HomeController::class, 'specials'])->name('specials');
 Route::get('/contact', [App\Http\Controllers\HomeController::class, 'contact'])->name('contact');
-Route::post('/contact', [App\Http\Controllers\HomeController::class, 'submitContact'])->name('contact.submit');
+Route::post('/contact', [App\Http\Controllers\HomeController::class, 'submitContact'])->name('contact.submit')->middleware('throttle:6,1');
 Route::get('/search', [App\Http\Controllers\HomeController::class, 'search'])->name('search');
 Route::view('/privacy-policy', 'frontend.privacy')->name('privacy');
 Route::view('/terms-of-service', 'frontend.terms')->name('terms');
 
 // Authentication Routes
-Route::get('/register', [\App\Http\Controllers\AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register'])->name('register.post');
-Route::get('/login', [\App\Http\Controllers\AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
+Route::middleware(['throttle:6,1'])->group(function () {
+    Route::get('/register', [\App\Http\Controllers\AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register'])->name('register.post');
+    Route::get('/login', [\App\Http\Controllers\AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
+});
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
 // Profile Completion & Address Management
@@ -115,12 +117,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('gallery', \App\Http\Controllers\Admin\GalleryItemController::class);
     Route::get('orders/export', [\App\Http\Controllers\Admin\OrderController::class, 'export'])->name('orders.export');
     Route::get('orders/fake', [\App\Http\Controllers\Admin\OrderController::class, 'createFakeOrder'])->name('orders.fake');
+    Route::get('orders/{order}/invoice', [\App\Http\Controllers\Admin\OrderController::class, 'invoice'])->name('orders.invoice');
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
     Route::post('orders/{order}/confirm-payment', [\App\Http\Controllers\Admin\OrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
     Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class);
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
     Route::get('settings/payments', [\App\Http\Controllers\Admin\SystemController::class, 'payments'])->name('settings.payments');
     Route::post('settings/payments', [\App\Http\Controllers\Admin\SystemController::class, 'updatePayments'])->name('settings.payments.update');
+    Route::get('settings/invoice', [\App\Http\Controllers\Admin\SystemController::class, 'invoiceSettings'])->name('settings.invoice');
+    Route::post('settings/invoice', [\App\Http\Controllers\Admin\SystemController::class, 'updateInvoiceSettings'])->name('settings.invoice.update');
     
     // Marketing & Notifications
     Route::get('notifications/mark-all-read', [\App\Http\Controllers\Admin\MarketingController::class, 'markAllRead'])->name('notifications.mark-all-read');
@@ -129,6 +134,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('marketing', [\App\Http\Controllers\Admin\MarketingController::class, 'push'])->name('marketing.push');
     Route::post('marketing/{campaign}/resend', [\App\Http\Controllers\Admin\MarketingController::class, 'resend'])->name('marketing.resend');
     Route::delete('marketing/{campaign}', [\App\Http\Controllers\Admin\MarketingController::class, 'destroy'])->name('marketing.destroy');
+
+    // Guest Management (GDPR/POPIA)
+    Route::get('guests', '\App\Http\Controllers\Admin\GuestController@index')->name('guests.index');
+    Route::post('guests/purge', '\App\Http\Controllers\Admin\GuestController@purge')->name('guests.purge');
+    Route::post('guests/purge-old', '\App\Http\Controllers\Admin\GuestController@purgeOld')->name('guests.purge-old');
 });
 
 // Store Manager Routes

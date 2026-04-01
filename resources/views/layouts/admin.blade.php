@@ -1,365 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Jabulani Hardware</title>
+    <title>@yield('title', 'Dashboard') — Jabulani Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('css/design-system.css') }}">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>
-        :root {
-            --jabulani-orange: #FF8C00;
-            --jabulani-black: #111111;
-            --jabulani-dark-grey: #1a1a1a;
-            --jabulani-text-grey: #888888;
-        }
-
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        }
-
-        .sidebar {
-            background-color: var(--jabulani-black);
-            height: 100vh;
-            color: white;
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            width: 250px;
-        }
-
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            flex-shrink: 0;
-        }
-
-        .sidebar-content {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 1rem 0;
-        }
-
-        /* Custom Scrollbar */
-        .sidebar-content::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .sidebar-content::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .sidebar-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .sidebar-content::-webkit-scrollbar-thumb:hover {
-            background: var(--jabulani-orange);
-        }
-
-        .sidebar .nav-link {
-            color: var(--jabulani-text-grey);
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-            border-radius: 6px;
-            margin: 1px 12px;
-            padding: 0.6rem 1rem !important;
-        }
-
-        .sidebar .nav-link:hover {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.03);
-            transform: translateX(3px);
-        }
-
-        .sidebar .nav-link.active {
-            color: white;
-            background-color: var(--jabulani-orange);
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
-        }
-
-        .sidebar .nav-link i {
-            width: 18px;
-            font-size: 0.9rem;
-        }
-
-        .sidebar-heading {
-            font-size: 0.7rem !important;
-            letter-spacing: 1.2px;
-            color: rgba(255, 255, 255, 0.3) !important;
-            margin-top: 1rem;
-        }
-
-        .main-content {
-            margin-left: 250px;
-            min-height: 100vh;
-        }
-
-        .navbar {
-            background-color: white;
-            border-bottom: 1px solid #eff2f5;
-            padding: 0.75rem 1.5rem !important;
-        }
-
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-
-        .btn-jabulani {
-            background-color: var(--jabulani-orange);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 0.5rem 1.25rem;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-jabulani:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
-            color: white;
-        }
-
-        /* Select2 Dark Support if needed, otherwise standard Bootstrap overrides */
-    </style>
+    @stack('css')
 </head>
 
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="sidebar col-md-2">
-                <div class="sidebar-header">
-                    <h4 class="text-white fw-bold mb-0">Jabulani</h4>
-                    <small class="text-warning text-uppercase ls-1" style="font-size: 0.65rem;">Super Admin</small>
-                </div>
+<body class="admin-portal">
 
-                <div class="sidebar-content">
-                    <div class="px-3">
-                        <!-- Group: Operations -->
-                        <div class="sidebar-heading px-3 pb-2 small text-uppercase fw-bold">
-                            Operations
-                        </div>
-                        <ul class="nav flex-column mb-3">
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/dashboard') ? 'active' : '' }}"
-                                    href="{{ route('admin.dashboard') }}">
-                                    <i class="fas fa-th-large me-2"></i> Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/orders*') ? 'active' : '' }}"
-                                    href="{{ route('admin.orders.index') }}">
-                                    <i class="fas fa-shopping-bag me-2"></i> Orders
-                                </a>
-                            </li>
-                        </ul>
+    <div class="ap-sidebar">
+        {{-- Brand --}}
+        <div class="ap-sidebar-brand">
+            <div class="brand-name">Jabulani</div>
+            <span class="brand-sub">Admin Portal</span>
+        </div>
 
-                        <!-- Group: Catalog -->
-                        <div class="sidebar-heading px-3 pb-2 small text-uppercase fw-bold">
-                            Catalog
-                        </div>
-                        <ul class="nav flex-column mb-3">
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/products*') ? 'active' : '' }}"
-                                    href="{{ route('admin.products.index') }}">
-                                    <i class="fas fa-tools me-2"></i> Products
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/categories*') ? 'active' : '' }}"
-                                    href="{{ route('admin.categories.index') }}">
-                                    <i class="fas fa-list me-2"></i> Categories
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/brands*') ? 'active' : '' }}"
-                                    href="{{ route('admin.brands.index') }}">
-                                    <i class="fas fa-tag me-2"></i> Brands
-                                </a>
-                            </li>
-                        </ul>
+        {{-- Navigation --}}
+        <div class="ap-sidebar-scroll">
+            <div class="ap-nav-group-label">Operations</div>
+            <a href="{{ route('admin.dashboard') }}"
+               class="ap-nav-link {{ request()->is('admin/dashboard') ? 'active' : '' }}">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ route('admin.orders.index') }}"
+               class="ap-nav-link {{ request()->is('admin/orders*') ? 'active' : '' }}">
+                <i class="fas fa-shopping-bag"></i> Orders
+            </a>
 
-                        <!-- Group: Network -->
-                        <div class="sidebar-heading px-3 pb-2 small text-uppercase fw-bold">
-                            Network
-                        </div>
-                        <ul class="nav flex-column mb-3">
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/stores*') ? 'active' : '' }}"
-                                    href="{{ route('admin.stores.index') }}">
-                                    <i class="fas fa-store me-2"></i> Stores
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/users*') ? 'active' : '' }}"
-                                    href="{{ route('admin.users.index') }}">
-                                    <i class="fas fa-users-cog me-2"></i> Staff
-                                </a>
-                            </li>
-                        </ul>
+            <div class="ap-nav-group-label">Catalog</div>
+            <a href="{{ route('admin.products.index') }}"
+               class="ap-nav-link {{ request()->is('admin/products*') ? 'active' : '' }}">
+                <i class="fas fa-tools"></i> Products
+            </a>
+            <a href="{{ route('admin.categories.index') }}"
+               class="ap-nav-link {{ request()->is('admin/categories*') ? 'active' : '' }}">
+                <i class="fas fa-list"></i> Categories
+            </a>
+            <a href="{{ route('admin.brands.index') }}"
+               class="ap-nav-link {{ request()->is('admin/brands*') ? 'active' : '' }}">
+                <i class="fas fa-tag"></i> Brands
+            </a>
 
-                        <!-- Group: Website -->
-                        <div class="sidebar-heading px-3 pb-2 small text-uppercase fw-bold">
-                            Website
-                        </div>
-                        <ul class="nav flex-column mb-3">
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/banners*') ? 'active' : '' }}"
-                                    href="{{ route('admin.banners.index') }}">
-                                    <i class="fas fa-image me-2"></i> Banners
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/services*') ? 'active' : '' }}"
-                                    href="{{ route('admin.services.index') }}">
-                                    <i class="fas fa-concierge-bell me-2"></i> Services
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}"
-                                    href="{{ route('admin.blog.index') }}">
-                                    <i class="fas fa-newspaper me-2"></i> Blog Posts
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.blog-categories.*') ? 'active' : '' }}"
-                                    href="{{ route('admin.blog-categories.index') }}">
-                                    <i class="fas fa-tags me-2"></i> Blog Categories
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/gallery*') ? 'active' : '' }}"
-                                    href="{{ route('admin.gallery.index') }}">
-                                    <i class="fas fa-images me-2"></i> Gallery
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/team*') ? 'active' : '' }}"
-                                    href="{{ route('admin.team.index') }}">
-                                    <i class="fas fa-user-friends me-2"></i> Team Members
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/settings/payments*') ? 'active' : '' }}"
-                                    href="{{ route('admin.settings.payments') }}">
-                                    <i class="fas fa-credit-card me-2"></i> Payment Settings
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link d-flex align-items-center {{ request()->is('admin/marketing*') ? 'active' : '' }}"
-                                    href="{{ route('admin.marketing.index') }}">
-                                    <i class="fas fa-bullhorn me-2"></i> Marketing Push
-                                </a>
-                            </li>
-                        </ul>
+            <div class="ap-nav-group-label">Network</div>
+            <a href="{{ route('admin.stores.index') }}"
+               class="ap-nav-link {{ request()->is('admin/stores*') ? 'active' : '' }}">
+                <i class="fas fa-store"></i> Stores
+            </a>
+            <a href="{{ route('admin.users.index') }}"
+               class="ap-nav-link {{ request()->is('admin/users*') ? 'active' : '' }}">
+                <i class="fas fa-users-cog"></i> Staff
+            </a>
+            <a href="{{ route('admin.guests.index') }}"
+               class="ap-nav-link {{ request()->is('admin/guests*') ? 'active' : '' }}">
+                <i class="fas fa-user-shield"></i> Guests
+            </a>
 
-                        <div class="nav-item mt-2 border-top border-secondary pt-3 pb-4">
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="nav-link border-0 bg-transparent w-100 text-start d-flex align-items-center text-danger">
-                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <div class="ap-nav-group-label">Website</div>
+            <a href="{{ route('admin.banners.index') }}"
+               class="ap-nav-link {{ request()->is('admin/banners*') ? 'active' : '' }}">
+                <i class="fas fa-image"></i> Banners
+            </a>
+            <a href="{{ route('admin.services.index') }}"
+               class="ap-nav-link {{ request()->is('admin/services*') ? 'active' : '' }}">
+                <i class="fas fa-concierge-bell"></i> Services
+            </a>
+            <a href="{{ route('admin.blog.index') }}"
+               class="ap-nav-link {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
+                <i class="fas fa-newspaper"></i> Blog Posts
+            </a>
+            <a href="{{ route('admin.blog-categories.index') }}"
+               class="ap-nav-link {{ request()->routeIs('admin.blog-categories.*') ? 'active' : '' }}">
+                <i class="fas fa-tags"></i> Blog Categories
+            </a>
+            <a href="{{ route('admin.gallery.index') }}"
+               class="ap-nav-link {{ request()->is('admin/gallery*') ? 'active' : '' }}">
+                <i class="fas fa-images"></i> Gallery
+            </a>
+            <a href="{{ route('admin.team.index') }}"
+               class="ap-nav-link {{ request()->is('admin/team*') ? 'active' : '' }}">
+                <i class="fas fa-user-friends"></i> Team Members
+            </a>
 
-            <!-- Main Content -->
-            <main class="col-md-10 main-content px-md-4">
-                <nav class="navbar navbar-expand-lg px-0 py-3 mb-4 mt-2">
-                    <div class="container-fluid px-0">
-                        <span class="navbar-brand h1 mb-0">@yield('title', 'Dashboard')</span>
-                        <div class="d-flex align-items-center">
-                            <!-- Notification Bell -->
-                            <div class="dropdown me-4">
-                                <a href="#" class="text-dark position-relative" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="far fa-bell fs-5"></i>
-                                    @if(auth()->user()->unreadNotifications->count() > 0)
-                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem; padding: 0.25rem 0.4rem;">
-                                            {{ auth()->user()->unreadNotifications->count() }}
-                                        </span>
-                                    @endif
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0" aria-labelledby="notificationDropdown" style="width: 320px; max-height: 480px; overflow-y: auto;">
-                                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
-                                        <h6 class="mb-0 fw-bold small text-uppercase tracking-wider">Operational Alerts</h6>
-                                        <a href="{{ route('admin.notifications.mark-all-read') }}" class="text-[10px] text-primary text-decoration-none fw-bold">Clear All</a>
-                                    </div>
-                                    <div class="notification-list">
-                                        @forelse(auth()->user()->notifications->take(10) as $notification)
-                                            <a href="{{ $notification->data['url'] ?? '#' }}" class="dropdown-item p-3 border-bottom {{ $notification->read_at ? 'opacity-50' : 'bg-primary bg-opacity-10' }}" style="white-space: normal;">
-                                                <div class="d-flex gap-3">
-                                                    <div class="flex-shrink-0">
-                                                        @if(($notification->data['type'] ?? '') === 'new_order')
-                                                            <div class="bg-warning bg-opacity-20 text-warning rounded-circle p-2"><i class="fas fa-shopping-cart fa-xs"></i></div>
-                                                        @else
-                                                            <div class="bg-info bg-opacity-20 text-info rounded-circle p-2"><i class="fas fa-info-circle fa-xs"></i></div>
-                                                        @endif
-                                                    </div>
-                                                    <div>
-                                                        <p class="mb-1 text-sm fw-bold leading-sm" style="font-size: 0.8rem;">{{ $notification->data['message'] }}</p>
-                                                        <small class="text-muted" style="font-size: 0.7rem;">{{ $notification->created_at->diffForHumans() }}</small>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        @empty
-                                            <div class="p-4 text-center text-muted small">No active alerts detected</div>
-                                        @endforelse
-                                    </div>
-                                </div>
-                            </div>
+            <div class="ap-nav-group-label">System</div>
+            <a href="{{ route('admin.settings.payments') }}"
+               class="ap-nav-link {{ request()->routeIs('admin.settings.payments') ? 'active' : '' }}">
+                <i class="fas fa-credit-card"></i> Payment Settings
+            </a>
+            <a href="{{ route('admin.settings.invoice') }}"
+               class="ap-nav-link {{ request()->routeIs('admin.settings.invoice') ? 'active' : '' }}">
+                <i class="fas fa-file-invoice"></i> Invoice Settings
+            </a>
+            <a href="{{ route('admin.marketing.index') }}"
+               class="ap-nav-link {{ request()->is('admin/marketing*') ? 'active' : '' }}">
+                <i class="fas fa-bullhorn"></i> Marketing Push
+            </a>
+        </div>
 
-                            <span class="me-3 small fw-bold text-muted">{{ auth()->user()->name }}</span>
-                            <div class="flex-shrink-0 dropdown">
-                                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle"
-                                    id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=FF8C00&color=fff" alt="mdo"
-                                        width="32" height="32" class="rounded-circle shadow-sm">
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-
-                @if(session('success'))
-                    <div class="alert alert-success">{{ session('success') }}</div>
-                @endif
-
-                @yield('content')
-            </main>
+        {{-- Footer --}}
+        <div class="ap-sidebar-footer">
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="ap-nav-link border-0 bg-transparent w-100 text-start"
+                    style="color: var(--error-color); opacity: 0.75; cursor:pointer;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
         </div>
     </div>
+
+    {{-- Main --}}
+    <div class="ap-main">
+
+        {{-- Topbar --}}
+        <div class="ap-topbar">
+            <div class="ap-topbar-title gradient-title">@yield('title', 'Dashboard')</div>
+
+            <div class="d-flex align-items-center gap-3">
+
+                {{-- Notification Bell --}}
+                <div class="dropdown">
+                    <a href="#" class="position-relative text-decoration-none" style="color: var(--text-secondary);"
+                       id="notifBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="far fa-bell fs-5"></i>
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="notif-dot"></span>
+                        @endif
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end p-0"
+                         aria-labelledby="notifBtn" style="width: 310px; max-height: 440px; overflow-y: auto;">
+                        <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom border-default">
+                            <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">Notifications</span>
+                            <a href="{{ route('admin.notifications.mark-all-read') }}"
+                               style="font-size: 0.7rem; color: var(--orange-400); text-decoration: none; font-weight: 600;">Clear all</a>
+                        </div>
+                        @forelse(auth()->user()->notifications->take(10) as $notif)
+                            <a href="{{ $notif->data['url'] ?? '#' }}"
+                               class="dropdown-item py-2 {{ $notif->read_at ? '' : '' }}"
+                               style="white-space: normal; {{ !$notif->read_at ? 'border-left: 2px solid var(--orange-500);' : '' }}">
+                                <div class="d-flex gap-2 align-items-start">
+                                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(255,140,0,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top: 1px;">
+                                        <i class="fas fa-{{ ($notif->data['type'] ?? '') === 'new_order' ? 'shopping-bag' : 'bell' }} fa-xs" style="color: var(--orange-400);"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.78rem; color: var(--text-primary); font-weight: 500;">{{ $notif->data['message'] }}</div>
+                                        <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 2px;">{{ $notif->created_at->diffForHumans() }}</div>
+                                    </div>
+                                </div>
+                            </a>
+                        @empty
+                            <div class="py-4 text-center" style="font-size: 0.78rem; color: var(--text-muted);">
+                                <i class="far fa-bell-slash mb-2 d-block fs-5 opacity-30"></i>
+                                No notifications
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- Divider --}}
+                <div class="vr" style="height: 20px;"></div>
+
+                {{-- User Menu --}}
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle"
+                       data-bs-toggle="dropdown" id="userMenu" style="color: var(--text-secondary);">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=FF8C00&color=fff&bold=true"
+                             width="30" height="30" class="rounded-circle" alt="Avatar">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">{{ auth()->user()->name }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="userMenu">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2 opacity-50"></i> Profile</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST" class="m-0">
+                                @csrf
+                                <button type="submit" class="dropdown-item" style="color: var(--error-color) !important;">
+                                    <i class="fas fa-sign-out-alt me-2 opacity-50"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {{-- Content --}}
+        <div class="ap-content">
+            @if(session('success'))
+                <div class="alert alert-success d-flex align-items-center gap-2 mb-4 py-2">
+                    <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger d-flex align-items-center gap-2 mb-4 py-2">
+                    <i class="fas fa-exclamation-circle" style="color: var(--error-color);"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
+            @yield('content')
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('.select2').select2({
-                placeholder: "Select options",
-                allowClear: true,
-                width: '100%'
-            });
+            $('.select2').select2({ placeholder: "Select options", allowClear: true, width: '100%' });
         });
     </script>
     @stack('js')
 </body>
-
 </html>

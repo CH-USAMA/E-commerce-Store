@@ -32,11 +32,19 @@ class StockController extends Controller
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:0',
+            'incoming' => 'required|integer|min:0',
+            'reserved' => 'required|integer|min:0',
+            'damaged' => 'required|integer|min:0',
         ]);
 
         \App\Models\ProductStoreStock::updateOrCreate(
             ['store_id' => $store->id, 'product_id' => $request->product_id],
-            ['quantity' => $request->quantity]
+            [
+                'quantity' => $request->quantity,
+                'incoming' => $request->incoming,
+                'reserved' => $request->reserved,
+                'damaged' => $request->damaged,
+            ]
         );
 
         return back()->with('success', 'Stock updated successfully.');

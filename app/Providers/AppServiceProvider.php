@@ -21,5 +21,10 @@ class AppServiceProvider extends ServiceProvider
         if (app()->environment('production')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+
+        // Share settings globally with all views
+        if (!app()->runningInConsole()) {
+            view()->share('settings', \App\Models\Setting::all()->pluck('value', 'key'));
+        }
     }
 }

@@ -43,7 +43,7 @@
                             </div>
                             <div>
                                 <h4 class="text-white font-bold mb-1 uppercase text-xs tracking-widest">Phone Number</h4>
-                                <p class="text-gray-400 text-sm font-semibold">+27 6606 84585</p>
+                                <p class="text-gray-400 text-sm font-semibold">{{ $settings['invoice_company_phone'] ?? '+27 6606 84585' }}</p>
                                 <p class="text-gray-500 text-xs mt-1">Available 8am - 5pm</p>
                             </div>
                         </div>
@@ -55,7 +55,7 @@
                             </div>
                             <div>
                                 <h4 class="text-white font-bold mb-1 uppercase text-xs tracking-widest">Email Address</h4>
-                                <p class="text-gray-400 text-sm font-semibold">info@jabulanigroupofcompanies.co.za</p>
+                                <p class="text-gray-400 text-sm font-semibold">{{ $settings['invoice_company_email'] ?? 'info@jabulanigroupofcompanies.co.za' }}</p>
                                 <p class="text-gray-500 text-xs mt-1">Response within 24h</p>
                             </div>
                         </div>
@@ -67,8 +67,7 @@
                             </div>
                             <div>
                                 <h4 class="text-white font-bold mb-1 uppercase text-xs tracking-widest">Main Office</h4>
-                                <p class="text-gray-400 text-sm font-semibold">54 N2 Mount Frere, Eastern Cape, South Africa
-                                </p>
+                                <p class="text-gray-400 text-sm font-semibold">{!! nl2br(e($settings['invoice_company_address'] ?? '54 N2 Mount Frere, Eastern Cape, South Africa')) !!}</p>
                                 <p class="text-gray-500 text-xs mt-1">Visit any of our 8 branches across Transkei</p>
                             </div>
                         </div>

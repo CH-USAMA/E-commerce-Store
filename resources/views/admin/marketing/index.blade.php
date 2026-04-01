@@ -3,83 +3,80 @@
 @section('title', 'Marketing Dashboard')
 
 @section('content')
-<div class="container-fluid px-0">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+
+    {{-- Page Header --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h4 class="fw-bold mb-0">Marketing Campaigns</h4>
-            <p class="text-muted small">Manage and track your broadcast history</p>
+            <div class="fw-bold" style="font-size: 0.83rem; color: var(--text-primary);">Marketing Campaigns</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Manage and track your broadcast history</div>
         </div>
-        <a href="{{ route('admin.marketing.create') }}" class="btn btn-jabulani shadow-sm">
-            <i class="fas fa-plus me-2"></i> New Campaign
+        <a href="{{ route('admin.marketing.create') }}" class="btn btn-jabulani btn-sm">
+            <i class="fas fa-plus me-1"></i> New Campaign
         </a>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4 d-flex align-items-center">
-            <i class="fas fa-check-circle me-3 fa-lg"></i>
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-        <div class="card-body p-0">
+    {{-- Campaigns Table --}}
+    <div class="card">
+        <div class="card-body" style="padding: 0 !important;">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
+                    <thead>
                         <tr>
-                            <th class="ps-4 py-3 text-uppercase text-muted fw-bold small" style="letter-spacing: 0.1em;">Campaign Info</th>
-                            <th class="py-3 text-uppercase text-muted fw-bold small" style="letter-spacing: 0.1em;">Stats</th>
-                            <th class="py-3 text-uppercase text-muted fw-bold small" style="letter-spacing: 0.1em;">Status</th>
-                            <th class="py-3 text-uppercase text-muted fw-bold small" style="letter-spacing: 0.1em;">Sent At</th>
-                            <th class="pe-4 py-3 text-end text-uppercase text-muted fw-bold small" style="letter-spacing: 0.1em;">Actions</th>
+                            <th class="ps-4">Campaign Info</th>
+                            <th>Recipients</th>
+                            <th>Status</th>
+                            <th>Sent At</th>
+                            <th class="pe-4 text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($campaigns as $campaign)
                             <tr>
-                                <td class="ps-4 py-4">
-                                    <h6 class="mb-1 fw-bold">{{ $campaign->title }}</h6>
-                                    <p class="text-muted small mb-0 text-truncate" style="max-width: 300px;">{{ $campaign->message }}</p>
+                                <td class="ps-4">
+                                    <div class="fw-semibold" style="font-size: 0.83rem;">{{ $campaign->title }}</div>
+                                    <div class="text-truncate" style="max-width: 280px; font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+                                        {{ $campaign->message }}
+                                    </div>
                                     @if($campaign->url)
-                                        <div class="mt-2">
-                                            <a href="{{ $campaign->url }}" target="_blank" class="text-[10px] text-primary text-decoration-none fw-bold uppercase">
-                                                <i class="fas fa-link me-1"></i> {{ parse_url($campaign->url, PHP_URL_HOST) }}
-                                            </a>
-                                        </div>
+                                        <a href="{{ $campaign->url }}" target="_blank"
+                                           style="font-size: 0.7rem; color: var(--orange-400); text-decoration: none; margin-top: 4px; display: inline-block;">
+                                            <i class="fas fa-link me-1"></i>{{ parse_url($campaign->url, PHP_URL_HOST) }}
+                                        </a>
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                                            <i class="fas fa-users-viewfinder fa-xs"></i>
-                                        </div>
-                                        <div>
-                                            <p class="mb-0 fw-bold small">{{ $campaign->recipients_count }}</p>
-                                            <p class="text-[10px] text-muted mb-0 uppercase tracking-wider">Recipients</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 small fw-bold uppercase tracking-wider" style="font-size: 0.65rem;">
-                                        {{ ucfirst($campaign->status) }}
+                                    <span class="badge badge-orange">
+                                        <i class="fas fa-users me-1"></i> {{ $campaign->recipients_count }}
                                     </span>
                                 </td>
-                                <td class="text-muted small">
-                                    {{ $campaign->sent_at ? $campaign->sent_at->format('M d, Y') : 'Pending' }}
-                                    <div class="text-[10px] opacity-50">{{ $campaign->sent_at ? $campaign->sent_at->format('H:i') : '' }}</div>
+                                <td>
+                                    @php
+                                        $statusClass = $campaign->status === 'sent' ? 'bg-success' :
+                                                      ($campaign->status === 'pending' ? 'bg-warning' : 'bg-secondary');
+                                    @endphp
+                                    <span class="badge {{ $statusClass }}">{{ ucfirst($campaign->status) }}</span>
+                                </td>
+                                <td style="font-size: 0.78rem; color: var(--text-muted);">
+                                    @if($campaign->sent_at)
+                                        {{ $campaign->sent_at->format('d M Y') }}<br>
+                                        <span style="font-size: 0.68rem; opacity: 0.6;">{{ $campaign->sent_at->format('H:i') }}</span>
+                                    @else
+                                        <span style="color: var(--text-muted);">Pending</span>
+                                    @endif
                                 </td>
                                 <td class="pe-4 text-end">
-                                    <div class="d-flex justify-content-end gap-2 text-end">
+                                    <div class="d-flex justify-content-end gap-1">
                                         <form action="{{ route('admin.marketing.resend', $campaign) }}" method="POST" class="d-inline">
                                             @csrf
-                                            <button type="submit" class="btn btn-outline-primary btn-sm rounded-3 px-3 fw-bold small uppercase" title="Resend Notification">
-                                                <i class="fas fa-redo-alt me-1"></i> Resend
+                                            <button type="submit" class="btn btn-outline-primary btn-sm" title="Resend">
+                                                <i class="fas fa-redo-alt"></i>
                                             </button>
                                         </form>
-                                        <form action="{{ route('admin.marketing.destroy', $campaign) }}" method="POST" class="d-inline" onsubmit="return confirm('Permanently remove this campaign log?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-3" title="Delete Log">
+                                        <form action="{{ route('admin.marketing.destroy', $campaign) }}" method="POST"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Permanently remove this campaign?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
@@ -88,13 +85,11 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="py-5 text-center text-muted">
-                                    <div class="mb-3 opacity-20">
-                                        <i class="fas fa-bullhorn fa-4x"></i>
-                                    </div>
-                                    <h6 class="fw-bold">No Marketing Activity Detected</h6>
-                                    <p class="small">Broadcast your first campaign to engage with your customers.</p>
-                                    <a href="{{ route('admin.marketing.create') }}" class="btn btn-jabulani mt-3 shadow-sm">
+                                <td colspan="5" class="text-center py-5" style="color: var(--text-muted);">
+                                    <i class="fas fa-bullhorn fa-2x d-block mb-2 opacity-20"></i>
+                                    <div class="fw-semibold mb-1" style="font-size: 0.83rem;">No Marketing Activity Detected</div>
+                                    <div style="font-size: 0.75rem;">Broadcast your first campaign to engage with your customers.</div>
+                                    <a href="{{ route('admin.marketing.create') }}" class="btn btn-jabulani btn-sm mt-3">
                                         Launch First Campaign
                                     </a>
                                 </td>
@@ -103,13 +98,13 @@
                     </tbody>
                 </table>
             </div>
-            
+
             @if($campaigns->hasPages())
-                <div class="p-4 border-top bg-light">
+                <div class="px-3 py-2 border-top" style="border-color: var(--border-default) !important;">
                     {{ $campaigns->links() }}
                 </div>
             @endif
         </div>
     </div>
-</div>
+
 @endsection

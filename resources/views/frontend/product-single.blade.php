@@ -1,7 +1,11 @@
 @extends('layouts.frontend')
 
-@section('title', $product->name . ' - Jabulani Group')
-@section('meta_description', strip_tags($product->description))
+@section('meta_title', $product->name . ' — Jabulani Group')
+@section('meta_description', Str::limit(strip_tags($product->description), 160))
+@section('og_type', 'product')
+@if($product->image && file_exists(public_path($product->image)))
+    @section('og_image', asset($product->image))
+@endif
 
 @section('content')
 

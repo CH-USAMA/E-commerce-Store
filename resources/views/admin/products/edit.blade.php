@@ -37,18 +37,55 @@
 
                 <div class="mb-4 border-0 shadow-sm card">
                     <div class="p-4 card-body">
-                        <h6 class="mb-3 fw-bold">Inventory per Store</h6>
-                        <div class="row">
-                            @foreach($stores as $store)
-                                @php
-                                    $stock = $store->stocks->first();
-                                @endphp
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">{{ $store->name }} (Quantity)</label>
-                                    <input type="number" name="stocks[{{ $store->id }}]" class="form-control"
-                                        value="{{ $stock->quantity ?? 0 }}" min="0">
-                                </div>
-                            @endforeach
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0 fw-bold">Regional Inventory Tracking</h6>
+                            <span class="badge bg-soft-info text-info uppercase tracking-widest text-[9px] font-black">WMS Integrated</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover align-middle border-light">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-3 py-2 text-[10px] uppercase font-bold">Branch / Store</th>
+                                        <th class="py-2 text-[10px] uppercase font-bold text-success">Physical</th>
+                                        <th class="py-2 text-[10px] uppercase font-bold text-info">Incoming</th>
+                                        <th class="py-2 text-[10px] uppercase font-bold text-warning">Reserved</th>
+                                        <th class="pe-3 py-2 text-[10px] uppercase font-bold text-danger">Damaged</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($stores as $store)
+                                        @php
+                                            $stock = $store->stocks->first();
+                                        @endphp
+                                        <tr>
+                                            <td class="ps-3">
+                                                <div class="fw-bold" style="font-size: 0.82rem;">{{ $store->name }}</div>
+                                                <small class="text-muted" style="font-size: 0.7rem;">{{ $store->province }}</small>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="stocks[{{ $store->id }}][quantity]" 
+                                                    class="form-control form-control-sm border-success-subtle bg-success-subtle/5" 
+                                                    value="{{ $stock->quantity ?? 0 }}" min="0">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="stocks[{{ $store->id }}][incoming]" 
+                                                    class="form-control form-control-sm border-info-subtle bg-info-subtle/5" 
+                                                    value="{{ $stock->incoming ?? 0 }}" min="0">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="stocks[{{ $store->id }}][reserved]" 
+                                                    class="form-control form-control-sm border-warning-subtle bg-warning-subtle/5" 
+                                                    value="{{ $stock->reserved ?? 0 }}" min="0">
+                                            </td>
+                                            <td class="pe-3">
+                                                <input type="number" name="stocks[{{ $store->id }}][damaged]" 
+                                                    class="form-control form-control-sm border-danger-subtle bg-danger-subtle/5" 
+                                                    value="{{ $stock->damaged ?? 0 }}" min="0">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

@@ -5,7 +5,27 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Jabulani Group')</title>
+    <title>@yield('meta_title', config('app.name', 'Jabulani Store'))</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="@yield('meta_description', 'Jabulani Group - Your premium destination for hardware, building materials, and construction solutions in South Africa.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'hardware, building materials, construction, South Africa, Jabulani')">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('meta_title', config('app.name', 'Jabulani Store'))">
+    <meta property="og:description" content="@yield('meta_description', 'Jabulani Group - Your premium destination for hardware, building materials, and construction solutions in South Africa.')">
+    <meta property="og:image" content="@yield('og_image', asset('images/logo_yellow2.png'))">
+    <meta property="og:site_name" content="Jabulani Group">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url()->current() }}">
+    <meta name="twitter:title" content="@yield('meta_title', config('app.name', 'Jabulani Store'))">
+    <meta name="twitter:description" content="@yield('meta_description', 'Jabulani Group - Your premium destination for hardware, building materials, and construction solutions in South Africa.')">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/logo_yellow2.png'))">
     <!-- Robust Font Loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -177,6 +197,7 @@
         }
     </style>
     @stack('css')
+    @stack('seo')
 </head>
 
 <body class="flex flex-col min-h-screen" x-data="{ 
@@ -725,11 +746,11 @@
                     </li>
                     <li class="flex items-center gap-3">
                         <i class="fas fa-phone text-gold-400"></i>
-                        <span>+27 6606 84585</span>
+                        <span>{{ $settings['invoice_company_phone'] ?? '+27 6606 84585' }}</span>
                     </li>
                     <li class="flex items-center gap-3">
                         <i class="fas fa-envelope text-gold-400"></i>
-                        <span class="truncate">info@jabulanigroupofcompanies.co.za</span>
+                        <span class="truncate">{{ $settings['invoice_company_email'] ?? 'info@jabulanigroupofcompanies.co.za' }}</span>
                     </li>
                 </ul>
             </div>
@@ -742,7 +763,7 @@
     </footer>
 
     <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/27660684585" target="_blank"
+    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $settings['invoice_company_phone'] ?? '27660684585') }}" target="_blank"
         class="fixed bottom-8 right-8 bg-[#25d366] text-white w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-[0_10px_40px_rgba(37,211,102,0.3)] hover:scale-110 active:scale-95 transition-all z-50 group">
         <i class="fab fa-whatsapp"></i>
         <span

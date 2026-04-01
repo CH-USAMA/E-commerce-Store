@@ -9,6 +9,20 @@ class Category extends Model
 {
     use HasFactory;
 
+    protected static function booted()
+    {
+        static::creating(function ($category) {
+            if (empty($category->uuid)) {
+                $category->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     protected $fillable = ['name', 'slug', 'parent_id', 'image'];
 
     public function products()

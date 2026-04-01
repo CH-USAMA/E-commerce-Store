@@ -12,6 +12,20 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            if (empty($user->uuid)) {
+                $user->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,11 +35,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'role',
-        'google_id',
-        'google_token',
-        'google_refresh_token',
-        'email_verified_at',
         'phone',
         'cart_data',
     ];

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\ActivityLog;
 use App\Notifications\OrderStatusChangedNotification;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
@@ -139,7 +141,11 @@ class OrderController extends Controller
             'status' => 'required|in:awaiting_payment,pending,processing,shipped,delivered,cancelled',
         ]);
 
+        $previousStatus = $order->status;
         $order->update(['status' => $request->status]);
+
+        // Audit log the status change
+        ActivityLog::record('status_update', $order, ['status' => $previousStatus], ['status' => $request->status]);
 
         // Notify User of status change
         if ($order->user) {
@@ -155,10 +161,14 @@ class OrderController extends Controller
             return back()->with('error', 'Only orders awaiting payment can be confirmed.');
         }
 
+        $previousStatus = $order->status;
         $order->update([
             'status' => 'processing',
             'payment_confirmed_at' => now(),
         ]);
+
+        // Audit log the payment confirmation
+        ActivityLog::record('payment_confirmed', $order, ['status' => $previousStatus], ['status' => 'processing', 'payment_confirmed_at' => now()->toDateTimeString()]);
 
         // Notify User of status change (Confirmation)
         if ($order->user) {
@@ -173,6 +183,16 @@ class OrderController extends Controller
         }
 
         return back()->with('success', 'Payment confirmed! Final order documentation has been dispatched to the customer.');
+    }
+
+    public function invoice(\App\Models\Order $order)
+    {
+        $order->load(['items.product', 'store']);
+        $settings = \App\Models\Setting::all()->pluck('value', 'key');
+        $eft_accounts = json_decode($settings['invoice_eft_accounts'] ?? '[]', true);
+        
+        $pdf = Pdf::loadView('pdf.invoice', compact('order', 'settings', 'eft_accounts'));
+        return $pdf->stream('Invoice-' . $order->order_number . '.pdf');
     }
 
     public function destroy(\App\Models\Order $order)

@@ -1,165 +1,142 @@
-@extends('layouts.frontend')
+@extends('layouts.user')
 
-@section('title', 'My Orders - Jabulani Group')
+@section('title', 'Order History')
 
 @section('content')
-    <!-- Page Header -->
-    <div class="relative py-16 overflow-hidden bg-dark">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center sm:text-left">
-            <h1 class="text-3xl lg:text-5xl font-black mb-2 tracking-tight italic text-white uppercase">My <span
-                    class="gradient-text">Orders</span></h1>
-            <nav
-                class="flex justify-center sm:justify-start items-center gap-2 text-[10px] font-black uppercase tracking-widest text-dark-muted">
-                <a href="{{ route('home') }}" class="hover:text-gold-400 transition">Home</a>
-                <span class="w-1 h-1 rounded-full bg-gold-400/50"></span>
-                <a href="{{ route('user.dashboard') }}" class="hover:text-gold-400 transition">Dashboard</a>
-                <span class="w-1 h-1 rounded-full bg-gold-400/50"></span>
-                <span class="text-gray-400">Order History</span>
-            </nav>
-        </div>
-    </div>
 
-    <div class="bg-[#050505] min-h-screen py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col lg:flex-row gap-8">
-
-                <!-- Sidebar Navigation -->
-                <aside class="w-full lg:w-72 flex-shrink-0">
-                    <div
-                        class="card-dark rounded-[2rem] overflow-hidden border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent sticky top-32">
-                        <div class="p-8 border-b border-white/5 flex flex-col items-center text-center">
-                            <div class="relative mb-6">
-                                <div
-                                    class="w-20 h-20 rounded-full bg-gold-400/10 border border-gold-400/20 flex items-center justify-center shadow-2xl">
-                                    <i class="fas fa-user text-gold-400 text-3xl"></i>
-                                </div>
-                                <div
-                                    class="absolute right-0 bottom-0 w-6 h-6 rounded-full bg-green-500 border-4 border-dark shadow-xl">
-                                </div>
-                            </div>
-                            <h3 class="text-xl font-black text-white italic tracking-tight">
-                                {{ explode(' ', auth()->user()->name)[0] }}</h3>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-gold-400 mt-2">Active Customer
-                            </p>
-                        </div>
-
-                        <nav class="p-4 space-y-2">
-                            <a href="{{ route('user.dashboard') }}"
-                                class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest text-dark-muted hover:text-white hover:bg-white/5 transition-all duration-300">
-                                <i class="fas fa-th-large text-sm"></i> Dashboard
-                            </a>
-                            <a href="{{ route('user.orders.index') }}"
-                                class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest bg-gold-400 text-dark shadow-xl transition-all duration-300">
-                                <i class="fas fa-shopping-bag text-sm"></i> My Orders
-                            </a>
-                            <a href="{{ route('user.notifications.index') }}"
-                                class="flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest text-dark-muted hover:text-white hover:bg-white/5 transition-all duration-300">
-                                <i class="fas fa-bell text-sm"></i> Alert Center
-                            </a>
-                            <div class="h-px bg-white/5 my-4 mx-4"></div>
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="w-full flex items-center gap-4 px-6 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest text-red-400/50 hover:text-white hover:bg-red-500/10 transition-all duration-300">
-                                    <i class="fas fa-sign-out-alt text-sm"></i> Log Out
-                                </button>
-                            </form>
-                        </nav>
-                    </div>
-                </aside>
-
-                <!-- Order History -->
-                <div class="flex-1 space-y-8">
-                    <div
-                        class="card-dark rounded-[2.5rem] p-8 border-white/5 bg-gradient-to-t from-white/[0.01] to-transparent">
-                        <div class="flex items-center justify-between mb-10 border-b border-white/5 pb-6">
-                            <h3 class="text-xs font-black uppercase tracking-widest text-white italic">Order History</h3>
-                            <div class="flex items-center gap-6">
-                                <a href="{{ route('user.orders.export') }}" class="text-[9px] font-black uppercase tracking-widest text-gold-400 hover:text-white transition flex items-center gap-2">
-                                    <i class="fas fa-file-csv"></i> Export History
-                                </a>
-                                <span class="w-1 h-1 rounded-full bg-white/20"></span>
-                                <span class="text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted">{{ $orders->total() }} Total Orders</span>
-                            </div>
-                        </div>
-
-                        @if($orders->count() > 0)
-                            <div class="space-y-4">
-                                @foreach($orders as $order)
-                                    <div
-                                        class="group flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 rounded-3xl border border-white/5 bg-black/40 hover:border-gold-400/30 transition-all duration-500">
-                                        <div class="flex items-center gap-6">
-                                            <div
-                                                class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-gold-400/20 group-hover:bg-gold-400/5 transition-all duration-500 shadow-xl text-gold-400 opacity-60">
-                                                <i class="fas fa-box text-xl"></i>
-                                            </div>
-                                            <div>
-                                                <div class="flex items-center gap-3">
-                                                    <p class="text-lg font-black text-white italic tracking-tighter" title="{{ $order->manifest }}">
-                                                        Order #{{ $order->order_number }}</p>
-                                                    <span
-                                                        class="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-white/5 text-dark-muted border border-white/10">{{ $order->order_type }}</span>
-                                                </div>
-                                                <p
-                                                    class="text-[10px] font-black uppercase tracking-widest text-dark-muted mt-1 italic opacity-60">
-                                                    Placed on {{ $order->created_at->format('d M Y') }}</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex items-center gap-8">
-                                            <div class="text-right hidden md:block">
-                                                <p
-                                                    class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50 italic">
-                                                    Total Price</p>
-                                                <p class="text-xl font-black text-white italic tracking-tighter">
-                                                    R {{ number_format($order->total, 2) }}</p>
-                                            </div>
-                                            <div class="flex items-center gap-4">
-                                                <span
-                                                    class="px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest italic shadow-lg border {{ in_array($order->status, ['completed', 'delivered']) ? 'bg-green-500/10 text-green-400 border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)]' : ($order->status === 'pending' ? 'bg-gold-400/10 text-gold-400 border-gold-400/20' : ($order->status === 'cancelled' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20')) }}">
-                                                    {{ $order->status === 'delivered' ? 'Completed' : ucfirst($order->status) }}
-                                                </span>
-                                                <a href="{{ route('user.orders.show', $order) }}"
-                                                    class="btn-outline-gold group px-6 py-3 text-[9px] font-black uppercase tracking-widest rounded-full flex items-center gap-2">
-                                                    View Details <i
-                                                        class="fas fa-chevron-right group-hover:translate-x-1 transition-transform text-[8px]"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            <div class="mt-12 flex flex-col md:flex-row items-center justify-between gap-8">
-                                <div class="flex-1">
-                                    {{ $orders->links() }}
-                                </div>
-                                <form action="{{ route('user.orders.index') }}" method="GET" class="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-xl border border-white/5">
-                                    <span class="text-[9px] font-black uppercase tracking-widest text-dark-muted">Show</span>
-                                    <select name="per_page" onchange="this.form.submit()" class="bg-transparent text-[10px] font-black uppercase tracking-widest text-white border-none focus:ring-0 cursor-pointer">
-                                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }} class="bg-dark">10</option>
-                                        <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }} class="bg-dark">20</option>
-                                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }} class="bg-dark">50</option>
-                                    </select>
-                                    <span class="text-[9px] font-black uppercase tracking-widest text-dark-muted">Orders</span>
-                                </form>
-                            </div>
-                        @else
-                            <div class="text-center py-20 bg-black/20 rounded-[2.5rem] border border-white/5 border-dashed">
-                                <div
-                                    class="w-20 h-20 rounded-full bg-white/5 border border-white/5 flex items-center justify-center mx-auto mb-8 shadow-2xl opacity-40">
-                                    <i class="fas fa-shopping-basket text-3xl text-dark-muted"></i>
-                                </div>
-                                <h4 class="text-xl font-black text-gray-500 italic mb-4">No orders found.</h4>
-                                <a href="{{ route('products') }}"
-                                    class="btn-gold px-12 py-4 text-[10px] font-black uppercase tracking-widest rounded-full shadow-2xl inline-flex items-center gap-3">
-                                    <i class="fas fa-shopping-bag"></i> Start Shopping
-                                </a>
-                            </div>
-                        @endif
-                    </div>
+    <!-- Navigation / Statistics Grid -->
+    <div class="row g-4 mb-10">
+        <div class="col-md-9">
+            <header class="flex flex-col gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-1 bg-gold-400 rounded-full"></span>
+                    <span class="text-[10px] font-black uppercase tracking-[.4em] text-gold-400">Procurement Database</span>
                 </div>
+                <h2 class="text-4xl lg:text-5xl font-black text-white italic tracking-tighter uppercase mb-0">My <span class="gradient-text">Orders</span></h2>
+                <p class="text-[11px] font-black uppercase tracking-widest text-dark-muted opacity-60">Full listing of historical and active Jabulani transactions</p>
+            </header>
+        </div>
+        <div class="col-md-3">
+            <div class="premium-glass p-6 rounded-3xl border-white/5 text-center stat-card-glow">
+                <p class="text-[10px] font-black uppercase tracking-widest text-dark-muted mb-2">Total Records</p>
+                <div class="text-3xl font-black text-white italic tracking-tighter leading-none">{{ $orders->total() }} Entries</div>
             </div>
         </div>
     </div>
+
+    <!-- Active Filter View (Optional, placeholder for future) -->
+    @if(request('per_page') || request('page'))
+        <div class="mb-10 flex items-center justify-between p-6 rounded-2xl bg-white/5 border border-white/5">
+            <div class="flex items-center gap-4">
+                <span class="text-[10px] font-black uppercase tracking-widest text-dark-muted">Active View:</span>
+                <span class="px-3 py-1 bg-gold-400/10 border border-gold-400/20 text-gold-400 text-[10px] font-black uppercase rounded-full">Showing {{ request('per_page', 20) }} units per page</span>
+            </div>
+            <a href="{{ route('user.orders.index') }}" class="text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-white transition-all">Clear Filters</a>
+        </div>
+    @endif
+
+    <!-- Orders Management Table -->
+    <div class="premium-glass rounded-[3rem] border-white/5 overflow-hidden">
+        <div class="p-10 border-b border-white/5 flex items-center justify-between">
+            <h3 class="text-xs font-black uppercase tracking-widest text-white italic">Transactional Ledger</h3>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('user.orders.export') }}" class="px-6 py-3 bg-white/5 rounded-full text-[10px] font-black uppercase tracking-widest text-green-400 border border-green-500/10 hover:border-green-500/30 transition-all">
+                    <i class="fas fa-file-csv me-2"></i> Export Data
+                </a>
+            </div>
+        </div>
+
+        <div class="p-10 pt-0">
+            @if($orders->count() > 0)
+                <div class="table-responsive mt-6">
+                    <table class="table table-borderless align-middle mb-0 text-white">
+                        <thead>
+                            <tr class="border-b border-white/5">
+                                <th class="py-6 ps-4 text-[10px] font-black uppercase tracking-widest text-dark-muted">Identifier</th>
+                                <th class="py-6 text-[10px] font-black uppercase tracking-widest text-dark-muted">Placement Date</th>
+                                <th class="py-6 text-[10px] font-black uppercase tracking-widest text-dark-muted">Unit Investment</th>
+                                <th class="py-6 text-[10px] font-black uppercase tracking-widest text-dark-muted">Logistics Status</th>
+                                <th class="py-6 pe-4 text-center text-[10px] font-black uppercase tracking-widest text-dark-muted">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            @foreach($orders as $order)
+                                <tr class="group hover:bg-white/[0.02] transition-colors duration-300">
+                                    <td class="py-8 ps-4">
+                                        <div class="flex items-center gap-6">
+                                            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 text-gold-400 opacity-60 group-hover:scale-110 transition-transform">
+                                                <i class="fas fa-shopping-cart text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-lg font-black italic tracking-tight uppercase leading-none group-hover:text-gold-400 transition-colors">#{{ $order->order_number }}</div>
+                                                <div class="flex items-center gap-2 mt-2">
+                                                    <span class="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-white/5 text-dark-muted border border-white/5">{{ $order->order_type ?: 'B2B' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4">
+                                        <div class="text-sm font-semibold opacity-80">{{ $order->created_at->format('M d, Y') }}</div>
+                                        <div class="text-[10px] font-black uppercase tracking-widest text-dark-muted italic opacity-60 mt-1">{{ $order->created_at->format('H:i T') }}</div>
+                                    </td>
+                                    <td class="py-4 font-sans">
+                                        <div class="text-lg font-black text-white italic tracking-tighter">R {{ number_format($order->total, 2) }}</div>
+                                        <div class="text-[9px] font-black uppercase tracking-widest text-dark-muted italic opacity-50">Settled Value</div>
+                                    </td>
+                                    <td class="py-4">
+                                        @php
+                                            $sc = match($order->status) {
+                                                'completed', 'delivered' => 'text-green-400 border-green-500/20 bg-green-500/10',
+                                                'pending', 'awaiting_payment' => 'text-gold-400 border-gold-400/20 bg-gold-400/10',
+                                                'cancelled' => 'text-red-400 border-red-500/20 bg-red-500/10',
+                                                default => 'text-blue-400 border-blue-500/20 bg-blue-500/10',
+                                            };
+                                        @endphp
+                                        <span class="px-5 py-2.5 rounded-full text-[9px] font-black uppercase tracking-widest italic border {{ $sc }}">
+                                            <i class="fas fa-circle text-[6px] me-2"></i>
+                                            {{ $order->status === 'delivered' ? 'Completed' : ucfirst(str_replace('_', ' ', $order->status)) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-4 pe-4 text-center">
+                                        <a href="{{ route('user.orders.show', $order) }}" class="inline-flex items-center justify-center w-12 h-12 rounded-full border border-white/10 text-dark-muted hover:text-gold-400 hover:border-gold-400/30 transition-all">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer Operations -->
+                <div class="mt-12 flex flex-col md:flex-row items-center justify-between gap-10 bg-black/20 p-8 rounded-[2rem] border border-white/5 border-dashed">
+                    <div class="flex-1 w-full pagination-premium">
+                        {{ $orders->appends(request()->all())->links() }}
+                    </div>
+                    
+                    <form action="{{ route('user.orders.index') }}" method="GET" class="flex-shrink-0 flex items-center gap-4 bg-white/5 px-6 py-3 rounded-2xl border border-white/5">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-dark-muted opacity-60">Listing Threshold</span>
+                        <select name="per_page" onchange="this.form.submit()" class="bg-transparent text-[10px] font-black uppercase tracking-widest text-white border-none focus:ring-0 cursor-pointer p-0">
+                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }} class="bg-dark text-white">10 Records</option>
+                            <option value="20" {{ request('per_page', 20) == 20 ? 'selected' : '' }} class="bg-dark text-white">20 Records</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }} class="bg-dark text-white">50 Records</option>
+                        </select>
+                    </form>
+                </div>
+            @else
+                <!-- Empty State -->
+                <div class="text-center py-32 bg-black/20 rounded-[3rem] border border-white/5 border-dashed m-10">
+                    <div class="w-24 h-24 rounded-full bg-white/5 border border-white/5 flex items-center justify-center mx-auto mb-10 shadow-2xl opacity-40">
+                        <i class="fas fa-database text-4xl text-dark-muted"></i>
+                    </div>
+                    <h4 class="text-2xl font-black text-gray-500 italic mb-6">No historical records found.</h4>
+                    <p class="text-sm text-gray-600 max-w-sm mx-auto mb-10 italic">Our centralized database currently has no transactional history for your account profile.</p>
+                    <a href="{{ route('products') }}" class="px-12 py-5 bg-gold-400 rounded-full text-[11px] font-black uppercase tracking-widest text-black shadow-gold-glow flex items-center justify-center gap-4 mx-auto w-fit">
+                        <i class="fas fa-shopping-bag"></i> Browse Jabulani Collection
+                    </a>
+                </div>
+            @endif
+        </div>
+    </div>
+
 @endsection

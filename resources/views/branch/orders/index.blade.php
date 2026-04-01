@@ -38,7 +38,7 @@
                                 <td>R {{ number_format($order->total, 2) }}</td>
                                 <td>{{ $order->created_at->format('d M Y, H:i') }}</td>
                                 <td class="text-end pe-4">
-                                    <a href="{{ route('branch.orders.show', $order->id) }}"
+                                    <a href="{{ route('branch.orders.show', $order) }}"
                                         class="btn btn-sm btn-outline-dark">View & Process</a>
                                 </td>
                             </tr>

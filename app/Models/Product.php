@@ -9,6 +9,20 @@ class Product extends Model
 {
     use HasFactory;
 
+    protected static function booted()
+    {
+        static::creating(function ($product) {
+            if (empty($product->uuid)) {
+                $product->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     protected $fillable = [
         'name',
         'slug',

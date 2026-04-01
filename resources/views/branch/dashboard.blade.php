@@ -93,7 +93,7 @@
                                             </span>
                                         </td>
                                         <td class="text-end pe-4">
-                                            <a href="{{ route('branch.orders.show', $order->id) }}"
+                                            <a href="{{ route('branch.orders.show', $order) }}"
                                                 class="btn btn-sm btn-outline-dark">View</a>
                                         </td>
                                     </tr>

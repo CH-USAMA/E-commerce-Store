@@ -1,6 +1,10 @@
 @extends('layouts.frontend')
 
-@section('title', $store->name . ' - Jabulani Group')
+@section('meta_title', $store->name . ' — Jabulani Group')
+@section('meta_description', 'Visit Jabulani ' . $store->name . ' in ' . $store->province . '. ' . Str::limit($store->address, 100))
+@if($store->image)
+    @section('og_image', asset($store->image))
+@endif
 
 @section('content')
 

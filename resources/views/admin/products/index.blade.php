@@ -1,56 +1,64 @@
 @extends('layouts.admin')
 
-@section('title', 'Manage Products')
+@section('title', 'Products')
 
 @section('content')
-    <div class="mb-4 d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-bold">Products</h5>
+
+    {{-- Page Header --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <div class="fw-bold" style="font-size: 0.83rem; color: var(--text-primary);">Manage Products</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">{{ $products->total() }} total products</div>
+        </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.products.export') }}" class="btn btn-outline-success">
+            <a href="{{ route('admin.products.export') }}" class="btn btn-outline-success btn-sm">
                 <i class="fas fa-file-export me-1"></i> Export CSV
             </a>
-            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importModal">
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#importModal">
                 <i class="fas fa-file-import me-1"></i> Import CSV
             </button>
-            <a href="{{ route('admin.products.create') }}" class="btn btn-jabulani">Add New Product</a>
+            <a href="{{ route('admin.products.create') }}" class="btn btn-jabulani btn-sm">
+                <i class="fas fa-plus me-1"></i> Add New Product
+            </a>
         </div>
     </div>
 
-    <!-- Import Modal -->
+    {{-- Import Modal --}}
     <div class="modal fade" id="importModal" tabindex="-1">
         <div class="modal-dialog">
-            <form action="{{ route('admin.products.import') }}" method="POST" enctype="multipart/form-data"
-                class="modal-content">
+            <form action="{{ route('admin.products.import') }}" method="POST" enctype="multipart/form-data" class="modal-content">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title">Import Products</h5>
+                    <h6 class="modal-title fw-bold">Import Products</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="small text-muted mb-3">Upload a CSV file with columns: ID, Name, Slug, SKU, Description,
-                        Price, VAT Rate, Category, Brand, Featured.</p>
+                    <p class="small mb-3" style="color: var(--text-muted);">
+                        Upload a CSV with columns: ID, Name, Slug, SKU, Description, Price, VAT Rate, Category, Brand, Featured.
+                    </p>
                     <input type="file" name="csv_file" class="form-control" required accept=".csv">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-jabulani">Upload & Import</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-jabulani btn-sm">Upload & Import</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div class="border-0 shadow-sm card">
-        <div class="p-0 card-body">
+    {{-- Products Table --}}
+    <div class="card">
+        <div class="card-body" style="padding: 0 !important;">
             <div class="table-responsive">
-                <table class="table mb-0 align-middle table-hover">
-                    <thead class="bg-light">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
                             <th class="ps-4">Image</th>
                             <th>Product Details</th>
                             <th>Category</th>
                             <th>Price</th>
                             <th>Total Stock</th>
-                            <th class="text-end pe-4">Action</th>
+                            <th class="pe-4 text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,46 +72,57 @@
                                         }
                                         $finalUrl = $imagePath ? asset($imagePath) : asset('images/placeholder.webp');
                                     @endphp
-                                    <img src="{{ $finalUrl }}" alt="{{ $product->name }}" width="50" class="rounded shadow-sm">
+                                    <img src="{{ $finalUrl }}" alt="{{ $product->name }}"
+                                         style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-default);">
                                 </td>
                                 <td>
-                                    <div class="fw-bold">{{ $product->name }}</div>
-                                    <div class="small text-muted">SKU: {{ $product->sku }}</div>
+                                    <div class="fw-semibold" style="font-size: 0.82rem;">{{ $product->name }}</div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-code);">SKU: {{ $product->sku }}</div>
                                 </td>
-                                <td>{{ $product->category->name }}</td>
-                                <td>R {{ number_format($product->price, 2) }}</td>
+                                <td style="font-size: 0.82rem; color: var(--text-secondary);">{{ $product->category->name }}</td>
+                                <td class="fw-semibold" style="font-size: 0.83rem;">R {{ number_format($product->price, 2) }}</td>
                                 <td>
-                                    <span class="badge bg-dark">
-                                        {{ $product->stocks->sum('quantity') }}
+                                    @php $qty = $product->stocks->sum('quantity'); @endphp
+                                    <span class="badge {{ $qty > 0 ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $qty }}
                                     </span>
                                 </td>
-                                <td class="text-end pe-4">
-                                    <div class="btn-group">
+                                <td class="pe-4 text-end">
+                                    <div class="d-flex justify-content-end gap-1">
                                         <a href="{{ route('product.detail', $product->slug) }}" target="_blank"
-                                            class="btn btn-sm btn-outline-primary">View</a>
+                                           class="btn btn-outline-secondary btn-sm" title="View on site">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
                                         <a href="{{ route('admin.products.edit', $product->id) }}"
-                                            class="btn btn-sm btn-outline-dark">Edit</a>
+                                           class="btn btn-outline-primary btn-sm" title="Edit">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
                                         <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
-                                            class="d-inline"
-                                            onsubmit="return confirm('Are you sure you want to delete this product?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                              class="d-inline"
+                                              onsubmit="return confirm('Delete {{ addslashes($product->name) }}?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-4 text-center text-muted">No products found.</td>
+                                <td colspan="6" class="text-center py-5" style="color: var(--text-muted);">
+                                    <i class="fas fa-box-open fa-2x d-block mb-2 opacity-20"></i>
+                                    No products found.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="p-4">
+            <div class="px-3 py-2 border-top" style="border-color: var(--border-default) !important;">
                 {{ $products->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>
+
 @endsection

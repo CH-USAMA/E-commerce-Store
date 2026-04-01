@@ -113,12 +113,17 @@ class ProductController extends Controller
 
         $product->update($validated);
 
-        // Update stocks
+        // Update stocks (WMS Aware)
         if ($request->has('stocks')) {
-            foreach ($request->stocks as $storeId => $quantity) {
+            foreach ($request->stocks as $storeId => $stockData) {
                 \App\Models\ProductStoreStock::updateOrCreate(
                     ['product_id' => $product->id, 'store_id' => $storeId],
-                    ['quantity' => $quantity]
+                    [
+                        'quantity' => $stockData['quantity'] ?? 0,
+                        'incoming' => $stockData['incoming'] ?? 0,
+                        'reserved' => $stockData['reserved'] ?? 0,
+                        'damaged' => $stockData['damaged'] ?? 0,
+                    ]
                 );
             }
         }
@@ -137,31 +142,54 @@ class ProductController extends Controller
 
     public function export()
     {
-        $products = \App\Models\Product::with('category', 'brand')->get();
-        $csvHeader = ['ID', 'Name', 'Slug', 'SKU', 'Description', 'Price', 'VAT Rate', 'Category', 'Brand', 'Featured'];
+        $products = \App\Models\Product::with('category', 'brand', 'stocks.store')->get();
+        $csvHeader = [
+            'ID', 'Name', 'Slug', 'SKU', 'Description', 'Price', 'VAT Rate', 
+            'Category', 'Brand', 'Featured', 
+            'Store Name', 'Stock Physical', 'Stock Incoming', 'Stock Reserved', 'Stock Damaged'
+        ];
 
         $callback = function () use ($products, $csvHeader) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $csvHeader);
 
             foreach ($products as $product) {
-                fputcsv($file, [
-                    $product->id,
-                    $product->name,
-                    $product->slug,
-                    $product->sku,
-                    $product->description,
-                    $product->price,
-                    $product->vat_rate,
-                    $product->category ? $product->category->name : '',
-                    $product->brand ? $product->brand->name : '',
-                    $product->is_featured ? '1' : '0',
-                ]);
+                // If product has multiple stocks, we'll export one row per stock to make re-importing easier
+                if ($product->stocks->count() > 0) {
+                    foreach ($product->stocks as $stock) {
+                        fputcsv($file, [
+                            $product->id,
+                            $product->name,
+                            $product->slug,
+                            $product->sku,
+                            $product->description,
+                            $product->price,
+                            $product->vat_rate,
+                            $product->category ? $product->category->name : '',
+                            $product->brand ? $product->brand->name : '',
+                            $product->is_featured ? '1' : '0',
+                            $stock->store ? $stock->store->name : '',
+                            $stock->quantity,
+                            $stock->incoming,
+                            $stock->reserved,
+                            $stock->damaged,
+                        ]);
+                    }
+                } else {
+                    fputcsv($file, [
+                        $product->id, $product->name, $product->slug, $product->sku, $product->description, 
+                        $product->price, $product->vat_rate, 
+                        $product->category ? $product->category->name : '',
+                        $product->brand ? $product->brand->name : '',
+                        $product->is_featured ? '1' : '0',
+                        '', '0', '0', '0', '0'
+                    ]);
+                }
             }
             fclose($file);
         };
 
-        return response()->streamDownload($callback, 'products-export-' . date('Y-m-d') . '.csv', [
+        return response()->streamDownload($callback, 'products-inventory-export-' . date('Y-m-d') . '.csv', [
             'Content-Type' => 'text/csv',
         ]);
     }
@@ -194,7 +222,7 @@ class ProductController extends Controller
                 $brandId = $brand->id;
             }
 
-            \App\Models\Product::updateOrCreate(
+            $product = \App\Models\Product::updateOrCreate(
                 ['sku' => $row[3]],
                 [
                     'name' => $row[1],
@@ -207,6 +235,23 @@ class ProductController extends Controller
                     'is_featured' => ($row[9] ?? '0') == '1',
                 ]
             );
+
+            // Resolve Store & Stock (WMS Aware)
+            if (!empty($row[10])) {
+                $storeName = $row[10];
+                $store = \App\Models\Store::where('name', $storeName)->first();
+                if ($store) {
+                    \App\Models\ProductStoreStock::updateOrCreate(
+                        ['product_id' => $product->id, 'store_id' => $store->id],
+                        [
+                            'quantity' => (int) ($row[11] ?? 0),
+                            'incoming' => (int) ($row[12] ?? 0),
+                            'reserved' => (int) ($row[13] ?? 0),
+                            'damaged' => (int) ($row[14] ?? 0),
+                        ]
+                    );
+                }
+            }
             $count++;
         }
         fclose($handle);

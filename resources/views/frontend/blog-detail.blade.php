@@ -1,6 +1,11 @@
 @extends('layouts.frontend')
 
-@section('title', $post->title . ' - Jabulani Blog')
+@section('meta_title', $post->title . ' — Jabulani Group')
+@section('meta_description', Str::limit(strip_tags($post->content), 160))
+@section('og_type', 'article')
+@if($post->feature_image)
+    @section('og_image', asset($post->feature_image))
+@endif
 
 @section('content')
 

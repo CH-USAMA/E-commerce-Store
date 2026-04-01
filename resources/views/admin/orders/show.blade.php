@@ -2,47 +2,99 @@
 
 @section('title', 'Order Details')
 
+@push('css')
+<style>
+    .order-info-section .form-label {
+        color: var(--text-secondary) !important;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+    }
+    .order-info-section .info-value {
+        color: #ffffff !important;
+        font-weight: 500;
+        font-size: 0.88rem !important;
+    }
+</style>
+@endpush
+
 @section('content')
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Order: {{ $order->order_number }}</h5>
-                    <div>
-                        <span class="badge bg-info text-white me-2">{{ ucfirst($order->order_type) }}</span>
-                        @if($order->status == 'awaiting_payment')
-                            <span class="badge bg-warning text-dark">Awaiting Payment</span>
-                        @else
-                            <span class="badge bg-primary">{{ ucfirst($order->status) }}</span>
-                        @endif
-                    </div>
+
+    {{-- Back button + order header --}}
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Back
+        </a>
+        <div class="flex-grow-1">
+            <div class="fw-bold" style="font-size: 0.83rem;">
+                Order #<span style="color: var(--orange-400); font-family: var(--font-code);">{{ $order->order_number }}</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Placed {{ $order->created_at->format('d M Y, H:i') }}</div>
+        </div>
+        <div class="d-flex gap-2">
+            <span class="badge bg-info">{{ ucfirst($order->order_type) }}</span>
+            @php
+                $statusMap = [
+                    'pending'          => 'bg-warning',
+                    'processing'       => 'bg-info',
+                    'shipped'          => 'bg-primary',
+                    'delivered'        => 'bg-success',
+                    'completed'        => 'bg-success',
+                    'cancelled'        => 'bg-danger',
+                    'awaiting_payment' => 'bg-warning',
+                ];
+                $sc = $statusMap[$order->status] ?? 'bg-secondary';
+            @endphp
+            <span class="badge {{ $sc }}">{{ ucfirst(str_replace('_', ' ', $order->status)) }}</span>
+            <a href="{{ route('admin.orders.invoice', $order->id) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-file-pdf me-1"></i> Invoice
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+
+        {{-- LEFT: Items + Customer --}}
+        <div class="col-lg-8">
+
+            {{-- Order Items --}}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <div class="fw-bold" style="font-size: 0.83rem;">Order Items</div>
                 </div>
-                <div class="card-body">
-                    <h6>Order Items</h6>
+                <div class="card-body" style="padding: 0 !important;">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th>Product</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th class="text-end">Subtotal</th>
+                                    <th class="ps-4">Product</th>
+                                    <th>Unit Price</th>
+                                    <th>Qty</th>
+                                    <th class="pe-4 text-end">Subtotal</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($order->items as $item)
                                     <tr>
-                                        <td>{{ $item->product->name }}</td>
-                                        <td>R {{ number_format($item->price, 2) }}</td>
-                                        <td>{{ $item->quantity }}</td>
-                                        <td class="text-end">R {{ number_format($item->price * $item->quantity, 2) }}</td>
+                                        <td class="ps-4 fw-semibold" style="font-size: 0.83rem;">{{ $item->product->name }}</td>
+                                        <td style="font-size: 0.83rem;">R {{ number_format($item->price, 2) }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">× {{ $item->quantity }}</span>
+                                        </td>
+                                        <td class="pe-4 text-end fw-semibold" style="font-size: 0.83rem;">
+                                            R {{ number_format($item->price * $item->quantity, 2) }}
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <th colspan="3" class="text-end">Total</th>
-                                    <th class="text-end text-primary">R {{ number_format($order->total, 2) }}</th>
+                                <tr style="border-top: 1px solid var(--border-default);">
+                                    <td colspan="3" class="ps-4 fw-bold text-end" style="font-size: 0.83rem; padding-top: 0.75rem !important; padding-bottom: 0.75rem !important;">
+                                        Order Total
+                                    </td>
+                                    <td class="pe-4 text-end fw-bold" style="color: var(--orange-400); font-size: 1rem; padding-top: 0.75rem !important; padding-bottom: 0.75rem !important;">
+                                        R {{ number_format($order->total, 2) }}
+                                    </td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -50,145 +102,49 @@
                 </div>
             </div>
 
+            {{-- Customer Information --}}
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Customer Information</h5>
+                    <div class="fw-bold" style="font-size: 0.83rem;">Customer Information</div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
+                <div class="card-body order-info-section">
+                    <div class="row g-3">
                         <div class="col-md-6">
-                            <p><strong>Name:</strong> {{ $order->customer_name }}</p>
-                            <p><strong>Email:</strong> {{ $order->customer_email }}</p>
-                            <p><strong>Phone:</strong> {{ $order->customer_phone }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Address:</strong> {{ $order->customer_address }}</p>
-                            <p><strong>City:</strong> {{ $order->customer_city }}</p>
-                            <p><strong>Postal Code:</strong> {{ $order->customer_postal_code }}</p>
-                            @if($order->lat && $order->lng)
-                                <p><strong>Location:</strong>
-                                    <a href="https://www.google.com/maps?q={{ $order->lat }},{{ $order->lng }}" target="_blank"
-                                        class="btn btn-sm btn-outline-primary mt-1">
-                                        <i class="fas fa-map-marker-alt"></i> View on Maps
-                                    </a>
-                                </p>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Update Status</h5>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('admin.orders.update', $order->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <div class="mb-3">
-                            <select name="status" class="form-select">
-                                <option value="awaiting_payment" {{ $order->status == 'awaiting_payment' ? 'selected' : '' }}>Awaiting Payment</option>
-                                <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Processing
-                                </option>
-                                <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Shipped</option>
-                                <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Delivered
-                                </option>
-                                <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled
-                                </option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-jabulani w-100">Update Status</button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Store (Branch) Details</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Branch:</strong> {{ $order->store->name ?? 'N/A' }}</p>
-                    <p><strong>Contact:</strong> {{ $order->store->phone ?? 'N/A' }}</p>
-                    <p><strong>Address:</strong> {{ $order->store->address ?? 'N/A' }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @if($order->payment_method == 'eft' || $order->payment_screenshot)
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card mb-4 border-0 shadow-sm overflow-hidden" style="border-radius: 1rem;">
-                    <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white py-3">
-                        <h5 class="mb-0 italic font-black uppercase tracking-tight" style="font-size: 1rem;">
-                            <i class="fas fa-file-invoice-dollar text-warning me-2"></i> Official Payment Verification Documentation
-                        </h5>
-                        @if($order->status == 'awaiting_payment')
-                            <form action="{{ route('admin.orders.confirm-payment', $order->id) }}" method="POST" onsubmit="return confirm('Verify that the funds have cleared in our institution account?')">
-                                @csrf
-                                <button type="submit" class="btn btn-warning btn-sm font-black uppercase tracking-widest px-4 py-2" style="font-size: 0.7rem;">
-                                    <i class="fas fa-check-circle me-1"></i> Confirm Transaction Settlement
-                                </button>
-                            </form>
-                        @endif
-                    </div>
-                    <div class="card-body bg-white p-5">
-                        <div class="row align-items-center">
-                            <div class="col-md-6 border-end">
-                                <div class="mb-4">
-                                    <label class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.7rem; letter-spacing: 0.1em;">Settlement Method</label>
-                                    <h4 class="fw-black italic text-dark uppercase mb-0">Bank EFT Transfer</h4>
+                            <div class="d-flex flex-column gap-2">
+                                <div>
+                                    <div class="form-label">Name</div>
+                                    <div class="info-value">{{ $order->customer_name }}</div>
                                 </div>
-                                <div class="mb-0">
-                                    <label class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.7rem; letter-spacing: 0.1em;">Audit Status</label>
-                                    <div class="d-flex align-items-center">
-                                        @if($order->payment_confirmed_at)
-                                            <div class="bg-success-soft text-success px-4 py-3 rounded-3 w-100 d-flex align-items-center">
-                                                <i class="fas fa-check-double fa-2x me-3 opacity-50"></i>
-                                                <div>
-                                                    <p class="mb-0 font-black uppercase tracking-widest" style="font-size: 0.8rem;">Verified & Secured</p>
-                                                    <p class="mb-0 text-sm opacity-75">Settled on {{ $order->payment_confirmed_at->format('d M Y H:i') }}</p>
-                                                </div>
-                                            </div>
-                                        @else
-                                            <div class="bg-warning-soft text-warning px-4 py-3 rounded-3 w-100 d-flex align-items-center">
-                                                <i class="fas fa-shield-halved fa-2x me-3 opacity-50"></i>
-                                                <div>
-                                                    <p class="mb-0 font-black uppercase tracking-widest" style="font-size: 0.8rem;">Awaiting Verification</p>
-                                                    <p class="mb-0 text-sm opacity-75">Manual audit of institution account required.</p>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </div>
+                                <div>
+                                    <div class="form-label">Email</div>
+                                    <div class="info-value">{{ $order->customer_email }}</div>
+                                </div>
+                                <div>
+                                    <div class="form-label">Phone</div>
+                                    <div class="info-value">{{ $order->customer_phone }}</div>
                                 </div>
                             </div>
-                            <div class="col-md-6 px-lg-5">
-                                @if($order->payment_screenshot)
-                                    <div class="text-center">
-                                        <p class="mb-3 text-uppercase font-black text-muted text-start" style="font-size: 0.7rem; letter-spacing: 0.1em;">Customer Uploaded Proof:</p>
-                                        @php $ext = pathinfo($order->payment_screenshot, PATHINFO_EXTENSION); @endphp
-                                        @if(in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp']))
-                                            <a href="{{ asset($order->payment_screenshot) }}" target="_blank" class="d-block shadow-lg rounded-4 overflow-hidden position-relative group">
-                                                <img src="{{ asset($order->payment_screenshot) }}" class="img-fluid" style="max-height: 400px; width: 100%; object-fit: contain; background: #f8f9fa;" alt="POP">
-                                                <div class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 text-white py-2 font-black uppercase text-[10px] opacity-0 group-hover-opacity-100 transition">Click to view full resolution</div>
-                                            </a>
-                                        @else
-                                            <div class="p-5 border rounded-4 bg-light text-center">
-                                                <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
-                                                <h5 class="font-black uppercase italic">Document: {{ strtoupper($ext) }}</h5>
-                                                <a href="{{ asset($order->payment_screenshot) }}" target="_blank" class="btn btn-dark mt-3 px-5 font-black uppercase tracking-widest" style="font-size: 0.75rem;">Download Documentation</a>
-                                            </div>
-                                        @endif
-                                    </div>
-                                @else
-                                    <div class="alert alert-light border border-dashed py-5 text-center">
-                                        <i class="fas fa-file-circle-exclamation fa-3x mb-3 text-muted opacity-25"></i>
-                                        <p class="mb-0 font-black uppercase tracking-widest text-muted" style="font-size: 0.8rem;">No Proof of Payment documentation uploaded by customer.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex flex-column gap-2">
+                                <div>
+                                    <div class="form-label">Address</div>
+                                    <div class="info-value">{{ $order->customer_address }}</div>
+                                </div>
+                                <div>
+                                    <div class="form-label">City</div>
+                                    <div class="info-value">{{ $order->customer_city }}</div>
+                                </div>
+                                <div>
+                                    <div class="form-label">Postal Code</div>
+                                    <div class="info-value">{{ $order->customer_postal_code }}</div>
+                                </div>
+                                @if($order->lat && $order->lng)
+                                    <div>
+                                        <a href="https://www.google.com/maps?q={{ $order->lat }},{{ $order->lng }}" target="_blank"
+                                           class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-map-marker-alt me-1"></i> View on Maps
+                                        </a>
                                     </div>
                                 @endif
                             </div>
@@ -196,7 +152,145 @@
                     </div>
                 </div>
             </div>
+
+        </div>
+
+        {{-- RIGHT: Status + Store + EFT --}}
+        <div class="col-lg-4">
+
+            {{-- Update Status --}}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <div class="fw-bold" style="font-size: 0.83rem;">Update Status</div>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('admin.orders.update', $order->id) }}" method="POST">
+                        @csrf @method('PUT')
+                        <div class="mb-2">
+                            <select name="status" class="form-select">
+                                <option value="awaiting_payment" {{ $order->status == 'awaiting_payment' ? 'selected' : '' }}>Awaiting Payment</option>
+                                <option value="pending"          {{ $order->status == 'pending'          ? 'selected' : '' }}>Pending</option>
+                                <option value="processing"       {{ $order->status == 'processing'       ? 'selected' : '' }}>Processing</option>
+                                <option value="shipped"          {{ $order->status == 'shipped'          ? 'selected' : '' }}>Shipped</option>
+                                <option value="delivered"        {{ $order->status == 'delivered'        ? 'selected' : '' }}>Delivered</option>
+                                <option value="cancelled"        {{ $order->status == 'cancelled'        ? 'selected' : '' }}>Cancelled</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-jabulani btn-sm w-100">
+                            <i class="fas fa-save me-1"></i> Update Status
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {{-- Store / Branch --}}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <div class="fw-bold" style="font-size: 0.83rem;">Store (Branch) Details</div>
+                </div>
+                <div class="card-body order-info-section">
+                    <div class="d-flex flex-column gap-2">
+                        <div>
+                            <div class="form-label">Branch</div>
+                            <div class="info-value">{{ $order->store->name ?? 'N/A' }}</div>
+                        </div>
+                        <div>
+                            <div class="form-label">Contact</div>
+                            <div class="info-value">{{ $order->store->phone ?? 'N/A' }}</div>
+                        </div>
+                        <div>
+                            <div class="form-label">Address</div>
+                            <div class="info-value">{{ $order->store->address ?? 'N/A' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- EFT / Payment Verification --}}
+    @if($order->payment_method == 'eft' || $order->payment_screenshot)
+        <div class="card mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-file-invoice-dollar" style="color: var(--orange-400);"></i>
+                    <span class="fw-bold" style="font-size: 0.83rem;">Payment Verification Documentation</span>
+                </div>
+                @if($order->status == 'awaiting_payment')
+                    <form action="{{ route('admin.orders.confirm-payment', $order->id) }}" method="POST"
+                          onsubmit="return confirm('Verify that funds have cleared in our account?')">
+                        @csrf
+                        <button type="submit" class="btn btn-jabulani btn-sm">
+                            <i class="fas fa-check-circle me-1"></i> Confirm Payment
+                        </button>
+                    </form>
+                @endif
+            </div>
+            <div class="card-body">
+                <div class="row g-4 align-items-start">
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <div class="form-label">Settlement Method</div>
+                            <div class="fw-bold" style="font-size: 0.9rem;">Bank EFT Transfer</div>
+                        </div>
+                        <div>
+                            <div class="form-label">Audit Status</div>
+                            @if($order->payment_confirmed_at)
+                                <div class="d-flex align-items-center gap-2 p-3 rounded-2"
+                                     style="background: rgba(25,135,84,0.1); border: 1px solid rgba(25,135,84,0.2);">
+                                    <i class="fas fa-check-double" style="color: var(--success-color);"></i>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.78rem; color: var(--success-color);">Verified & Cleared</div>
+                                        <div style="font-size: 0.72rem; color: var(--text-muted);">Settled on {{ $order->payment_confirmed_at->format('d M Y H:i') }}</div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="d-flex align-items-center gap-2 p-3 rounded-2"
+                                     style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.2);">
+                                    <i class="fas fa-shield-halved" style="color: var(--warning-color);"></i>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.78rem; color: var(--warning-color);">Awaiting Verification</div>
+                                        <div style="font-size: 0.72rem; color: var(--text-muted);">Manual audit of institution account required.</div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        @if($order->payment_screenshot)
+                            <div class="form-label">Customer Uploaded Proof of Payment</div>
+                            @php $ext = pathinfo($order->payment_screenshot, PATHINFO_EXTENSION); @endphp
+                            @if(in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp']))
+                                <a href="{{ asset($order->payment_screenshot) }}" target="_blank"
+                                   style="display: block; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-default);">
+                                    <img src="{{ asset($order->payment_screenshot) }}" class="img-fluid"
+                                         style="max-height: 380px; width: 100%; object-fit: contain; background: var(--carbon-800);" alt="Proof of Payment">
+                                </a>
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; text-align: center;">
+                                    Click image to view full resolution
+                                </div>
+                            @else
+                                <div class="p-4 text-center rounded-2" style="background: var(--carbon-800); border: 1px dashed var(--border-default);">
+                                    <i class="fas fa-file-pdf fa-3x mb-2" style="color: var(--error-color); opacity: 0.6;"></i>
+                                    <div class="fw-bold mb-2" style="font-size: 0.83rem;">Document: {{ strtoupper($ext) }}</div>
+                                    <a href="{{ asset($order->payment_screenshot) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-download me-1"></i> Download Documentation
+                                    </a>
+                                </div>
+                            @endif
+                        @else
+                            <div class="p-4 text-center rounded-2" style="background: var(--carbon-800); border: 1px dashed var(--border-default);">
+                                <i class="fas fa-file-circle-exclamation fa-2x d-block mb-2 opacity-20"></i>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">
+                                    No Proof of Payment uploaded by customer.
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
         </div>
     @endif
-    </div>
+
 @endsection

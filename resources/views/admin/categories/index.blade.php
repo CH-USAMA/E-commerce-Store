@@ -1,24 +1,30 @@
 @extends('layouts.admin')
 
-@section('title', 'Manage Categories')
+@section('title', 'Categories')
 
 @section('content')
-    <div class="mb-4 d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-bold">Categories</h5>
-        <a href="{{ route('admin.categories.create') }}" class="btn btn-jabulani">Add New Category</a>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <div class="fw-bold" style="font-size: 0.83rem;">Manage Categories</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Product taxonomy management</div>
+        </div>
+        <a href="{{ route('admin.categories.create') }}" class="btn btn-jabulani btn-sm">
+            <i class="fas fa-plus me-1"></i> Add New Category
+        </a>
     </div>
 
-    <div class="border-0 shadow-sm card">
-        <div class="p-0 card-body">
+    <div class="card">
+        <div class="card-body" style="padding: 0 !important;">
             <div class="table-responsive">
-                <table class="table mb-0 align-middle table-hover">
-                    <thead class="bg-light">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
                         <tr>
                             <th class="ps-4">Image</th>
                             <th>Name</th>
                             <th>Slug</th>
                             <th>Parent Category</th>
-                            <th class="text-end pe-4">Action</th>
+                            <th class="pe-4 text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -26,40 +32,46 @@
                             <tr>
                                 <td class="ps-4">
                                     @if($category->image)
-                                        <img src="{{ (Str::contains($category->image, 'images/') ? asset($category->image) : asset('storage/' . $category->image)) }}"
-                                            alt="{{ $category->name }}"
-                                            style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;">
+                                        <img src="{{ Str::contains($category->image, 'images/') ? asset($category->image) : asset('storage/' . $category->image) }}"
+                                             alt="{{ $category->name }}"
+                                             style="width: 36px; height: 36px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-default);">
                                     @else
-                                        <div class="bg-light d-flex align-items-center justify-content-center text-muted"
-                                            style="width: 40px; height: 40px; border-radius: 8px;">
-                                            <i class="fas fa-folder"></i>
+                                        <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--surface-overlay); border: 1px solid var(--border-default); display:flex; align-items:center; justify-content:center;">
+                                            <i class="fas fa-folder" style="font-size: 0.75rem; color: var(--text-muted);"></i>
                                         </div>
                                     @endif
                                 </td>
-                                <td class="fw-bold">
-                                    @if($category->parent_id)
-                                        <span class="text-muted ms-3"><i class="fas fa-level-up-alt fa-rotate-90 me-2"></i></span>
-                                    @endif
-                                    {{ $category->name }}
+                                <td>
+                                    <div class="fw-semibold" style="font-size: 0.83rem;">
+                                        @if($category->parent_id)
+                                            <i class="fas fa-level-up-alt fa-rotate-90 me-2" style="font-size: 0.7rem; color: var(--text-muted);"></i>
+                                        @endif
+                                        {{ $category->name }}
+                                    </div>
                                 </td>
                                 <td><code>{{ $category->slug }}</code></td>
-                                <td>{{ $category->parent->name ?? '--' }}</td>
-                                <td class="text-end pe-4">
-                                    <a href="{{ route('admin.categories.edit', $category->id) }}"
-                                        class="btn btn-sm btn-outline-dark">Edit</a>
+                                <td style="font-size: 0.82rem; color: var(--text-secondary);">{{ $category->parent->name ?? '—' }}</td>
+                                <td class="pe-4 text-end">
+                                    <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="py-4 text-center text-muted">No categories found.</td>
+                                <td colspan="5" class="text-center py-5" style="color: var(--text-muted);">
+                                    <i class="fas fa-folder-open fa-2x d-block mb-2 opacity-20"></i>
+                                    No categories found.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="p-4">
+            <div class="px-3 py-2 border-top" style="border-color: var(--border-default) !important;">
                 {{ $categories->links() }}
             </div>
         </div>
     </div>
+
 @endsection

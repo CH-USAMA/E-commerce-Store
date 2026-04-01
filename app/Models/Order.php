@@ -9,6 +9,20 @@ class Order extends Model
 {
     use HasFactory;
 
+    protected static function booted()
+    {
+        static::creating(function ($order) {
+            if (empty($order->uuid)) {
+                $order->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
     protected $fillable = [
         'order_number',
         'user_id',

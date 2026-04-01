@@ -84,7 +84,7 @@
                             <div class="flex items-center justify-between pt-4 border-t border-white/5">
                                 <span
                                     class="text-[10px] font-black uppercase tracking-widest text-gold-400/60">{{ $store->province }}</span>
-                                <a href="{{ route('store.detail', $store->id) }}"
+                                <a href="{{ route('store.detail', $store) }}"
                                     class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-gold-400 hover:text-dark transition shadow-lg">
                                     <i class="fas fa-arrow-right text-xs"></i>
                                 </a>

@@ -11,7 +11,7 @@ class HomeController extends Controller
         $banners = \Illuminate\Support\Facades\Cache::remember('banners', 3600, fn() => \App\Models\Banner::all());
         $stores = \Illuminate\Support\Facades\Cache::remember('stores_all', 3600, fn() => \App\Models\Store::all());
         $brands = \Illuminate\Support\Facades\Cache::remember('brands', 3600, fn() => \App\Models\Brand::all());
-        $categories = \App\Models\Category::topLevel()->with('children')->get();
+        $categories = \Illuminate\Support\Facades\Cache::remember('categories_top', 3600, fn() => \App\Models\Category::topLevel()->with('children')->get());
         // Fetch products by new flags, with fallbacks for unflagged databases
         $featuredProducts = \App\Models\Product::with('category', 'subcategory')->where('is_featured', true)->take(12)->get();
         $topSellingProducts = \App\Models\Product::with('category', 'subcategory')->where('is_top_selling', true)->take(10)->get();
@@ -84,9 +84,8 @@ class HomeController extends Controller
         return view('frontend.specials');
     }
 
-    public function storeDetail($id)
+    public function storeDetail(\App\Models\Store $store)
     {
-        $store = \Illuminate\Support\Facades\Cache::remember("store_detail_$id", 3600, fn() => \App\Models\Store::findOrFail($id));
         return view('frontend.store-detail', compact('store'));
     }
 
@@ -113,9 +112,9 @@ class HomeController extends Controller
                 $q->whereHas('subcategory', fn($q) => $q->where('slug', $selectedSubcategory));
             })
             ->when($search, function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('description', 'like', '%' . $search . '%')
-                    ->orWhere('sku', 'like', '%' . $search . '%');
+                // Use FullText search for better performance and relevance
+                $q->whereFullText(['name', 'description'], $search)
+                  ->orWhere('sku', 'like', '%' . $search . '%');
             });
 
         match ($sort) {

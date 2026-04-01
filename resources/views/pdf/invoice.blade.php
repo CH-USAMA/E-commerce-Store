@@ -146,12 +146,15 @@
                         </p>
                     </td>
                     <td class="company-info">
-                        <div class="company-name">Jabulani Group</div>
+                        @if(!empty($settings['invoice_logo']) && file_exists(public_path('storage/' . $settings['invoice_logo'])))
+                            <img src="data:image/{{ pathinfo($settings['invoice_logo'], PATHINFO_EXTENSION) }};base64,{{ base64_encode(file_get_contents(public_path('storage/' . $settings['invoice_logo']))) }}"
+                                 style="max-height: 50px; margin-bottom: 10px;" alt="Logo">
+                        @endif
+                        <div class="company-name">{{ $settings['invoice_company_name'] ?? 'Jabulani Group' }}</div>
                         <p>
-                            123 Logistics Way<br>
-                            Johannesburg, 2000<br>
-                            South Africa<br>
-                            <strong>Email:</strong> finance@jabulanigroup.co.za
+                            {!! nl2br(e($settings['invoice_company_address'] ?? "123 Logistics Way\nJohannesburg, 2000\nSouth Africa")) !!}<br>
+                            <strong>Phone:</strong> {{ $settings['invoice_company_phone'] ?? '' }}<br>
+                            <strong>Email:</strong> {{ $settings['invoice_company_email'] ?? 'finance@jabulanigroup.co.za' }}
                         </p>
                     </td>
                 </tr>
@@ -217,20 +220,20 @@
 
         <div style="clear: both; margin-top: 60px;">
             <p><strong>Payment Method:</strong> {{ strtoupper($order->payment_method) }}</p>
-            @if($order->payment_method === 'eft')
+            @if($order->payment_method === 'eft' && count($eft_accounts) > 0)
                 <div style="background: #fdf6b2; padding: 15px; border-radius: 4px; font-size: 10px;">
                     <strong>Official Settlement Accounts for EFT:</strong><br>
-                    1. FNB | Moin Hardware | 62866895166 | Code: 628<br>
-                    2. FNB | JB Builder Choice | 63070014740 | Code: 630<br>
-                    3. Standard Bank | Moin Hardware | 272322091 | Code: 051<br>
+                    @foreach($eft_accounts as $index => $acc)
+                        {{ $index + 1 }}. {{ $acc['bank'] }} | {{ $acc['name'] }} | {{ $acc['number'] }} | Code: {{ $acc['code'] }}<br>
+                    @endforeach
                     Reference: <strong>{{ $order->order_number }}</strong>
                 </div>
             @endif
         </div>
 
         <div class="footer">
-            <p>Thank you for your business. For any queries, please contact our support team.</p>
-            <p>Jabulani Group (Pty) Ltd | Reg No: 2023/123456/07</p>
+            <p>{{ $settings['invoice_footer_text'] ?? 'Thank you for your business. For any queries, please contact our support team.' }}</p>
+            <p>{{ $settings['invoice_company_name'] ?? 'Jabulani Group' }} (Pty) Ltd | {{ $settings['invoice_registration_number'] ?? 'Reg No: 2023/123456/07' }}</p>
         </div>
     </div>
 </body>

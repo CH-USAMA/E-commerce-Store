@@ -11,6 +11,8 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         $recentOrders = $user->orders()->latest()->take(5)->get();
-        return view('user.dashboard', compact('user', 'recentOrders'));
+        $totalSpent = $user->orders()->whereIn('status', ['completed', 'delivered', 'paid', 'processing'])->sum('total');
+        
+        return view('user.dashboard', compact('user', 'recentOrders', 'totalSpent'));
     }
 }
