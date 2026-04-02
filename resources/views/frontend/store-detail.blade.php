@@ -10,8 +10,8 @@
 @push('seo')
 <script type="application/ld+json">
 {
-    "@context": "https://schema.org",
-    "@type": "HardwareStore",
+    "@@context": "https://schema.org",
+    "@@type": "HardwareStore",
     "name": "Jabulani {{ $store->name }}",
     "description": "Jabulani Group hardware and building materials store in {{ $store->name }}, South Africa. Supplying quality building supplies, cement, bricks, roofing, timber, and more.",
     "url": "{{ route('store.detail', $store->slug) }}",
@@ -19,27 +19,27 @@
     "telephone": "{{ $store->phone }}",
     @endif
     "address": {
-        "@type": "PostalAddress",
+        "@@type": "PostalAddress",
         "streetAddress": "{{ $store->address }}",
         "addressCountry": "ZA",
         "addressRegion": "Eastern Cape"
     },
     @if($store->lat && $store->lng)
     "geo": {
-        "@type": "GeoCoordinates",
+        "@@type": "GeoCoordinates",
         "latitude": {{ $store->lat }},
         "longitude": {{ $store->lng }}
     },
     @endif
     "openingHoursSpecification": [
         {
-            "@type": "OpeningHoursSpecification",
+            "@@type": "OpeningHoursSpecification",
             "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
             "opens": "08:00",
             "closes": "17:00"
         },
         {
-            "@type": "OpeningHoursSpecification",
+            "@@type": "OpeningHoursSpecification",
             "dayOfWeek": "Saturday",
             "opens": "08:00",
             "closes": "13:00"
@@ -51,7 +51,7 @@
         "https://www.linkedin.com/company/jabulani-group-of-companies/"
     ],
     "parentOrganization": {
-        "@type": "Organization",
+        "@@type": "Organization",
         "name": "Jabulani Group of Companies",
         "url": "{{ config('app.url') }}"
     }

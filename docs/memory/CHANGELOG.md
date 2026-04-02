@@ -10,6 +10,9 @@
 **Type**: SEO & AI Web Scraper Optimization
 **Files Changed**: `routes/web.php`, `robots.blade.php`, `llms.blade.php`, `llms-full.blade.php`
 
+### Fixes
+*   **Blade Syntax Errors**: Fixed "unexpected end of file" errors by expanding inline `@if` statements and re-organizing `@push` blocks in `home`, `product-single`, and `store-detail` views. This ensures compatibility with older or strictly configured Blade compilers on production servers (e.g., Hostinger).
+
 - Upgraded `robots.txt` to explicitly invite major AI engines (`GPTBot`, `ClaudeBot`, `PerplexityBot`, `Google-Extended`)
 - Implemented `/llms.txt` — a machine-readable markdown overview of the business tailored for ChatGPT/Claude
 - Implemented `/llms-full.txt` — a complete raw markdown catalog dumping all products and prices for instant AI comparison against competitors (Cashbuild)

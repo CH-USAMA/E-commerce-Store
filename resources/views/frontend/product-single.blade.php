@@ -11,8 +11,8 @@
 @push('seo')
 <script type="application/ld+json">
 {
-    "@context": "https://schema.org/",
-    "@type": "Product",
+    "@@context": "https://schema.org/",
+    "@@type": "Product",
     "name": "{{ $product->name }}",
     "description": "{{ Str::limit(strip_tags($product->description ?? ''), 500) }}",
     @if($product->sku)
@@ -22,12 +22,12 @@
     "image": "{{ asset($product->image) }}",
     @endif
     "brand": {
-        "@type": "Brand",
+        "@@type": "Brand",
         "name": "{{ optional($product->brand)->name ?? 'Jabulani Group' }}"
     },
     "category": "{{ optional($product->category)->name ?? 'Hardware' }}",
     "offers": {
-        "@type": "Offer",
+        "@@type": "Offer",
         "url": "{{ route('product.detail', $product->slug) }}",
         "priceCurrency": "ZAR",
         "price": "{{ number_format($product->price, 2, '.', '') }}",
@@ -35,7 +35,7 @@
         "availability": "https://schema.org/InStock",
         "itemCondition": "https://schema.org/NewCondition",
         "seller": {
-            "@type": "Organization",
+            "@@type": "Organization",
             "name": "Jabulani Group of Companies",
             "url": "{{ config('app.url') }}"
         }
