@@ -15,7 +15,9 @@
     "name": "Jabulani {{ $store->name }}",
     "description": "Jabulani Group hardware and building materials store in {{ $store->name }}, South Africa. Supplying quality building supplies, cement, bricks, roofing, timber, and more.",
     "url": "{{ route('store.detail', $store->slug) }}",
-    @if($store->phone)"telephone": "{{ $store->phone }}",@endif
+    @if($store->phone)
+    "telephone": "{{ $store->phone }}",
+    @endif
     "address": {
         "@type": "PostalAddress",
         "streetAddress": "{{ $store->address }}",

@@ -15,7 +15,9 @@
     "@type": "Product",
     "name": "{{ $product->name }}",
     "description": "{{ Str::limit(strip_tags($product->description ?? ''), 500) }}",
-    @if($product->sku)"sku": "{{ $product->sku }}",@endif
+    @if($product->sku)
+    "sku": "{{ $product->sku }}",
+    @endif
     @if($product->image && file_exists(public_path($product->image)))
     "image": "{{ asset($product->image) }}",
     @endif
