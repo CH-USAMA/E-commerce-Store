@@ -25,5 +25,24 @@ Allow: /contact
 Allow: /specials
 Allow: /track-order
 
+# Explicitly allow AI Agents to read the public catalog
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
 # Sitemap location
 Sitemap: {{ config('app.url') }}/sitemap.xml

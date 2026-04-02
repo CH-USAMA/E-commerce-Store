@@ -21,6 +21,14 @@ Route::get('/robots.txt', function () {
     return response()->view('frontend.robots')->header('Content-Type', 'text/plain');
 });
 
+// AIO (AI Optimization) Routes
+Route::get('/llms.txt', function () {
+    return response()->view('frontend.llms')->header('Content-Type', 'text/plain');
+});
+Route::get('/llms-full.txt', function () {
+    return response()->view('frontend.llms-full')->header('Content-Type', 'text/plain');
+});
+
 Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/about', [\App\Http\Controllers\HomeController::class, 'about'])->name('about');
 Route::get('/services', [\App\Http\Controllers\HomeController::class, 'services'])->name('services');

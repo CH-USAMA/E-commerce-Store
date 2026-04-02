@@ -5,6 +5,19 @@
 
 ---
 
+## [2026-04-02] — AIO (AI Optimization) & llms.txt Implementation
+
+**Type**: SEO & AI Web Scraper Optimization
+**Files Changed**: `routes/web.php`, `robots.blade.php`, `llms.blade.php`, `llms-full.blade.php`
+
+- Upgraded `robots.txt` to explicitly invite major AI engines (`GPTBot`, `ClaudeBot`, `PerplexityBot`, `Google-Extended`)
+- Implemented `/llms.txt` — a machine-readable markdown overview of the business tailored for ChatGPT/Claude
+- Implemented `/llms-full.txt` — a complete raw markdown catalog dumping all products and prices for instant AI comparison against competitors (Cashbuild)
+
+**Deploy**: `git pull` + `php artisan route:clear`.
+
+---
+
 ## [2026-04-02] — Full SEO Overhaul (Sitemap & JSON-LD)
 
 **Type**: SEO & Performance
