@@ -1,10 +1,62 @@
 @extends('layouts.frontend')
 
-@section('meta_title', $store->name . ' — Jabulani Group')
-@section('meta_description', 'Visit Jabulani ' . $store->name . ' in ' . $store->province . '. ' . Str::limit($store->address, 100))
+@section('meta_title', $store->name . ' — Jabulani Hardware Store | ' . ($store->city ?? 'Eastern Cape') . ', South Africa')
+@section('meta_description', 'Visit Jabulani ' . $store->name . ' hardware store in ' . ($store->city ?? 'Eastern Cape') . ', South Africa. Building materials, cement, bricks, roofing and more. Call us today.')
+@section('meta_keywords', 'hardware store ' . ($store->city ?? '') . ', building materials ' . ($store->city ?? '') . ', Jabulani ' . $store->name . ', hardware Eastern Cape')
 @if($store->image)
     @section('og_image', asset($store->image))
 @endif
+
+@push('seo')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "HardwareStore",
+    "name": "Jabulani {{ $store->name }}",
+    "description": "Jabulani Group hardware and building materials store in {{ $store->name }}, South Africa. Supplying quality building supplies, cement, bricks, roofing, timber, and more.",
+    "url": "{{ route('store.detail', $store->slug) }}",
+    @if($store->phone)"telephone": "{{ $store->phone }}",@endif
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "{{ $store->address }}",
+        "addressCountry": "ZA",
+        "addressRegion": "Eastern Cape"
+    },
+    @if($store->lat && $store->lng)
+    "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": {{ $store->lat }},
+        "longitude": {{ $store->lng }}
+    },
+    @endif
+    "openingHoursSpecification": [
+        {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+            "opens": "08:00",
+            "closes": "17:00"
+        },
+        {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": "Saturday",
+            "opens": "08:00",
+            "closes": "13:00"
+        }
+    ],
+    "sameAs": [
+        "https://www.facebook.com/share/18Ca1HgEJG/",
+        "https://www.instagram.com/jabulani_group_hardware",
+        "https://www.linkedin.com/company/jabulani-group-of-companies/"
+    ],
+    "parentOrganization": {
+        "@type": "Organization",
+        "name": "Jabulani Group of Companies",
+        "url": "{{ config('app.url') }}"
+    }
+}
+</script>
+@endpush
+
 
 @section('content')
 

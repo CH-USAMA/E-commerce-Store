@@ -2,6 +2,25 @@
 
 @section('title', 'Jabulani Group - Premium Hardware & Building Materials')
 
+@push('seo')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Jabulani Group of Companies",
+  "url": "{{ config('app.url') }}",
+  "logo": "{{ asset('images/logo_yellow2.png') }}",
+  "sameAs": [
+    "https://www.facebook.com/share/18Ca1HgEJG/",
+    "https://www.instagram.com/jabulani_group_hardware",
+    "https://youtube.com/@jabulanigroup",
+    "https://www.tiktok.com/@jabulani.logistic",
+    "https://www.linkedin.com/company/jabulani-group-of-companies/"
+  ]
+}
+</script>
+@endpush
+
 @section('content')
 
     {{-- Hero Section Redesign: Pro Selling Store Feel --}}

@@ -1,11 +1,47 @@
 @extends('layouts.frontend')
 
-@section('meta_title', $product->name . ' — Jabulani Group')
-@section('meta_description', Str::limit(strip_tags($product->description), 160))
+@section('meta_title', $product->name . ' — Jabulani Group | Hardware & Building Materials SA')
+@section('meta_description', Str::limit(strip_tags($product->description ?? 'Buy ' . $product->name . ' from Jabulani Group. Quality hardware and building materials in South Africa.'), 160))
+@section('meta_keywords', $product->name . ', building materials, hardware, South Africa, ' . optional($product->category)->name . ', ' . optional($product->brand)->name . ', buy online')
 @section('og_type', 'product')
 @if($product->image && file_exists(public_path($product->image)))
     @section('og_image', asset($product->image))
 @endif
+
+@push('seo')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": "{{ $product->name }}",
+    "description": "{{ Str::limit(strip_tags($product->description ?? ''), 500) }}",
+    @if($product->sku)"sku": "{{ $product->sku }}",@endif
+    @if($product->image && file_exists(public_path($product->image)))
+    "image": "{{ asset($product->image) }}",
+    @endif
+    "brand": {
+        "@type": "Brand",
+        "name": "{{ optional($product->brand)->name ?? 'Jabulani Group' }}"
+    },
+    "category": "{{ optional($product->category)->name ?? 'Hardware' }}",
+    "offers": {
+        "@type": "Offer",
+        "url": "{{ route('product.detail', $product->slug) }}",
+        "priceCurrency": "ZAR",
+        "price": "{{ number_format($product->price, 2, '.', '') }}",
+        "priceValidUntil": "{{ now()->addYear()->format('Y-m-d') }}",
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition",
+        "seller": {
+            "@type": "Organization",
+            "name": "Jabulani Group of Companies",
+            "url": "{{ config('app.url') }}"
+        }
+    }
+}
+</script>
+@endpush
+
 
 @section('content')
 

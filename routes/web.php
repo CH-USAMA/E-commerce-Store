@@ -17,6 +17,10 @@ Route::get('/sitemap.xml', function () {
     return response()->view('frontend.sitemap')->header('Content-Type', 'text/xml');
 });
 
+Route::get('/robots.txt', function () {
+    return response()->view('frontend.robots')->header('Content-Type', 'text/plain');
+});
+
 Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/about', [\App\Http\Controllers\HomeController::class, 'about'])->name('about');
 Route::get('/services', [\App\Http\Controllers\HomeController::class, 'services'])->name('services');

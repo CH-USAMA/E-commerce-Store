@@ -1,53 +1,176 @@
-## [2026-04-01] — Phase 4: Total System Hardening & Dynamic Branding
-### Added
-- **ID Obfuscation (UUID/Slug Migration)**: Implemented UUID-based route binding for `Users` and `Orders`, and Slug-based binding for `Products`, `Stores`, `Categories`, and `Brands`. This completely hides incremental database IDs from URLs.
-- **Security Middleware**: Implemented `SecurityHeaders` middleware providing a strict Content Security Policy (CSP), HSTS, X-Frame-Options (SAMEORIGIN), and X-Content-Type-Options (nosniff).
-- **Rate Limiting**: Applied `throttle` middleware to `Login`, `Register`, and `Contact` forms to prevent brute-force and spam attacks.
-- **HTTPS Enforcement**: Globally enforced HTTPS for all URLs in production via `AppServiceProvider`.
-- **Dynamic Site Branding**: Wired the frontend footer, contact page, and WhatsApp buttons to pull from the central "Invoice Settings" in the admin panel.
-- **Data Repair & Integrity**: Executed batch repair scripts to ensure 100% UUID coverage for existing database records and seeded official Jabulani Group contact/EFT details.
+# Changelog — Jabulani Store
 
-### Hardened
-- **Mass Assignment**: Removed `role` from `User` model fillable attributes to prevent privilege escalation.
-- **Route Model Binding**: Audited and fixed all Blade templates to ensure they use the new secure identifiers.
-- **Asset Security**: Configured CSP to whitelist external CDNs (Tailwind, FontAwesome, Alpine.js) while blocking unauthorized third-party scripts.
+> Format: `## [YYYY-MM-DD] — Summary`
+> Add newest entries at the top.
 
-### Fixed [Post-Hardening Repairs]
-- **Admin Order Processing**: Resolved a critical regression where "Confirm Payment" and "Update Status" were failing due to route model binding mismatches after the UUID migration.
-- **Notification Data Integrity**: Executed a backend repair script (`tmp/repair_notifications_uuids.php`) to migrate legacy integer-based URLs in the `notifications` table to their new secure UUID equivalents.
-- **Social Login Models**: Patched the `User` model with PHPDoc property declarations to resolve IDE linting errors and improve static analysis for Google Socialite tokens.
+---
 
-## [2026-04-01] — Phase 3: Premium Operations & User Portal Redesign
-### Added
-- **Dedicated User Layout**: Created `layouts/user.blade.php` with a sleek glassmorphic sidebar and premium typography for an app-like authenticated experience.
-- **WMS-Aware CSV Import**: Enhanced `ProductController@import` to handle `Physical`, `Incoming`, `Reserved`, and `Damaged` stock columns mapped to specific stores.
-- **Enhanced CSV Export**: `ProductController@export` now outputs one row per store-stock relationship for easier bulk updates of national inventory.
-- **Master Regional Stock View**: Redesigned Product Edit view with a "Regional Inventory Tracking" table managing stocks across all branches from a single screen.
+## [2026-04-02] — Full SEO Overhaul (Sitemap & JSON-LD)
 
-### Changed
-- **Premium User Dashboard**: Replaced legacy dashboard with a high-contrast "Dark Mode Premium" interface featuring a Welcome Hero and detailed Procurement Analytics (`Total Spent`, `Active Orders`).
-- **Modernized Order History**: Overhauled `user/orders/index.blade.php` with a "Transactional Ledger" UI and glassmorphic pagination.
-- **Luxury Order Details**: Finalized `user/orders/show.blade.php` with a high-end logistics pipeline visualizer and line-item manifest.
-- **Core Performance**: `DashboardController` now pre-calculates cumulative transactional value for real-time account equity reporting.
+**Type**: SEO & Performance
+**Files Changed**: `routes/web.php`, `sitemap.blade.php`, `robots.blade.php`, `home.blade.php`, `product-single.blade.php`, `store-detail.blade.php`
 
-## [2026-03-31] — Phase 2: SEO, GDPR & WMS Inventory
-### Added
-- **GDPR Guest Management**: Dedicated Admin panel for reviewing and manually purging guest PII (anonymization).
-- **Artisan Purge Tool**: Created `app:purge-guest-order-data` for batch anonymization of PII after 7 years.
-- **Dynamic SEO Framework**: Master layout now supports dynamic OpenGraph meta tags with specific overrides for products, blogs, and stores.
-- **WMS Database Schema**: Added `incoming`, `reserved`, and `damaged` columns to `product_store_stocks`.
-- **Branch Stock Manager**: Updated branch inventory dashboard with unified 4-point stock management.
+- Replaced old static sitemap with dynamic `/sitemap.xml` covering stores, products, categories, brands, and blogs
+- Added dynamic `/robots.txt` blocking `/admin` and `/cart` to preserve Google crawl budget
+- Injected `Organization` JSON-LD schema into the homepage with all 5 social links
+- Injected `Product` JSON-LD schema into product pages to enable Google Shopping price badges
+- Injected `HardwareStore` (LocalBusiness) JSON-LD schema into store pages to trigger "near me" Maps rankings
 
-## [2026-03-31] — Improvement Plan Execution (Phase 1)
-### Added
-- **Invoice Settings**: Comprehensive admin panel for dynamic configuration of company info, logos, and EFT bank accounts.
-- **Project Memory Documentation**: Centralized `docs/memory/` directory for AI context and onboarding.
-- **AI Entry Point**: Root-level `MEMORY.md` for instructing future automation agents.
+**Deploy**: `git pull` + `php artisan route:clear` + Submit `/sitemap.xml` to Google Search Console.
 
-### Fixed
-- **Order Invoice Route**: Resolved `admin.orders.invoice` missing route error.
-- **Database Performance**: Implemented missing indexes on `addresses` for postal code and address type filtering.
+---
 
-### Changed
-- **Customer UI**: Redesigned Order Details view (`show.blade.php`) with high-contrast labels and information for improved readability on dark backgrounds.
-- **PDF Template**: Refactored `invoice.blade.php` to use dynamic branding and bank accounts instead of hardcoded strings.
+## [2026-04-02] — Documentation Overhaul & AI Intelligence System
+
+**Type**: Documentation
+**Files Changed**: `MEMORY.md`, `docs/memory/*` (14 files total)
+
+- Rebuilt entire `docs/memory/` system from scratch into a dense, machine-readable format
+- Added: `USER_PORTAL.md`, `SECURITY.md`, `DEPLOYMENT.md`, `TESTING_CHECKLIST.md`, `KNOWN_ISSUES.md`, `FEATURE_MAP.md`
+- Upgraded: `SYSTEM_OVERVIEW.md` (role matrix, integrations), `DATABASE_SCHEMA.md` (full column-level schema), `ARCHITECTURE.md` (middleware stack, controller→model matrix), `ORDER_FLOW.md` (all branch conditions), `PRODUCT_FLOW.md` (WMS states, CSV spec), `ADMIN_PANEL.md` (full route table, settings registry), `IMPROVEMENT_PLAN.md` (Phase 5 tasks + AI protocol)
+- `MEMORY.md` root: Now an AI operating contract with 6 enforceable rules, environment comparison table, and full doc index
+
+**Deploy**: No code changes. Documentation only. No migration or cache clear required.
+
+---
+
+## [2026-04-02] — Stripe Integration Fix
+
+**Type**: Bug Fix
+**Files Changed**: `app/Http/Controllers/CartController.php`
+
+- Fixed `Class "Stripe\Stripe" not found` — ran `composer install --no-dev`
+- Updated Stripe payment routing to handle both `payfast` and `stripe` as payment_method values
+- Added proper error handling: if Stripe fails, order is still recorded with warning message
+- Added `!empty($stripeSecret)` check to prevent empty key execution
+- Added `order_number` to Stripe session metadata
+
+**Deploy**: Run `composer install --no-dev` on Hostinger after `git pull`.
+
+---
+
+## [2026-04-01] — UUID Security Hardening (Full System)
+
+**Type**: Security
+**Files Changed**: Multiple views, `NewOrderNotification.php`, `OrderStatusChangedNotification.php`
+
+- Fixed admin order views: all form actions now use `$order` object (UUID), not `$order->id`
+- Fixed branch manager order view: status update form uses UUID routing
+- Fixed notification payloads: `order_id` now stores UUID string instead of integer
+- Repaired legacy notification records in DB (used `tmp/repair_notifications_uuids.php`)
+
+**Deploy**: Run repair script on live if old notifications still show integer URLs.
+
+---
+
+## [2026-04-01] — Production Logging (Daily Rotation)
+
+**Type**: Infrastructure
+**Files Changed**: `config/logging.php`
+
+- Changed default log channel to `daily` driver
+- Log files now stored as `storage/logs/laravel-YYYY-MM-DD.log`
+- Retention: 14 days
+
+**Deploy**: `git pull` + `php artisan config:clear`.
+
+---
+
+## [2026-04-01] — Fix 403 After Google OAuth Login
+
+**Type**: Bug Fix
+**Files Changed**: `app/Http/Controllers/Auth/SocialAuthController.php`
+
+- New Google users were not being assigned `role = 'user'`
+- `role:user` middleware blocked access to `/user/dashboard`
+- Fix: Explicitly set `$user->role = 'user'` on user creation in `handleGoogleCallback()`
+
+---
+
+## [2026-03-31] — WMS Inventory States
+
+**Type**: Feature
+**Files Changed**: Migration, `ProductStoreStock` model, branch views
+
+- Added `incoming_quantity`, `reserved_quantity`, `damaged_quantity` to `product_store_stocks`
+- Updated branch dashboard to display and edit all WMS states
+- Updated CSV import/export to include WMS columns
+
+---
+
+## [2026-03-31] — Audit Logging System
+
+**Type**: Feature
+**Files Changed**: New `activity_logs` migration, `ActivityLog` model
+
+- Created `ActivityLog` model with static `record()` helper
+- Logs: order status changes, payment confirmations, stock adjustments
+- Columns: `action`, `model_type`, `model_id`, `old_values`, `new_values`, `user_id`
+
+---
+
+## [2026-03-31] — FULLTEXT Search
+
+**Type**: Performance
+**Files Changed**: Migration (FULLTEXT index), `HomeController`
+
+- Added FULLTEXT indexes on `products.name` and `products.description`
+- Replaced `LIKE '%query%'` with `MATCH...AGAINST` for faster search
+- Fallback to `LIKE` if FULLTEXT returns no results
+
+---
+
+## [2026-03-19] — Stripe Checkout Integration (Initial)
+
+**Type**: Feature
+**Files Changed**: `CartController.php`, `resources/views/frontend/checkout.blade.php`
+
+- Added Stripe Checkout payment path (using `payfast` as DB value — legacy alias)
+- Stripe keys stored in `settings` DB table, managed via Admin > Payments
+- On success: order status updated to `processing`, confirmation email dispatched
+
+---
+
+## [2026-03-19] — Database Notifications
+
+**Type**: Feature
+**Files Changed**: `notifications` migration, `NewOrderNotification`, `OrderStatusChangedNotification`
+
+- Admin notified via DB notification when new order is placed
+- User notified via DB notification when order status changes
+- Notification bell in admin and user dashboards
+
+---
+
+## [2026-03-06] — Google OAuth (Socialite)
+
+**Type**: Feature
+**Files Changed**: `SocialAuthController`, `users` migration (social fields), routes
+
+- Google OAuth via Laravel Socialite
+- Stores `google_id`, `google_token`, `google_refresh_token` on user
+- Auto-verifies email on first Google login
+
+---
+
+## [2026-03-04] — Security Middleware
+
+**Type**: Security
+**Files Changed**: `app/Http/Middleware/SecurityHeaders.php`, kernel
+
+- Added CSP, HSTS, X-Frame, XSS, X-Content-Type, Referrer-Policy headers
+- Applied globally to all HTTP responses
+- Rate limiting (throttle:6,1) on auth and contact routes
+
+---
+
+## [2026-03-03] — Initial System Build
+
+**Type**: Initial Release
+- Laravel 12 project initialized
+- Core tables: users, stores, categories, brands, products, orders, order_items, settings
+- Admin portal (Carbon Pro) with full CRUD
+- Frontend (Tailwind + Alpine.js) with cart, checkout, product listing
+- EFT payment flow with proof-of-payment upload
+- Branch manager portal
+- Geolocation nearest-store detection
