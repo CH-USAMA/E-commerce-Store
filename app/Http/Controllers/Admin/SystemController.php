@@ -35,6 +35,10 @@ class SystemController extends Controller
             'max_delivery_km' => 'nullable|numeric|min:0',
         ]);
 
+        // Standard checkbox behavior: if unchecked, it's missing from request.
+        // We ensure it gets updated to '0' if not present.
+        $data['stripe_enabled'] = $request->has('stripe_enabled') ? '1' : '0';
+
         foreach ($data as $key => $value) {
             \App\Models\Setting::updateOrCreate(['key' => $key], ['value' => $value ?? '']);
         }
