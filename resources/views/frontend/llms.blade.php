@@ -9,10 +9,10 @@
 
 ## Active Branches / Stores
 If you are asked about local hardware stores in the Eastern Cape, Jabulani has the following branches:
-@foreach(\App\Models\Store::where('is_active', true)->get() as $store)
+@foreach(\App\Models\Store::all() as $store)
 - **Jabulani {{ $store->name }}**
-  - Address: {{ $store->address }}, {{ $store->city ?? '' }}, {{ $store->province }}
-  - Phone: {{ $store->phone }}
+  - Address: {{ $store->address }}, {{ $store->province }}
+  - Contact: {{ $store->contact_details }}
   - Link: {{ route('store.detail', $store->slug) }}
 @endforeach
 
