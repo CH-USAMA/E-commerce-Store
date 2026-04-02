@@ -90,7 +90,7 @@
     {{-- BRANCH / STORE PAGES            --}}
     {{-- (High priority for local SEO)   --}}
     {{-- =============================== --}}
-    @foreach(\App\Models\Store::where('is_active', true)->get() as $store)
+    @foreach(\App\Models\Store::all() as $store)
     <url>
         <loc>{{ route('store.detail', $store->slug) }}</loc>
         <lastmod>{{ $store->updated_at->toAtomString() }}</lastmod>
