@@ -4,7 +4,7 @@
 > **Live URL**: https://store.jabulanigroupofcompanies.co.za
 > **Local URL**: http://jabulani-system.test
 > **Deployment**: Git push (local) → `git pull` on Hostinger (live). Uses `.env.production` on server.
-
+> **Branch Status**: The "Compact User Portal Redesign & Checkout Hardening" experiment is isolated on branch `feature/ui-redesign-and-hardening`. The `master` branch remains representing the stable live production code.
 ---
 
 ## 📌 Context Index — Read These In Order
@@ -54,7 +54,6 @@ All changes are made locally first. The user **pushes to Git** and **pulls on Ho
 - Do NOT add a route without checking `FEATURE_MAP.md` and `ADMIN_PANEL.md`
 - Do NOT modify `Order` or `User` routing without verifying UUID consistency across ALL views
 - Always run: `php artisan route:list` mentally against the route file before declaring done
-
 ### Rule 5 — Environment Awareness
 | Setting | Local | Production |
 |:---|:---|:---|
