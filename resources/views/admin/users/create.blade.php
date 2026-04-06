@@ -27,18 +27,44 @@
                             @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        <div class="mb-3">
-                            <label for="role" class="form-label">Assign Role</label>
-                            <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
-                                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin (Full Access)
-                                </option>
-                                <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Branch Manager
-                                </option>
-                                <option value="receptionist" {{ old('role') == 'receptionist' ? 'selected' : '' }}>
-                                    Receptionist</option>
-                                <option value="customer" {{ old('role') == 'customer' ? 'selected' : '' }}>Customer</option>
-                            </select>
-                            @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label for="role" class="form-label fw-bold">Assign Primary Role</label>
+                                <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
+                                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrator (System Wide)</option>
+                                    <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Branch Manager</option>
+                                    <option value="receptionist" {{ old('role') == 'receptionist' ? 'selected' : '' }}>Receptionist</option>
+                                    <option value="customer" {{ old('role') == 'customer' ? 'selected' : '' }}>Standard Customer</option>
+                                </select>
+                                @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold d-block mb-3">Module Permissions <small class="text-muted fw-normal">(Only for Admin/Staff roles)</small></label>
+                            <div class="row g-3">
+                                @php
+                                    $availablePermissions = [
+                                        'manage_products' => 'Products & Catalog',
+                                        'manage_orders'   => 'Orders & Sales',
+                                        'manage_content'  => 'Website Content',
+                                        'manage_users'    => 'Staff Management',
+                                        'manage_settings' => 'System Settings',
+                                        'view_analytics'  => 'Analytics & Reports',
+                                    ];
+                                @endphp
+                                @foreach($availablePermissions as $key => $label)
+                                    <div class="col-md-6">
+                                        <div class="form-check p-3 rounded-3 border border-white/5 bg-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                                            <input class="form-check-input ms-0 me-3" type="checkbox" name="permissions[]" value="{{ $key }}" id="perm_{{ $key }}">
+                                            <label class="form-check-label w-100 cursor-pointer" for="perm_{{ $key }}">
+                                                <span class="d-block fw-bold" style="font-size: 0.85rem;">{{ $label }}</span>
+                                                <small class="text-muted" style="font-size: 0.75rem;">Access to {{ strtolower($label) }}</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
 
                         <div class="row mb-3">

@@ -101,4 +101,74 @@ class SystemController extends Controller
 
         return back()->with('success', 'Invoice settings updated successfully.');
     }
+
+    public function themeSettings()
+    {
+        $settings = \App\Models\Setting::all()->pluck('value', 'key');
+        return view('admin.settings.theme', compact('settings'));
+    }
+
+    public function updateThemeSettings(Request $request)
+    {
+        if ($request->has('reset')) {
+            \App\Models\Setting::whereIn('key', [
+                'theme_primary_color',
+                'theme_primary_text_color',
+                'theme_background_color',
+                'theme_surface_color',
+                'theme_text_color',
+                'theme_muted_text_color'
+            ])->delete();
+            return back()->with('success', 'Theme reset to default successfully.');
+        }
+
+        $request->validate([
+            'theme_primary_color'    => ['required', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'theme_background_color' => ['required', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'theme_surface_color'    => ['required', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+        ]);
+
+        $primaryColor    = $request->theme_primary_color;
+        $backgroundColor = $request->theme_background_color;
+        $surfaceColor    = $request->theme_surface_color;
+        
+        // Calculate contrast colors
+        $primaryTextColor = $this->getContrastColor($primaryColor);
+        $bodyTextColor    = $this->getContrastColor($backgroundColor);
+        
+        // Helper for muted text (slightly lower contrast than main text)
+        $mutedTextColor   = ($bodyTextColor === '#ffffff') ? '#a0a0a0' : '#6c757d';
+
+        \App\Models\Setting::updateOrCreate(['key' => 'theme_primary_color'], ['value' => $primaryColor]);
+        \App\Models\Setting::updateOrCreate(['key' => 'theme_primary_text_color'], ['value' => $primaryTextColor]);
+        \App\Models\Setting::updateOrCreate(['key' => 'theme_background_color'], ['value' => $backgroundColor]);
+        \App\Models\Setting::updateOrCreate(['key' => 'theme_surface_color'], ['value' => $surfaceColor]);
+        \App\Models\Setting::updateOrCreate(['key' => 'theme_text_color'], ['value' => $bodyTextColor]);
+        \App\Models\Setting::updateOrCreate(['key' => 'theme_muted_text_color'], ['value' => $mutedTextColor]);
+        
+        return back()->with('success', 'Theme settings updated successfully.');
+    }
+
+    private function getContrastColor($hexColor) 
+    {
+        // Remove # if present
+        $hex = str_replace('#', '', $hexColor);
+
+        // Convert to RGB
+        if (strlen($hex) == 3) {
+            $r = hexdec(substr($hex, 0, 1) . substr($hex, 0, 1));
+            $g = hexdec(substr($hex, 1, 1) . substr($hex, 1, 1));
+            $b = hexdec(substr($hex, 2, 1) . substr($hex, 2, 1));
+        } else {
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+        }
+
+        // Calculate luminance - standard formula
+        $luminance = (0.299 * $r + 0.587 * $g + 0.114 * $b) / 255;
+
+        // Threshold for black/white text
+        return ($luminance > 0.6) ? '#000000' : '#ffffff';
+    }
 }

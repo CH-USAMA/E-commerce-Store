@@ -94,8 +94,13 @@ class AuthController extends Controller
 
             DB::commit();
 
-            // Fire the Registered event to trigger the Verification Email
+            // Fire the Registered event to trigger the Verification Email (Listener)
             event(new \Illuminate\Auth\Events\Registered($user));
+
+            // Explicitly call sendEmailVerificationNotification to ensure it fires correctly on first attempt
+            if (!$user->hasVerifiedEmail()) {
+                $user->sendEmailVerificationNotification();
+            }
 
             // Automatically add to newsletter (or update if they somehow exist)
             \App\Models\NewsletterSubscriber::updateOrCreate(

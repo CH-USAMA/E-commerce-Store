@@ -1,5 +1,13 @@
 @extends('layouts.frontend')
 
+@push('styles')
+    <style>
+        .animate-marquee {
+            animation: marquee 30s linear infinite;
+        }
+    </style>
+@endpush
+
 @section('title', 'Jabulani Group - Premium Hardware & Building Materials')
 
 @section('content')
@@ -38,7 +46,7 @@
                                     <div
                                         class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-white/10 backdrop-blur-md hover:bg-black/60 transition-colors">
                                         <span
-                                            class="w-1.5 h-1.5 rounded-full bg-gold-400 shadow-[0_0_10px_rgba(245,197,24,0.8)]"></span>
+                                            class="w-1.5 h-1.5 rounded-full bg-gold-400 shadow-[0_0_10px_rgba(var(--brand-primary-rgb),0.8)]"></span>
                                         <span class="text-[10px] font-black uppercase tracking-widest text-white/90">
                                             {{ $bullet }}
                                         </span>
@@ -57,7 +65,7 @@
 
                             <div class="flex flex-wrap items-center gap-6">
                                 <a href="{{ route('products') }}"
-                                    class="group relative px-10 py-5 bg-gold-400 overflow-hidden rounded-full transition-all duration-300 hover:shadow-[0_0_30px_rgba(245,197,24,0.4)] hover:-translate-y-1">
+                                    class="group relative px-10 py-5 bg-gold-400 overflow-hidden rounded-full transition-all duration-300 hover:shadow-[0_0_30px_rgba(var(--brand-primary-rgb),0.4)] hover:-translate-y-1">
                                     <span
                                         class="relative z-10 text-dark font-black uppercase tracking-widest text-sm flex items-center gap-2">
                                         Shop Now <i
@@ -80,7 +88,7 @@
                     <div class="flex items-center gap-3">
                         @foreach($banners as $index => $banner)
                             <button @click="activeSlide = {{ $index }}; clearInterval(interval)"
-                                :class="activeSlide === {{ $index }} ? 'w-16 bg-gold-400 shadow-[0_0_10px_rgba(245,197,24,0.5)]' : 'w-4 bg-white/30 hover:bg-white/60'"
+                                :class="activeSlide === {{ $index }} ? 'w-16 bg-gold-400 shadow-[0_0_10px_rgba(var(--brand-primary-rgb),0.5)]' : 'w-4 bg-white/30 hover:bg-white/60'"
                                 class="h-1.5 rounded-full transition-all duration-500"></button>
                         @endforeach
                     </div>
@@ -92,26 +100,19 @@
     {{-- Scrolling Ticker --}}
     <style>
         @keyframes marquee {
-            0% {
-                transform: translateX(0);
-            }
-
-            100% {
-                transform: translateX(-50%);
-            }
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
-
         .animate-marquee {
             animation: marquee 30s linear infinite;
             width: max-content;
         }
-
         .animate-marquee:hover {
             animation-play-state: paused;
         }
     </style>
     <div
-        class="py-4 bg-gold-400 border-y border-gold-500/20 overflow-hidden whitespace-nowrap flex relative z-20 shadow-[0_10px_30px_rgba(245,197,24,0.15)]">
+        class="py-4 bg-gold-400 border-y border-gold-400/20 overflow-hidden whitespace-nowrap flex relative z-20 shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.15)]">
         <div class="flex animate-marquee items-center">
             @for($i = 0; $i < 6; $i++)
                 @foreach(['JABULANI HARDWARE', 'JABULANI CRUSH & QUARRY', 'JABULANI BUILDING MATERIAL', 'JABULANI CONSTRUCTION'] as $item)
@@ -159,7 +160,7 @@
                                 }
                             @endphp
                             <img src="{{ asset($catImgSrc) }}"
-                                class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 group-hover:sepia-[.5] group-hover:hue-rotate-[-30deg] transition-all duration-700 opacity-80 group-hover:opacity-100"
+                                class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-700 opacity-80 group-hover:opacity-100"
                                 alt="{{ $category->name }}">
 
                             {{-- Overlay --}}
@@ -389,8 +390,12 @@
             animation: slide-left 40s linear infinite;
         }
 
+        .stat-card-glow {
+            box-shadow: 0 0 30px rgba(var(--brand-primary-rgb), 0.05);
+        }
+
         .gradient-text {
-            background: linear-gradient(to right, #f5c518, #ffd700);
+            background: linear-gradient(to right, var(--brand-primary), var(--brand-primary-faded));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }

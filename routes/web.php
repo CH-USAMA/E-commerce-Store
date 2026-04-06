@@ -115,37 +115,55 @@ Route::middleware(['auth', 'verified', 'role:user', 'profile.complete'])->prefix
 
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard')->middleware('permission:view_analytics');
     Route::resource('stores', \App\Http\Controllers\Admin\StoreController::class);
-    Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
-    Route::resource('brands', \App\Http\Controllers\Admin\BrandController::class);
-    Route::get('products/export', [\App\Http\Controllers\Admin\ProductController::class, 'export'])->name('products.export');
-    Route::post('products/import', [\App\Http\Controllers\Admin\ProductController::class, 'import'])->name('products.import');
-    Route::resource('products', \App\Http\Controllers\Admin\ProductController::class);
-    Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class);
-    Route::resource('team', \App\Http\Controllers\Admin\TeamMemberController::class);
-    Route::resource('blog', \App\Http\Controllers\Admin\BlogPostController::class);
-    Route::resource('blog-categories', \App\Http\Controllers\Admin\BlogCategoryController::class);
-    Route::resource('gallery', \App\Http\Controllers\Admin\GalleryItemController::class);
-    Route::get('orders/export', [\App\Http\Controllers\Admin\OrderController::class, 'export'])->name('orders.export');
-    Route::get('orders/fake', [\App\Http\Controllers\Admin\OrderController::class, 'createFakeOrder'])->name('orders.fake');
-    Route::get('orders/{order}/invoice', [\App\Http\Controllers\Admin\OrderController::class, 'invoice'])->name('orders.invoice');
-    Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
-    Route::post('orders/{order}/confirm-payment', [\App\Http\Controllers\Admin\OrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
-    Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class);
-    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-    Route::get('settings/payments', [\App\Http\Controllers\Admin\SystemController::class, 'payments'])->name('settings.payments');
-    Route::post('settings/payments', [\App\Http\Controllers\Admin\SystemController::class, 'updatePayments'])->name('settings.payments.update');
-    Route::get('settings/invoice', [\App\Http\Controllers\Admin\SystemController::class, 'invoiceSettings'])->name('settings.invoice');
-    Route::post('settings/invoice', [\App\Http\Controllers\Admin\SystemController::class, 'updateInvoiceSettings'])->name('settings.invoice.update');
+    Route::middleware(['permission:manage_products'])->group(function () {
+        Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+        Route::resource('brands', \App\Http\Controllers\Admin\BrandController::class);
+        Route::get('products/export', [\App\Http\Controllers\Admin\ProductController::class, 'export'])->name('products.export');
+        Route::post('products/import', [\App\Http\Controllers\Admin\ProductController::class, 'import'])->name('products.import');
+        Route::resource('products', \App\Http\Controllers\Admin\ProductController::class);
+    });
+
+    Route::middleware(['permission:manage_content'])->group(function () {
+        Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class);
+        Route::resource('team', \App\Http\Controllers\Admin\TeamMemberController::class);
+        Route::resource('blog', \App\Http\Controllers\Admin\BlogPostController::class);
+        Route::resource('blog-categories', \App\Http\Controllers\Admin\BlogCategoryController::class);
+        Route::resource('gallery', \App\Http\Controllers\Admin\GalleryItemController::class);
+        Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class);
+    });
+
+    Route::middleware(['permission:manage_orders'])->group(function () {
+        Route::get('orders/export', [\App\Http\Controllers\Admin\OrderController::class, 'export'])->name('orders.export');
+        Route::get('orders/fake', [\App\Http\Controllers\Admin\OrderController::class, 'createFakeOrder'])->name('orders.fake');
+        Route::get('orders/{order}/invoice', [\App\Http\Controllers\Admin\OrderController::class, 'invoice'])->name('orders.invoice');
+        Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
+        Route::post('orders/{order}/confirm-payment', [\App\Http\Controllers\Admin\OrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
+    });
+
+    Route::middleware(['permission:manage_users'])->group(function () {
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    });
+
+    Route::middleware(['permission:manage_settings'])->group(function () {
+        Route::get('settings/payments', [\App\Http\Controllers\Admin\SystemController::class, 'payments'])->name('settings.payments');
+        Route::post('settings/payments', [\App\Http\Controllers\Admin\SystemController::class, 'updatePayments'])->name('settings.payments.update');
+        Route::get('settings/invoice', [\App\Http\Controllers\Admin\SystemController::class, 'invoiceSettings'])->name('settings.invoice');
+        Route::post('settings/invoice', [\App\Http\Controllers\Admin\SystemController::class, 'updateInvoiceSettings'])->name('settings.invoice.update');
+        Route::get('settings/theme', [\App\Http\Controllers\Admin\SystemController::class, 'themeSettings'])->name('settings.theme');
+        Route::post('settings/theme', [\App\Http\Controllers\Admin\SystemController::class, 'updateThemeSettings'])->name('settings.theme.update');
+    });
     
     // Marketing & Notifications
     Route::get('notifications/mark-all-read', [\App\Http\Controllers\Admin\MarketingController::class, 'markAllRead'])->name('notifications.mark-all-read');
-    Route::get('marketing', [\App\Http\Controllers\Admin\MarketingController::class, 'index'])->name('marketing.index');
-    Route::get('marketing/create', [\App\Http\Controllers\Admin\MarketingController::class, 'create'])->name('marketing.create');
-    Route::post('marketing', [\App\Http\Controllers\Admin\MarketingController::class, 'push'])->name('marketing.push');
-    Route::post('marketing/{campaign}/resend', [\App\Http\Controllers\Admin\MarketingController::class, 'resend'])->name('marketing.resend');
-    Route::delete('marketing/{campaign}', [\App\Http\Controllers\Admin\MarketingController::class, 'destroy'])->name('marketing.destroy');
+    Route::middleware(['permission:view_analytics'])->group(function () {
+        Route::get('marketing', [\App\Http\Controllers\Admin\MarketingController::class, 'index'])->name('marketing.index');
+        Route::get('marketing/create', [\App\Http\Controllers\Admin\MarketingController::class, 'create'])->name('marketing.create');
+        Route::post('marketing', [\App\Http\Controllers\Admin\MarketingController::class, 'push'])->name('marketing.push');
+        Route::post('marketing/{campaign}/resend', [\App\Http\Controllers\Admin\MarketingController::class, 'resend'])->name('marketing.resend');
+        Route::delete('marketing/{campaign}', [\App\Http\Controllers\Admin\MarketingController::class, 'destroy'])->name('marketing.destroy');
+    });
 
     // Guest Management (GDPR/POPIA)
     Route::get('guests', '\App\Http\Controllers\Admin\GuestController@index')->name('guests.index');

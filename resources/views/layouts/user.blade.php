@@ -19,8 +19,18 @@
             theme: {
                 extend: {
                     colors: {
-                        gold: { DEFAULT: '#f5c518', 400: '#f5c518', 500: '#d4a200', 600: '#a87c00' },
-                        dark: { DEFAULT: '#0a0a0a', card: '#111111', border: '#2a2a2a', muted: '#888888' }
+                        gold: { 
+                            DEFAULT: '{{ $settings["theme_primary_color"] ?? "#f5c518" }}', 
+                            400: '{{ $settings["theme_primary_color"] ?? "#f5c518" }}', 
+                            500: '{{ $settings["theme_primary_color"] ?? "#d4a200" }}', 
+                            600: '{{ $settings["theme_primary_color"] ?? "#a87c00" }}' 
+                        },
+                        dark: { 
+                            DEFAULT: '{{ $settings["theme_background_color"] ?? "#0a0a0a" }}', 
+                            card: '{{ $settings["theme_surface_color"] ?? "#111111" }}', 
+                            border: '{{ (isset($settings["theme_text_color"]) && $settings["theme_text_color"] === "#000000") ? "#e5e7eb" : "#2a2a2a" }}', 
+                            muted: '{{ $settings["theme_muted_text_color"] ?? "#888888" }}' 
+                        }
                     },
                     fontFamily: {
                         sans: ['Outfit', 'Inter', 'sans-serif'],
@@ -38,12 +48,38 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        body {
-            background-color: #050505;
-            color: #f1f1f1;
-            font-family: 'Outfit', sans-serif;
-            overflow-x: hidden;
+        :root {
+            --bg-main: {{ $settings['theme_background_color'] ?? '#050505' }};
+            --bg-surface: {{ $settings['theme_surface_color'] ?? '#111111' }};
+            --text-main: {{ $settings['theme_text_color'] ?? '#ffffff' }};
+            --text-muted: {{ $settings['theme_muted_text_color'] ?? '#888888' }};
+            --brand-primary: {{ $settings['theme_primary_color'] ?? '#f5c518' }};
+            @php
+                $primaryHex = $settings['theme_primary_color'] ?? '#f5c518';
+                $hex = ltrim($primaryHex, '#');
+                if (strlen($hex) == 3) $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+                $r = hexdec(substr($hex, 0, 2));
+                $g = hexdec(substr($hex, 2, 2));
+                $b = hexdec(substr($hex, 4, 2));
+                $primaryRgb = "$r, $g, $b";
+            @endphp
+            --brand-primary-rgb: {{ $primaryRgb }};
         }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .text-white { color: var(--text-main) !important; }
+        .text-dark-muted { color: var(--text-muted) !important; }
+        .bg-dark { background-color: var(--bg-main) !important; }
+        .bg-dark-card { background-color: var(--bg-surface) !important; }
+        .border-dark-border { border-color: {{ (isset($settings["theme_text_color"]) && $settings["theme_text_color"] === "#000000") ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)" }} !important; }
 
         .premium-glass {
             background: rgba(255, 255, 255, 0.03);
@@ -52,20 +88,20 @@
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #f5c518 0%, #ffffff 100%);
+            background: linear-gradient(135deg, {{ $settings['theme_primary_color'] ?? '#f5c518' }} 0%, #ffffff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .stat-card-glow {
-            box-shadow: 0 0 30px rgba(245, 197, 24, 0.03);
+            box-shadow: 0 0 30px rgba(var(--brand-primary-rgb), 0.05);
         }
 
         /* Nav Link Hover */
         .nav-link-active {
-            background: linear-gradient(90deg, rgba(245, 197, 24, 0.1) 0%, transparent 100%);
-            border-left: 3px solid #f5c518;
-            color: #f5c518 !important;
+            background: linear-gradient(90deg, {{ $settings['theme_primary_color'] ?? '#f5c518' }}1a 0%, transparent 100%);
+            border-left: 3px solid {{ $settings['theme_primary_color'] ?? '#f5c518' }};
+            color: {{ $settings['theme_primary_color'] ?? '#f5c518' }} !important;
         }
 
         .nav-link-hover:hover {

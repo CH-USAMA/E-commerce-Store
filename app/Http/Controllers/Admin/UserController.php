@@ -25,6 +25,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,manager,receptionist,customer',
+            'permissions' => 'nullable|array',
         ]);
 
         \App\Models\User::create([
@@ -32,6 +33,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => \Illuminate\Support\Facades\Hash::make($request->password),
             'role' => $request->role,
+            'permissions' => $request->permissions,
         ]);
 
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
@@ -53,6 +55,7 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->role = $request->role;
+        $user->permissions = $request->permissions;
 
         if ($request->filled('password')) {
             $request->validate(['password' => 'string|min:8|confirmed']);

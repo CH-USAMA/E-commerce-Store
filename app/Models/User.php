@@ -47,6 +47,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'google_id',
         'google_token',
         'google_refresh_token',
+        'role',
+        'permissions',
     ];
 
     /**
@@ -68,6 +70,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'cart_data' => 'array',
+        'permissions' => 'array',
     ];
 
     public function orders()
@@ -96,5 +99,25 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getManagedStoreAttribute()
     {
         return $this->managedStores->first();
+    }
+
+    /**
+     * Check if user is super admin
+     */
+    public function isSuperAdmin()
+    {
+        return $this->role === 'admin' && (empty($this->permissions) || in_array('all', $this->permissions));
+    }
+
+    /**
+     * Check if user has specific permission
+     */
+    public function hasPermission($permission)
+    {
+        if ($this->role === 'admin' && (empty($this->permissions) || in_array('all', $this->permissions))) {
+            return true;
+        }
+
+        return is_array($this->permissions) && in_array($permission, $this->permissions);
     }
 }

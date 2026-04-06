@@ -40,8 +40,18 @@
             theme: {
                 extend: {
                     colors: {
-                        gold: { DEFAULT: '#f5c518', 400: '#f5c518', 500: '#d4a200', 600: '#a87c00' },
-                        dark: { DEFAULT: '#0a0a0a', card: '#111111', border: '#2a2a2a', muted: '#888888' }
+                        gold: { 
+                            DEFAULT: '{{ $settings["theme_primary_color"] ?? "#f5c518" }}', 
+                            400: '{{ $settings["theme_primary_color"] ?? "#f5c518" }}', 
+                            500: '{{ $settings["theme_primary_color"] ?? "#d4a200" }}', 
+                            600: '{{ $settings["theme_primary_color"] ?? "#a87c00" }}' 
+                        },
+                        dark: { 
+                            DEFAULT: '{{ $settings["theme_background_color"] ?? "#0a0a0a" }}', 
+                            card: '{{ $settings["theme_surface_color"] ?? "#111111" }}', 
+                            border: '{{ (isset($settings["theme_text_color"]) && $settings["theme_text_color"] === "#000000") ? "#e5e7eb" : "#2a2a2a" }}', 
+                            muted: '{{ $settings["theme_muted_text_color"] ?? "#888888" }}' 
+                        }
                     },
                     fontFamily: {
                         sans: ['Outfit', 'Inter', 'sans-serif'],
@@ -79,15 +89,41 @@
             padding-right: 1rem;
         }
 
+        :root {
+            --bg-main: {{ $settings['theme_background_color'] ?? '#0a0a0a' }};
+            --bg-surface: {{ $settings['theme_surface_color'] ?? '#111111' }};
+            --text-main: {{ $settings['theme_text_color'] ?? '#ffffff' }};
+            --text-muted: {{ $settings['theme_muted_text_color'] ?? '#888888' }};
+            --brand-primary: {{ $settings['theme_primary_color'] ?? '#f5c518' }};
+            --brand-primary-faded: {{ $settings['theme_primary_color'] ?? '#f5c518' }}55;
+            --brand-text: {{ $settings['theme_primary_text_color'] ?? '#0a0a0a' }};
+            @php
+                $primaryHex = $settings['theme_primary_color'] ?? '#f5c518';
+                $hex = ltrim($primaryHex, '#');
+                if (strlen($hex) == 3) $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+                $r = hexdec(substr($hex, 0, 2));
+                $g = hexdec(substr($hex, 2, 2));
+                $b = hexdec(substr($hex, 4, 2));
+                $primaryRgb = "$r, $g, $b";
+            @endphp
+            --brand-primary-rgb: {{ $primaryRgb }};
+        }
+
         body {
-            background-color: #0a0a0a;
-            color: #f1f1f1;
-            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
             overflow-x: hidden;
             margin: 0;
             padding: 0;
             line-height: 1.5;
         }
+        
+        .text-white { color: var(--text-main) !important; }
+        .text-gray-400, .text-dark-muted { color: var(--text-muted) !important; }
+        .bg-dark { background-color: var(--bg-main) !important; }
+        .bg-dark-card { background-color: var(--bg-surface) !important; }
+        .border-dark-border { border-color: {{ (isset($settings["theme_text_color"]) && $settings["theme_text_color"] === "#000000") ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)" }} !important; }
 
         /* Premium Scrollbar */
         ::-webkit-scrollbar {
@@ -99,7 +135,7 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #f5c518;
+            background: var(--brand-primary);
             border-radius: 4px;
         }
 
@@ -107,8 +143,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: #f5c518;
-            color: #0a0a0a;
+            background: var(--brand-primary);
+            color: var(--brand-text);
             font-weight: 700;
             border-radius: 9999px;
             padding: 0.75rem 1.75rem;
@@ -119,17 +155,17 @@
         }
 
         .btn-gold:hover {
-            background: #e0b000;
+            opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(245, 197, 24, 0.2);
+            box-shadow: 0 10px 20px rgba(var(--brand-primary-rgb), 0.2);
         }
 
         .btn-outline-gold {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid #f5c518;
-            color: #f5c518;
+            border: 2px solid {{ $settings['theme_primary_color'] ?? '#f5c518' }};
+            color: {{ $settings['theme_primary_color'] ?? '#f5c518' }};
             font-weight: 600;
             border-radius: 9999px;
             padding: 0.75rem 1.75rem;
@@ -139,8 +175,8 @@
         }
 
         .btn-outline-gold:hover {
-            background: #f5c518;
-            color: #0a0a0a;
+            background: {{ $settings['theme_primary_color'] ?? '#f5c518' }};
+            color: {{ $settings['theme_primary_text_color'] ?? '#0a0a0a' }};
         }
 
         .card-dark {
@@ -152,7 +188,7 @@
         .gradient-text {
             color: transparent;
             background-clip: text;
-            background-image: linear-gradient(to right, #f5c518, #fef08a);
+            background-image: linear-gradient(to right, {{ $settings['theme_primary_color'] ?? '#f5c518' }}, {{ $settings['theme_primary_color'] ?? '#f5c518' }}55);
         }
 
         /* Fix for layout shifting on left/right */
@@ -485,7 +521,7 @@
                                 <i class="fas fa-bell text-lg"></i>
                                 @php $unreadCount = auth()->user()->unreadNotifications->count(); @endphp
                                 @if($unreadCount > 0)
-                                    <span class="absolute top-2 right-2 bg-red-500 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full shadow-lg ring-2 ring-black/50">
+                                    <span class="absolute top-2 right-2 bg-gold-400 text-dark text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full shadow-lg ring-2 ring-black/50">
                                         {{ $unreadCount }}
                                     </span>
                                 @endif

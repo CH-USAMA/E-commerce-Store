@@ -44,6 +44,11 @@
                                         ][$user->role] ?? 'bg-secondary';
                                     @endphp
                                     <span class="badge {{ $roleClass }}">{{ ucfirst($user->role) }}</span>
+                                    @if($user->permissions)
+                                        <div class="mt-1" style="font-size: 0.7rem; color: var(--text-muted); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            {{ implode(', ', $user->permissions) }}
+                                        </div>
+                                    @endif
                                 </td>
                                 <td style="font-size: 0.78rem; color: var(--text-muted);">{{ $user->created_at->format('d M Y') }}</td>
                                 <td class="pe-4 text-end">

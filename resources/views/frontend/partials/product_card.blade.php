@@ -8,7 +8,7 @@
     </div>
 
     {{-- Image --}}
-    <div class="relative aspect-square overflow-hidden">
+    <div class="relative aspect-square overflow-hidden bg-dark-card">
         @php
             // The file name might contain special characters like '+'. Browser interprets '+' as space.
             // We need to encode the path segments correctly for the src attribute.

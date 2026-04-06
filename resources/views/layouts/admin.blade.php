@@ -8,6 +8,60 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('css/design-system.css') }}">
+    
+    {{-- Dynamic Theme Injection --}}
+    @if(isset($settings['theme_primary_color']))
+    <style>
+        :root {
+            /* Primary Colors */
+            --orange-500: {{ $settings['theme_primary_color'] }};
+            --orange-400: {{ $settings['theme_primary_color'] }};
+            --orange-300: {{ $settings['theme_primary_color'] }};
+            --orange-600: {{ $settings['theme_primary_color'] }};
+            --border-focus: {{ $settings['theme_primary_color'] }};
+            --border-accent: {{ $settings['theme_primary_color'] }}59; /* 35% opacity */
+            --button-text: {{ $settings['theme_primary_text_color'] ?? '#ffffff' }};
+
+            /* Background & Surface Colors */
+            @if(isset($settings['theme_background_color']))
+            --carbon-950: {{ $settings['theme_background_color'] }};
+            --carbon-900: {{ $settings['theme_surface_color'] ?? $settings['theme_background_color'] }};
+            --text-primary: {{ $settings['theme_text_color'] ?? '#ffffff' }};
+            --text-secondary: {{ $settings['theme_muted_text_color'] ?? '#a0a0a0' }};
+            @endif
+        }
+        .admin-portal .btn-jabulani, 
+        .admin-portal .btn-premium-gold,
+        .admin-portal .pagination .page-item.active .page-link {
+            color: var(--button-text) !important;
+        }
+        .admin-portal .ap-nav-link.active {
+            background: linear-gradient(90deg, {{ $settings['theme_primary_color'] }}33, {{ $settings['theme_primary_color'] }}14);
+            border-left-color: var(--orange-500);
+        }
+        .admin-portal .ap-nav-link.active i {
+            color: var(--orange-500) !important;
+        }
+        .admin-portal .btn-link {
+            color: var(--orange-500) !important;
+        }
+        .admin-portal .gradient-title {
+            background: linear-gradient(135deg, {{ $settings['theme_primary_color'] }} 0%, {{ $settings['theme_primary_color'] }}bb 50%, var(--text-primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+        .admin-portal .notif-dot {
+            background: var(--orange-500);
+            box-shadow: 0 0 6px var(--orange-500);
+        }
+        @if(isset($settings['theme_text_color']) && $settings['theme_text_color'] === '#000000')
+        .admin-portal .card, .admin-portal .modal-content, .admin-portal .dropdown-menu {
+            border-color: rgba(0,0,0,0.1) !important;
+        }
+        @endif
+    </style>
+    @endif
+
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @stack('css')
 </head>
@@ -28,11 +82,14 @@
                class="ap-nav-link {{ request()->is('admin/dashboard') ? 'active' : '' }}">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
+            @if(auth()->user()->hasPermission('manage_orders'))
             <a href="{{ route('admin.orders.index') }}"
                class="ap-nav-link {{ request()->is('admin/orders*') ? 'active' : '' }}">
                 <i class="fas fa-shopping-bag"></i> Orders
             </a>
+            @endif
 
+            @if(auth()->user()->hasPermission('manage_products'))
             <div class="ap-nav-group-label">Catalog</div>
             <a href="{{ route('admin.products.index') }}"
                class="ap-nav-link {{ request()->is('admin/products*') ? 'active' : '' }}">
@@ -46,7 +103,9 @@
                class="ap-nav-link {{ request()->is('admin/brands*') ? 'active' : '' }}">
                 <i class="fas fa-tag"></i> Brands
             </a>
+            @endif
 
+            @if(auth()->user()->hasPermission('manage_users'))
             <div class="ap-nav-group-label">Network</div>
             <a href="{{ route('admin.stores.index') }}"
                class="ap-nav-link {{ request()->is('admin/stores*') ? 'active' : '' }}">
@@ -60,7 +119,9 @@
                class="ap-nav-link {{ request()->is('admin/guests*') ? 'active' : '' }}">
                 <i class="fas fa-user-shield"></i> Guests
             </a>
+            @endif
 
+            @if(auth()->user()->hasPermission('manage_content'))
             <div class="ap-nav-group-label">Website</div>
             <a href="{{ route('admin.banners.index') }}"
                class="ap-nav-link {{ request()->is('admin/banners*') ? 'active' : '' }}">
@@ -86,8 +147,10 @@
                class="ap-nav-link {{ request()->is('admin/team*') ? 'active' : '' }}">
                 <i class="fas fa-user-friends"></i> Team Members
             </a>
+            @endif
 
             <div class="ap-nav-group-label">System</div>
+            @if(auth()->user()->hasPermission('manage_settings'))
             <a href="{{ route('admin.settings.payments') }}"
                class="ap-nav-link {{ request()->routeIs('admin.settings.payments') ? 'active' : '' }}">
                 <i class="fas fa-credit-card"></i> Payment Settings
@@ -96,6 +159,11 @@
                class="ap-nav-link {{ request()->routeIs('admin.settings.invoice') ? 'active' : '' }}">
                 <i class="fas fa-file-invoice"></i> Invoice Settings
             </a>
+            <a href="{{ route('admin.settings.theme') }}"
+               class="ap-nav-link {{ request()->routeIs('admin.settings.theme') ? 'active' : '' }}">
+                <i class="fas fa-palette"></i> Theme Settings
+            </a>
+            @endif
             <a href="{{ route('admin.marketing.index') }}"
                class="ap-nav-link {{ request()->is('admin/marketing*') ? 'active' : '' }}">
                 <i class="fas fa-bullhorn"></i> Marketing Push
@@ -169,7 +237,7 @@
                 <div class="dropdown">
                     <a href="#" class="d-flex align-items-center gap-2 text-decoration-none dropdown-toggle"
                        data-bs-toggle="dropdown" id="userMenu" style="color: var(--text-secondary);">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=FF8C00&color=fff&bold=true"
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background={{ str_replace('#', '', $settings['theme_primary_color'] ?? 'FF8C00') }}&color={{ str_replace('#', '', $settings['theme_primary_text_color'] ?? 'ffffff') }}&bold=true"
                              width="30" height="30" class="rounded-circle" alt="Avatar">
                         <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">{{ auth()->user()->name }}</span>
                     </a>
