@@ -328,7 +328,7 @@ class CartController extends Controller
                 'user_id' => auth()->id(),
                 'store_id' => $storeId,
                 'total' => $total,
-                'vat' => $total * 0.15,
+                'vat' => 0,
                 'status' => 'pending',
                 'payment_method' => $request->payment_method,
                 'order_type' => $finalOrderType,
@@ -385,7 +385,7 @@ class CartController extends Controller
                     'product_id' => $p->id,
                     'quantity' => $cart[$p->id],
                     'price' => $p->price,
-                    'vat' => ($p->price * $cart[$p->id]) * 0.15,
+                    'vat' => 0,
                 ]);
             }
 

@@ -8,7 +8,7 @@
         <div class="absolute top-0 left-0 w-1/3 h-full bg-gold-400/5 blur-[150px] -z-10 rounded-full"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center lg:text-left">
             <h1 class="text-4xl lg:text-6xl font-black mb-4 tracking-tighter italic text-white uppercase">
-                Address <span class="gradient-text">Management</span>
+                My <span class="gradient-text">Addresses</span>
             </h1>
             <nav
                 class="flex justify-center lg:justify-start items-center gap-3 text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted">
@@ -16,7 +16,7 @@
                 <span class="w-1 h-1 rounded-full bg-gold-400/30"></span>
                 <a href="{{ route('user.dashboard') }}" class="hover:text-gold-400 transition">Dashboard</a>
                 <span class="w-1 h-1 rounded-full bg-gold-400/30"></span>
-                <span class="text-white">Shipping Profiles</span>
+                <span class="text-white">Saved Addresses</span>
             </nav>
         </div>
     </div>
@@ -34,7 +34,7 @@
                                 <div class="absolute top-0 right-0">
                                     <div
                                         class="bg-gold-400 text-dark text-[8px] font-black uppercase tracking-widest px-6 py-2 rounded-bl-3xl italic">
-                                        Primary Profile
+                                        Default Address
                                     </div>
                                 </div>
                             @endif
@@ -50,7 +50,7 @@
                                             <h3 class="text-xl font-black text-white uppercase italic tracking-tight">
                                                 {{ $address->address_name }}</h3>
                                             <p class="text-[10px] text-dark-muted uppercase font-bold tracking-widest">Saved
-                                                Shipping Location</p>
+                                                Delivery Location</p>
                                         </div>
                                     </div>
 
@@ -67,7 +67,7 @@
                                                 @csrf
                                                 <button type="submit"
                                                     class="text-[9px] font-black uppercase tracking-widest text-gold-400 hover:text-white transition">
-                                                    Set as Primary
+                                                    Make Default
                                                 </button>
                                             </form>
                                         @endif
@@ -98,14 +98,13 @@
                     <div
                         class="card-dark rounded-[3.5rem] p-12 border-white/5 bg-gradient-to-br from-white/[0.04] to-transparent shadow-2xl">
                         <h3 class="text-2xl font-black text-white italic mb-10 tracking-tight uppercase">Add <span
-                                class="gradient-text">Profile</span></h3>
+                                class="gradient-text">New Address</span></h3>
 
                         <form action="{{ route('profile.addresses.store') }}" method="POST" class="space-y-6">
                             @csrf
                             <div>
                                 <label
-                                    class="block text-[9px] font-black uppercase tracking-widest text-dark-muted mb-2">Profile
-                                    Name</label>
+                                    class="block text-[9px] font-black uppercase tracking-widest text-dark-muted mb-2">Address Name</label>
                                 <input type="text" name="address_name" placeholder="e.g. Home, Office" required
                                     class="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 text-white text-sm focus:border-gold-400/50 transition-all outline-none">
                             </div>
@@ -149,12 +148,12 @@
                                 </div>
                                 <span
                                     class="text-[9px] font-black uppercase tracking-widest text-dark-muted group-hover:text-white transition">Set
-                                    as Primary Location</span>
+                                    as default shipping address</span>
                             </label>
 
                             <button type="submit"
                                 class="btn-gold w-full py-5 text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl group">
-                                Save Profile <i class="fas fa-plus ml-2 group-hover:rotate-90 transition-transform"></i>
+                                Save Address <i class="fas fa-plus ml-2 group-hover:rotate-90 transition-transform"></i>
                             </button>
                         </form>
                     </div>

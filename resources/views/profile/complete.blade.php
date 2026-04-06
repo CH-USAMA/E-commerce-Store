@@ -16,7 +16,7 @@
                     Complete <span class="gradient-text">Your Profile</span>
                 </h1>
                 <p class="text-dark-muted max-w-md mx-auto leading-relaxed text-sm">
-                    Just a few more details to ensure a seamless experience and professional delivery service.
+                    Just a few more details so we can deliver your orders correctly.
                 </p>
             </div>
 
@@ -29,7 +29,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                             <label
-                                class="block text-[10px] font-black uppercase tracking-widest text-dark-muted mb-3 italic">Mobile
+                                class="block text-[10px] font-black uppercase tracking-widest text-dark-muted mb-3 italic">Phone
                                 Number</label>
                             <div class="relative group">
                                 <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
@@ -109,7 +109,7 @@
 
                     <button type="submit"
                         class="btn-gold w-full flex items-center justify-center gap-4 py-6 text-[12px] font-black uppercase tracking-[0.4em] rounded-[1.5rem] shadow-[0_25px_50px_rgba(255,229,7,0.2)] group hover:-translate-y-1 transition-all">
-                        Secure Account <i class="fas fa-shield-alt group-hover:scale-110 transition-transform"></i>
+                        Save and Continue <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
                     </button>
                 </form>
             </div>

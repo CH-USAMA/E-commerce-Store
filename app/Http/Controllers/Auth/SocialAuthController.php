@@ -64,7 +64,7 @@ class SocialAuthController extends Controller
 
             Auth::login($user);
 
-            if (empty($user->phone)) {
+            if (empty($user->phone) || $user->addresses()->count() === 0) {
                 return redirect()->route('profile.complete')->with('info', 'Welcome! Please complete your profile to continue.');
             }
 

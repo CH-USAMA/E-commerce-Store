@@ -46,8 +46,8 @@
 | `order_number` | varchar | Format: `JB-YYYYMMDD-XXXXXX` |
 | `user_id` | bigint FK null | Null for guest orders |
 | `store_id` | bigint FK | Fulfillment branch |
-| `total` | decimal(10,2) | VAT-inclusive total |
-| `vat` | decimal(10,2) | 15% of subtotal |
+| `total` | decimal(10,2) | Final order total (VAT-free) |
+| `vat` | decimal(10,2) | Always 0.00 (VAT-free system) |
 | `status` | varchar | `pending`, `awaiting_payment`, `processing`, `shipped`, `delivered`, `cancelled` |
 | `payment_method` | varchar | `eft` or `payfast` (payfast = Stripe) |
 | `payment_screenshot` | varchar null | Path to uploaded EFT proof |
@@ -70,7 +70,7 @@
 | `product_id` | bigint FK | → `products.id` |
 | `quantity` | int | |
 | `price` | decimal(10,2) | Historical price snapshot |
-| `vat` | decimal(10,2) | Historical VAT snapshot |
+| `vat` | decimal(10,2) | Historical VAT snapshot (Always 0) |
 
 ### `products`
 | Column | Type | Notes |
@@ -84,8 +84,8 @@
 | `subcategory_id` | bigint FK null | → `categories.id` (self-join) |
 | `brand_id` | bigint FK null | → `brands.id` |
 | `sku` | varchar null | |
-| `price` | decimal(10,2) | VAT-inclusive |
-| `vat_rate` | decimal(5,2) | Default 15.00 |
+| `price` | decimal(10,2) | Base price |
+| `vat_rate` | decimal(5,2) | Default 0.00 |
 | `status` | varchar | `active`, `inactive` |
 | `image` | varchar null | Path relative to `public/` |
 | `is_featured` | boolean | Homepage flag |
@@ -132,6 +132,14 @@
 | `name` | varchar | |
 | `slug` | varchar unique | |
 | `image` | varchar null | |
+
+### VAT Handling
+- The system currently calculates **NO VAT** (`vat = 0`) across both order totals and line items. Checkout is strictly base cost.
+
+### Address Consolidation
+- Users generally have a **Primary** address that serves as both Shipping and Billing.
+- The system supports multiple addresses per user, with one marked as `is_default`.
+- Automated flows (Social Login) ensure at least one primary address is created before checkout.
 
 ### `settings` (Key-Value Store)
 | Key | Value Type | Purpose |

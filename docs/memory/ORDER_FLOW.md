@@ -61,6 +61,14 @@ if (order_type === 'delivery' && lat && lng) {
 }
 ```
 
+### Store & Cart Category Constraints
+- **Pure Stone Cart**: If an order ONLY contains products from the "Crush Stone" category, the order should ideally be fulfilled by `Jabulani Quarries`.
+- **Mixed Cart Fallback**: If an order contains "Crush Stone" products AND any other non-stone products (e.g., hardware), it cannot be sent to a Quarry. The nearest store logic automatically falls back to `Jabulani Hardware Tsolo` to handle mixed inventory.
+
+### VAT Handling
+- The system currently calculates **NO VAT** (`vat = 0`) across both order totals and line items. Checkout is strictly base cost.
+
+
 ### Status Assignment at Creation
 | Payment Method | Initial Status |
 |:---|:---|

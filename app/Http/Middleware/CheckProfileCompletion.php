@@ -21,7 +21,7 @@ class CheckProfileCompletion
             // If phone is missing, redirect to profile completion
             // Excluding the profile completion routes and logout
             if (
-                empty($user->phone) &&
+                (empty($user->phone) || $user->addresses()->count() === 0) &&
                 !$request->is('profile/complete*') &&
                 !$request->is('logout') &&
                 !$request->is('admin*')

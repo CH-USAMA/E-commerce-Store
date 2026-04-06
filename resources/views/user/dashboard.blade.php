@@ -18,7 +18,7 @@
                     Hello, <span class="gradient-text">{{ explode(' ', $user->name)[0] }}</span>
                 </h2>
                 <p class="text-gray-400 text-sm font-medium leading-relaxed max-w-lg mb-0 italic">
-                    Great to see you again. Your private partner dashboard is ready. All your recent activities and specialized orders are listed below.
+                    Great to see you again. Your dashboard is ready. All your recent orders and activity are listed below.
                 </p>
             </div>
             
@@ -41,11 +41,11 @@
             <div class="absolute -right-4 -bottom-4 opacity-5 rotate-12 group-hover:rotate-45 transition-transform duration-1000">
                 <i class="fas fa-shopping-bag text-8xl text-gold-400"></i>
             </div>
-            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-4">Cumulative Orders</p>
+            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-4">Total Orders</p>
             <h4 class="text-5xl font-black text-white italic tracking-tighter mb-0">{{ auth()->user()->orders()->count() }}</h4>
             <div class="mt-4 flex items-center gap-2 text-green-400 text-[10px] uppercase font-black">
                 <i class="fas fa-chevron-up"></i>
-                Lifetime Volume
+                Lifetime Total
             </div>
         </div>
 
@@ -54,7 +54,7 @@
              <div class="absolute -right-4 -bottom-4 opacity-5 rotate-12 group-hover:rotate-45 transition-transform duration-1000">
                 <i class="fas fa-truck text-8xl text-gold-400"></i>
             </div>
-            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-4">Pending Fulfillment</p>
+            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-4">Orders In Progress</p>
             <h4 class="text-5xl font-black text-gold-400 italic tracking-tighter mb-0">
                 {{ auth()->user()->orders()->whereIn('status', ['pending', 'processing', 'shipped'])->count() }}
             </h4>
@@ -69,10 +69,10 @@
              <div class="absolute -right-4 -bottom-4 opacity-10 rotate-12 group-hover:rotate-45 transition-transform duration-1000">
                 <i class="fas fa-chart-line text-8xl text-white"></i>
             </div>
-            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-4">Transactional Value</p>
+            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted mb-4">Total Money Spent</p>
             <h4 class="text-3xl font-black text-white italic tracking-tighter mb-0">R {{ number_format($totalSpent ?? 0, 2) }}</h4>
             <div class="mt-4 flex items-center gap-2 text-gold-400 text-[10px] uppercase font-black font-sans tracking-widest">
-                Account Equity
+                Account Total
             </div>
         </div>
     </div>
@@ -81,11 +81,11 @@
     <div class="premium-glass rounded-[3rem] border-white/5 overflow-hidden">
         <div class="p-10 border-b border-white/5 flex items-center justify-between">
             <div>
-                <h3 class="text-xs font-black uppercase tracking-[0.4em] text-white italic mb-1">Recent Intelligence</h3>
-                <p class="text-[10px] font-black uppercase tracking-widest text-dark-muted">Latest procurement entries</p>
+                <h3 class="text-xs font-black uppercase tracking-[0.4em] text-white italic mb-1">Recent Orders</h3>
+                <p class="text-[10px] font-black uppercase tracking-widest text-dark-muted">Your latest purchases</p>
             </div>
             <a href="{{ route('user.orders.index') }}" class="px-6 py-3 bg-white/5 rounded-full text-[10px] font-black uppercase tracking-widest text-gold-400 border border-white/10 hover:border-gold-400 hover:text-white transition-all">
-                Full Record History
+                View All Orders
             </a>
         </div>
 
@@ -100,16 +100,16 @@
                                 </div>
                                 <div>
                                     <div class="flex items-center gap-4 mb-1">
-                                        <h4 class="text-lg font-black text-white italic tracking-tight uppercase">Entry #{{ $order->order_number }}</h4>
+                                        <h4 class="text-lg font-black text-white italic tracking-tight uppercase">Order #{{ $order->order_number }}</h4>
                                         <span class="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded bg-gold-400/10 text-gold-400 border border-gold-400/20 italic">{{ $order->order_type ?: 'B2B' }}</span>
                                     </div>
-                                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-dark-muted italic">Registered on {{ $order->created_at->format('M d, Y') }}</p>
+                                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-dark-muted italic">Ordered on {{ $order->created_at->format('M d, Y') }}</p>
                                 </div>
                             </div>
 
                             <div class="flex items-center gap-12">
                                 <div class="text-right hidden md:block">
-                                    <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50 italic">Investment</p>
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50 italic">Price</p>
                                     <p class="text-xl font-black text-white italic tracking-tighter leading-none">R {{ number_format($order->total, 2) }}</p>
                                 </div>
                                 
@@ -138,9 +138,9 @@
                     <div class="w-24 h-24 rounded-full bg-white/5 border border-white/5 flex items-center justify-center mx-auto mb-10 shadow-2xl opacity-40">
                         <i class="fas fa-shopping-basket text-4xl text-dark-muted"></i>
                     </div>
-                    <h4 class="text-2xl font-black text-gray-500 italic mb-6">Database currently empty.</h4>
+                    <h4 class="text-2xl font-black text-gray-500 italic mb-6">No orders found.</h4>
                     <a href="{{ route('products') }}" class="btn-gold px-12 py-5 text-[10px] font-black uppercase tracking-widest rounded-full shadow-gold-glow inline-flex items-center gap-4">
-                        <i class="fas fa-shopping-cart"></i> Initialize first procurement
+                        <i class="fas fa-shopping-cart"></i> Start Shopping
                     </a>
                 </div>
             @endif

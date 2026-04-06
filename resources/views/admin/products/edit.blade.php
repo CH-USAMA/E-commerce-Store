@@ -103,7 +103,7 @@
                         <div class="mb-3">
                             <label class="form-label">VAT Rate (%)</label>
                             <input type="number" step="0.01" name="vat_rate" class="form-control"
-                                value="{{ $product->vat_rate }}" required>
+                                value="{{ $product->vat_rate ?? '0.00' }}" required>
                         </div>
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="featuredSwitch"

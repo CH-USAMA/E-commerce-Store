@@ -69,6 +69,16 @@ All changes are made locally first. The user **pushes to Git** and **pulls on Ho
 Reference `docs/memory/TESTING_CHECKLIST.md` for every feature area.
 Never declare a feature complete without running its checklist mentally.
 
+### Rule 7 — Tone & Vocabulary (Premium Friendly)
+The store MUST use simple, conventional e-commerce terminology. Avoid technical/military/logistics-heavy jargon.
+- Use: **Order** (Not Requisition/Procurement/Ledger)
+- Use: **Shipping/Delivery** (Not Logistics/Fulfillment/Dispatch)
+- Use: **Payment** (Not Financial Node/Verification/Settlement)
+- Use: **Status** (Not Intelligence/Analytics/Audit)
+- Use: **Checkout** (Not Terminal/Authorization)
+- Use: **Items** (Not Artifacts/Units/Inventory units)
+- Keep labels friendly and shopper-focused (e.g., "Your Items" vs "Line Item Manifest").
+
 ---
 
 > [!IMPORTANT]

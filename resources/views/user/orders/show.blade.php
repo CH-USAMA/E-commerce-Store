@@ -1,6 +1,6 @@
 @extends('layouts.user')
 
-@section('title', 'Order Entry #' . $order->order_number)
+@section('title', 'Order #' . $order->order_number)
 
 @section('content')
 
@@ -18,7 +18,7 @@
         $step = $statusMap[$order->status] ?? 1;
         $cancelled = $order->status === 'cancelled';
         $color = $cancelled ? 'rgb(239,68,68)' : '#f5c518';
-        $statusLabels = ['Order Placed','Processing',$order->order_type == "pickup" ? "Ready for Pickup" : "Logistics Hub",$cancelled ? "Cancelled" : "Delivered"];
+        $statusLabels = ['Order Placed','Processing',$order->order_type == "pickup" ? "Ready for Pickup" : "In Transit",$cancelled ? "Cancelled" : "Delivered"];
     @endphp
 
     <!-- Order Detail Header -->
@@ -27,13 +27,13 @@
             <header class="flex flex-col gap-2">
                 <div class="flex items-center gap-3">
                     <span class="w-8 h-1 bg-gold-400 rounded-full"></span>
-                    <span class="text-[10px] font-black uppercase tracking-[.4em] text-gold-400">Order Intelligence Detail</span>
+                    <span class="text-[10px] font-black uppercase tracking-[.4em] text-gold-400">Order Information</span>
                 </div>
-                <h2 class="text-4xl lg:text-5xl font-black text-white italic tracking-tighter uppercase mb-2">Entry <span class="gradient-text">#{{ $order->order_number }}</span></h2>
+                <h2 class="text-4xl lg:text-5xl font-black text-white italic tracking-tighter uppercase mb-2">Order <span class="gradient-text">#{{ $order->order_number }}</span></h2>
                 <div class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-dark-muted italic">
                     <span>Placed on {{ $order->created_at->format('M d, Y') }} at {{ $order->created_at->format('H:i') }}</span>
                     <span class="w-1 h-1 rounded-full bg-white/10"></span>
-                    <span class="text-white">{{ $order->order_type ?: 'B2B Procurement' }}</span>
+                    <span class="text-white">{{ $order->order_type ?: 'Store Order' }}</span>
                 </div>
             </header>
         </div>
@@ -51,8 +51,8 @@
         <div class="relative z-10">
             <div class="flex flex-col md:flex-row justify-between items-center gap-10 mb-16">
                 <div>
-                    <h3 class="text-xs font-black uppercase tracking-[0.4em] text-white italic mb-2">Logistics Pipeline</h3>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted">End-to-end fulfillment status monitor</p>
+                    <h3 class="text-xs font-black uppercase tracking-[0.4em] text-white italic mb-2">Track Your Order</h3>
+                    <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted">Current status of your order</p>
                 </div>
                 <div class="flex flex-col items-end">
                     <span class="px-8 py-3 rounded-full text-[11px] font-black uppercase tracking-widest italic border {{ $order->status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20 shadow-[0_0_30px_rgba(34,197,94,0.15)]' : ($cancelled ? 'bg-red-500/10 text-red-400 border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.15)]' : 'bg-gold-400/10 text-gold-400 border-gold-400/20 shadow-[0_0_30px_rgba(245,197,24,0.15)]') }}">
@@ -89,7 +89,7 @@
         <div class="col-lg-6">
             <div class="premium-glass rounded-[2.5rem] p-10 border-white/5 h-full relative overflow-hidden group">
                 <div class="absolute top-0 left-0 w-2 h-full bg-gold-400/20"></div>
-                <h4 class="text-[10px] font-black uppercase tracking-[0.4em] text-dark-muted italic mb-10 pl-2">Entity Profile / Address</h4>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.4em] text-dark-muted italic mb-10 pl-2">Customer Details</h4>
                 
                 <div class="space-y-10">
                     <div class="flex items-start gap-6">
@@ -97,7 +97,7 @@
                             <i class="fas fa-id-card text-xl"></i>
                         </div>
                         <div>
-                            <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">Recipient</p>
+                            <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">Customer</p>
                             <h5 class="text-xl font-black text-white italic tracking-tighter">{{ $order->customer_name }}</h5>
                             <div class="mt-2 flex items-center gap-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                                 <span>{{ $order->customer_email }}</span>
@@ -112,7 +112,7 @@
                             <i class="fas fa-map-location-dot text-xl"></i>
                         </div>
                         <div class="flex-1">
-                            <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-3 opacity-50">Logistics Destination</p>
+                            <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-3 opacity-50">Shipping Address</p>
                             <div class="p-6 rounded-[1.5rem] bg-black/40 border border-white/5 shadow-inner">
                                 <p class="text-sm text-gray-300 leading-relaxed font-medium">
                                     {{ $order->customer_address }}<br>
@@ -128,7 +128,7 @@
         <div class="col-lg-6">
             <div class="premium-glass rounded-[2.5rem] p-10 border-white/5 h-full relative overflow-hidden group">
                 <div class="absolute top-0 right-0 w-2 h-full bg-gold-400/20"></div>
-                <h4 class="text-[10px] font-black uppercase tracking-[0.4em] text-dark-muted italic mb-10 pl-2">Transaction Metadata</h4>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.4em] text-dark-muted italic mb-10 pl-2">Order Summary</h4>
                 
                 <div class="space-y-10">
                     <div class="grid grid-cols-2 gap-10">
@@ -137,7 +137,7 @@
                                 <i class="fas fa-truck-ramp-box text-lg"></i>
                             </div>
                             <div>
-                                <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">Fulfillment</p>
+                                <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">Method</p>
                                 <p class="text-xs font-black text-white italic uppercase tracking-widest">{{ $order->order_type }}</p>
                             </div>
                         </div>
@@ -146,7 +146,7 @@
                                 <i class="fas fa-wallet text-lg"></i>
                             </div>
                             <div>
-                                <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">Settlement</p>
+                                <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-1 opacity-50">Payment</p>
                                 <p class="text-xs font-black text-white italic uppercase tracking-widest">{{ str_replace('_', ' ', $order->payment_method) }}</p>
                             </div>
                         </div>
@@ -154,14 +154,14 @@
 
                     @if($order->store)
                         <div class="p-8 rounded-[2rem] bg-gradient-to-br from-white/[0.02] to-transparent border border-white/5">
-                            <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-4 opacity-50">Strategic Dispatch Node</p>
+                            <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-4 opacity-50">Fulfillment Store</p>
                             <div class="flex items-center gap-5">
                                 <div class="w-14 h-14 rounded-2xl bg-gold-400/5 border border-gold-400/20 flex items-center justify-center text-gold-400 shadow-gold group-hover:scale-105 transition-transform">
                                     <i class="fas fa-store text-xl"></i>
                                 </div>
                                 <div>
                                     <h5 class="text-lg font-black text-white italic tracking-tighter uppercase leading-none">{{ $order->store->name }}</h5>
-                                    <p class="text-[9px] font-bold text-dark-muted uppercase mt-2 tracking-widest">Authorized Fulfillment Center</p>
+                                    <p class="text-[9px] font-bold text-dark-muted uppercase mt-2 tracking-widest">Store providing your items</p>
                                 </div>
                             </div>
                         </div>
@@ -170,7 +170,7 @@
                     @if($order->notes)
                         <div class="bg-gold-400/5 p-6 rounded-2xl border border-gold-400/10 border-dashed relative group-hover:border-gold-400/30 transition-colors">
                             <i class="fas fa-quote-left absolute top-4 right-4 text-gold-400/10 text-3xl"></i>
-                            <p class="text-[9px] font-black uppercase tracking-widest text-gold-400 mb-3 italic">Dispatch Directives</p>
+                            <p class="text-[9px] font-black uppercase tracking-widest text-gold-400 mb-3 italic">Order Notes</p>
                             <p class="text-xs text-gray-400 italic leading-relaxed relative z-10">{{ $order->notes }}</p>
                         </div>
                     @endif
@@ -181,14 +181,14 @@
 
     <!-- Line Item Manifest -->
     <div class="premium-glass rounded-[3rem] p-12 border-white/5">
-        <h4 class="text-xs font-black uppercase tracking-[0.4em] text-white italic mb-10 pb-6 border-b border-white/5">Line Item Manifest</h4>
+        <h4 class="text-xs font-black uppercase tracking-[0.4em] text-white italic mb-10 pb-6 border-b border-white/5">Your Items</h4>
         
         <div class="space-y-6">
             <div class="hidden md:grid grid-cols-12 gap-8 px-8 mb-4 text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted border-b border-white/5 pb-6">
-                <div class="col-span-6">Component Description</div>
-                <div class="col-span-2 text-center">Unit Price</div>
+                <div class="col-span-6">Item Description</div>
+                <div class="col-span-2 text-center">Price</div>
                 <div class="col-span-2 text-center">Quantity</div>
-                <div class="col-span-2 text-right pe-4">Line Investment</div>
+                <div class="col-span-2 text-right pe-4">Total</div>
             </div>
 
             @foreach($order->items as $item)
@@ -231,7 +231,7 @@
                     </div>
 
                     <div class="col-span-12 md:col-span-2 text-right md:pe-4">
-                        <div class="md:hidden text-[9px] font-black uppercase text-dark-muted mb-2">Line Investment</div>
+                        <div class="md:hidden text-[9px] font-black uppercase text-dark-muted mb-2">Total</div>
                         <p class="text-2xl font-black text-white italic tracking-tighter">R {{ number_format($item->price * $item->quantity, 2) }}</p>
                     </div>
                 </div>
@@ -250,15 +250,15 @@
             <div class="w-full md:w-fit text-right">
                 <div class="space-y-6">
                     <div class="flex justify-end gap-16 text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted italic">
-                        <span>Net Valuation</span>
+                        <span>Subtotal</span>
                         <span class="text-white">R {{ number_format($order->total, 2) }}</span>
                     </div>
                     <div class="flex justify-end gap-16 text-[10px] font-black uppercase tracking-[0.3em] text-dark-muted italic">
-                        <span>External Logistics</span>
-                        <span class="text-green-400">R 0.00 (Inclusive)</span>
+                        <span>Delivery</span>
+                        <span class="text-green-400">R 0.00 (Free)</span>
                     </div>
                     <div class="flex justify-end gap-16 pt-10 border-t border-white/5 items-center">
-                        <span class="text-xs font-black uppercase tracking-[0.5em] text-white italic">Gross Total</span>
+                        <span class="text-xs font-black uppercase tracking-[0.5em] text-white italic">Total Amount</span>
                         <span class="text-6xl font-black text-gold-400 italic tracking-tighter shadow-gold-glow">R {{ number_format($order->total, 2) }}</span>
                     </div>
                 </div>

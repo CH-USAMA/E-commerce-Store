@@ -6,11 +6,11 @@
     <!-- Page Header -->
     <div class="relative py-12 overflow-hidden bg-dark border-b border-white/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <h1 class="text-4xl lg:text-5xl font-black mb-4 tracking-tight italic text-white uppercase leading-none">Order <span class="gradient-text">Terminal</span></h1>
+            <h1 class="text-4xl lg:text-5xl font-black mb-4 tracking-tight italic text-white uppercase leading-none">Order <span class="gradient-text">Checkout</span></h1>
             <nav class="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-dark-muted">
                 <a href="{{ route('cart') }}" class="hover:text-gold-400 transition flex items-center gap-1"><i class="fas fa-cart-shopping"></i> Return to Cart</a>
                 <span class="w-1 h-1 rounded-full bg-gold-400/50"></span>
-                <span class="text-gray-400">Checkout Documentation</span>
+                <span class="text-gray-400">Complete Your Order</span>
             </nav>
         </div>
     </div>
@@ -38,9 +38,9 @@
             const file = event.target.files[0];
             if (file && file.size > 2 * 1024 * 1024) {
                 if (window.showToast) {
-                    window.showToast('Validation Failed: Artifact exceeds 2MB limit.', 'error');
+                    window.showToast('Validation Failed: File exceeds 2MB limit.', 'error');
                 } else {
-                    alert('Validation Failed: Artifact exceeds 2MB limit.');
+                    alert('Validation Failed: File exceeds 2MB limit.');
                 }
                 event.target.value = '';
                 this.fileName = '';
@@ -81,8 +81,8 @@
                         <div x-show="step === 1" x-transition.opacity.duration.500ms class="card-dark rounded-[2.5rem] p-8 border-white/5 bg-gradient-to-br from-white/[0.04] to-transparent shadow-2xl relative overflow-hidden">
                             <div class="flex items-center justify-between mb-10 border-b border-white/5 pb-6">
                                 <div>
-                                    <h3 class="text-2xl font-black text-white italic uppercase tracking-tight">Destination <span class="text-gold-400">Selection</span></h3>
-                                    <p class="text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted mt-1">Operational Delivery Radius: <span x-text="maxDeliveryKm"></span> KM</p>
+                                    <h3 class="text-2xl font-black text-white italic uppercase tracking-tight">Your Shipping <span class="text-gold-400">Address</span></h3>
+                                    <p class="text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted mt-1">We Deliver Within: <span x-text="maxDeliveryKm"></span> KM</p>
                                 </div>
                                 <div class="w-14 h-14 rounded-2xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center text-gold-400 text-xl">
                                     <i class="fas fa-map-location-dot"></i>
@@ -92,7 +92,7 @@
                             @if(auth()->check() && $addresses->count() > 0)
                                 <div class="mb-10">
                                     <label class="block text-[10px] font-black uppercase tracking-widest text-gold-400 mb-6 italic flex items-center gap-2">
-                                        <i class="fas fa-bookmark text-[8px]"></i> Saved Order Profiles
+                                        <i class="fas fa-bookmark text-[8px]"></i> Your Saved Addresses
                                     </label>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         @foreach($addresses as $addr)
@@ -131,7 +131,7 @@
                             @if(!auth()->check())
                                 <div class="mb-10 border-b border-white/5 pb-10">
                                     <label class="block text-[10px] font-black uppercase tracking-widest text-gold-400 mb-6 italic flex items-center gap-2">
-                                        <i class="fas fa-id-card text-[8px]"></i> Personal Identity
+                                        <i class="fas fa-id-card text-[8px]"></i> Your Details
                                     </label>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                                         <div class="space-y-2">
@@ -159,7 +159,7 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div class="md:col-span-2 space-y-2">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Official Delivery Destination</label>
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Delivery Address</label>
                                     <input type="text" name="customer_address" id="customer_address" required
                                         value="{{ old('customer_address', $defaultShipping->address_line_1 ?? '') }}"
                                         class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-base text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner placeholder:text-gray-700"
@@ -204,8 +204,8 @@
                             <div class="card-dark rounded-[2.5rem] p-8 border-white/5 bg-gradient-to-br from-white/[0.04] to-transparent shadow-2xl relative overflow-hidden">
                                 <div class="flex items-center justify-between mb-10 border-b border-white/5 pb-6">
                                     <div>
-                                        <h3 class="text-2xl font-black text-white italic uppercase tracking-tight">Payment <span class="text-gold-400">Authorization</span></h3>
-                                        <p class="text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted mt-1">Encrypted Transaction Interface</p>
+                                        <h3 class="text-2xl font-black text-white italic uppercase tracking-tight">Payment <span class="text-gold-400">Method</span></h3>
+                                        <p class="text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted mt-1">Safe and Secure Payment</p>
                                     </div>
                                     <div class="w-14 h-14 rounded-2xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center text-gold-400 text-xl">
                                         <i class="fas fa-shield-halved"></i>
@@ -242,8 +242,8 @@
                                 <!-- Bank Accounts Styled -->
                                 <div x-show="paymentMethod === 'eft'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="space-y-8">
                                     <div class="flex items-center justify-between mb-4 mt-8">
-                                        <h5 class="text-[11px] font-black uppercase tracking-[0.4em] text-gold-400 italic">Official Settlement Channels</h5>
-                                        <span class="text-[8px] font-black text-dark-muted uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">Tap to Copy Account</span>
+                                        <h5 class="text-[11px] font-black uppercase tracking-[0.4em] text-gold-400 italic">Bank Account Details</h5>
+                                        <span class="text-[8px] font-black text-dark-muted uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">Click to Copy Account</span>
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -285,7 +285,7 @@
                                             <i class="fas fa-circle-info text-2xl"></i>
                                         </div>
                                         <div class="space-y-2">
-                                            <h4 class="text-xs font-black uppercase tracking-widest text-white italic">Settlement Instructions</h4>
+                                            <h4 class="text-xs font-black uppercase tracking-widest text-white italic">Payment Instructions</h4>
                                             <p class="text-[10px] font-medium tracking-wide leading-relaxed text-gray-400">
                                                 Please utilize the account details above to finalize your transaction. Use your <strong>Order Number</strong> as the primary reference. <span class="text-gold-400 font-black">Once funds are cleared, your confirmation documentation will be dispatched.</span>
                                             </p>
@@ -306,9 +306,9 @@
                                         <div class="flex-1 text-center lg:text-left">
                                             <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-gold-400/10 border border-gold-400/20 rounded-full mb-6">
                                                 <i class="fas fa-shield-check text-[10px] text-gold-400"></i>
-                                                <span class="text-[9px] font-black uppercase tracking-widest text-gold-400 italic">Financial Verification Node</span>
+                                                <span class="text-[9px] font-black uppercase tracking-widest text-gold-400 italic">Confirm Your Payment</span>
                                             </div>
-                                            <h4 class="text-2xl font-black text-white italic uppercase mb-3">Settlement <span class="gradient-text">Documentation</span></h4>
+                                            <h4 class="text-2xl font-black text-white italic uppercase mb-3">Proof of <span class="gradient-text">Payment</span></h4>
                                             <p class="text-xs text-dark-muted font-medium mb-8 max-w-sm mx-auto lg:mx-0 leading-relaxed italic">
                                                 Upload your Proof of Payment (JPG, PNG, PDF) to bypass manual audit delays. Visual confirmation accelerates your dispatch queue priority.
                                             </p>
@@ -320,7 +320,7 @@
                                                         <i class="fas fa-check"></i>
                                                     </div>
                                                     <div>
-                                                        <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-0.5">Linked Artifact</p>
+                                                        <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-0.5">Payment Receipt</p>
                                                         <p class="text-[10px] font-black text-white truncate max-w-[150px]" x-text="fileName"></p>
                                                     </div>
                                                 </div>
@@ -329,8 +329,8 @@
                                                         <i class="fas fa-upload"></i>
                                                     </div>
                                                     <div>
-                                                        <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-0.5">Idle Pipeline</p>
-                                                        <p class="text-[10px] font-black text-dark-muted">No POP Documentation</p>
+                                                        <p class="text-[8px] font-black uppercase tracking-widest text-dark-muted mb-0.5">Waiting for File</p>
+                                                        <p class="text-[10px] font-black text-dark-muted">No File Uploaded</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -357,20 +357,20 @@
 
                             <div class="flex justify-between items-center pt-6">
                                 <button type="button" @click="step = 1" class="text-dark-muted hover:text-white transition text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                                    <i class="fas fa-arrow-left"></i> Address Revision
+                                    <i class="fas fa-arrow-left"></i> Back to Address
                                 </button>
                                 <button type="button" @click="step = 3" class="btn-gold px-16 py-5 text-xs font-black uppercase tracking-[0.2em] rounded-2xl group shadow-2xl">
-                                    Fulfillment Review <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
+                                    Review & Confirm <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Step 3: Fulfillment & Logistics -->
+                        <!-- Step 3: Delivery & Shipping -->
                         <div x-show="step === 3" x-transition.opacity.duration.500ms class="card-dark rounded-[2.5rem] p-8 border-white/5 bg-gradient-to-br from-white/[0.04] to-transparent shadow-2xl">
                             <div class="flex items-center justify-between mb-10 border-b border-white/5 pb-6">
                                 <div>
-                                    <h3 class="text-2xl font-black text-white italic uppercase tracking-tight">Fulfillment <span class="text-gold-400">Logistics</span></h3>
-                                    <p class="text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted mt-1">Operational Dispatch Settings</p>
+                                    <h3 class="text-2xl font-black text-white italic uppercase tracking-tight">Delivery <span class="text-gold-400">Options</span></h3>
+                                    <p class="text-[9px] font-black uppercase tracking-[0.3em] text-dark-muted mt-1">Select Store and Delivery Type</p>
                                 </div>
                                 <div class="w-14 h-14 rounded-2xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center text-gold-400 text-xl">
                                     <i class="fas fa-truck-ramp-box"></i>
@@ -380,7 +380,7 @@
                             <!-- Dispatch Selection -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
                                 <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Dispatch Hub</label>
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Select Store</label>
                                     <div class="relative group">
                                         <select name="store_id" id="store_id" required
                                             class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 appearance-none transition-all shadow-inner font-bold italic uppercase tracking-wider">
@@ -401,7 +401,7 @@
                                 </div>
 
                                 <div class="space-y-2">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Fulfillment Strategy</label>
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Delivery or Pickup</label>
                                     <div class="relative group">
                                         <select name="order_type" id="order_type" x-model="orderType"
                                             class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 appearance-none transition-all shadow-inner font-bold italic uppercase tracking-wider">
@@ -418,10 +418,10 @@
                                             <i class="fas fa-truck-slash text-xl"></i>
                                         </div>
                                         <div>
-                                            <h4 class="text-[11px] font-black uppercase tracking-widest text-red-400 mb-1">Logistics Boundary Warning</h4>
+                                            <h4 class="text-[11px] font-black uppercase tracking-widest text-red-400 mb-1">Delivery Area Limit</h4>
                                             <p class="text-[10px] font-black uppercase tracking-[0.1em] leading-relaxed text-gray-400 italic">
                                                 We currently deliver orders within <span x-text="maxDeliveryKm" class="text-white"></span>KM of our regional collection points. 
-                                                <span class="text-red-400/80 underline decoration-red-400/30 underline-offset-4 font-bold">Only 'Warehouse Pickup' is permitted for this requisition.</span>
+                                                <span class="text-red-400/80 underline decoration-red-400/30 underline-offset-4 font-bold">Only 'Warehouse Pickup' is permitted for this order.</span>
                                             </p>
                                         </div>
                                     </div>
@@ -430,12 +430,12 @@
                                     <label class="text-[10px] font-black uppercase tracking-widest text-dark-muted ml-1">Operations Notes <span class="opacity-30 tracking-normal ml-2">(OPTIONAL)</span></label>
                                     <textarea name="notes" rows="3"
                                         class="w-full bg-black/40 border border-white/10 rounded-3xl px-6 py-5 text-sm text-gray-200 focus:outline-none focus:border-gold-400/50 transition-all shadow-inner resize-none font-medium"
-                                        placeholder="Specific site access details or logistics notes?"></textarea>
+                                        placeholder="Any special delivery instructions or notes?"></textarea>
                                 </div>
 
                             <div class="flex items-center justify-between py-6 mb-10 border-b border-white/5 text-[10px] font-black uppercase tracking-widest">
                                 <button type="button" @click="step = 2" class="text-dark-muted hover:text-white transition">
-                                    <i class="fas fa-chevron-left mr-2"></i> Payment Re-selection
+                                    <i class="fas fa-chevron-left mr-2"></i> Back to Payment
                                 </button>
                                 <span class="text-dark-muted italic opacity-40">System Release v2.4</span>
                             </div>
@@ -470,8 +470,8 @@
                             <div class="absolute -top-24 -right-24 w-48 h-48 bg-gold-400/5 blur-[80px] rounded-full group-hover:bg-gold-400/10 transition-colors"></div>
 
                             <div class="flex items-center justify-between mb-10">
-                                <h3 class="text-2xl font-black text-white italic tracking-tight uppercase leading-none">Quick <br><span class="gradient-text">Manifest</span></h3>
-                                <span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] font-black text-dark-muted uppercase tracking-widest">{{ count($products) }} Modules</span>
+                                <h3 class="text-2xl font-black text-white italic tracking-tight uppercase leading-none">Order <br><span class="gradient-text">Summary</span></h3>
+                                <span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] font-black text-dark-muted uppercase tracking-widest">{{ count($products) }} Items</span>
                             </div>
 
                             <!-- Expanded Item List -->
@@ -518,11 +518,11 @@
                             </div>
                         </div>
 
-                        <!-- Terminal Security Footer -->
+                        <!-- Secure Checkout Footer -->
                         <div class="px-8 flex flex-col items-center gap-4 text-dark-muted">
                             <i class="fas fa-fingerprint text-3xl opacity-20"></i>
                             <div class="text-center">
-                                <p class="text-[9px] font-black uppercase tracking-[0.3em]">End-to-End Encryption Terminal</p>
+                                <p class="text-[9px] font-black uppercase tracking-[0.3em]">Secure Checkout Hub</p>
                                 <p class="text-[7px] font-bold opacity-40 uppercase tracking-widest mt-1">PCI Level 1 Certified Node | Jabulani Secure-Core</p>
                             </div>
                         </div>
@@ -564,7 +564,7 @@
                 if (!userLat || !userLng) {
                     const alpineData = document.querySelector('[x-data]').__x.$data;
                     alpineData.canDeliver = true; // Default to true if unknown, backend will re-verify
-                    distanceText.textContent = 'ADDRESS LOGISTICS PENDING COORDINATES';
+                    distanceText.textContent = 'Waiting for coordinates...';
                     return;
                 }
                 
@@ -574,7 +574,7 @@
 
                 if (sLat && sLng) {
                     const dist = haversine(userLat, userLng, sLat, sLng);
-                    distanceText.textContent = `OPTIMAL DISTANCE DETECTED: ~${dist.toFixed(1)}KM`;
+                    distanceText.textContent = `Distance: ~${dist.toFixed(1)}KM`;
                     
                     const alpineData = document.querySelector('[x-data]').__x.$data;
                     alpineData.distance = dist;
@@ -590,7 +590,7 @@
 
             function triggerGeolocation(manual = false) {
                 if (navigator.geolocation) {
-                    distanceText.textContent = 'RECIPIENT COORDINATES ACQUIRING...';
+                    distanceText.textContent = 'Looking for your location...';
                     navigator.geolocation.getCurrentPosition(pos => {
                         userLat = pos.coords.latitude;
                         userLng = pos.coords.longitude;
@@ -617,7 +617,7 @@
                         }
                     }, err => {
                         console.log('Location access denied');
-                        distanceText.textContent = 'LOCATION ACCESS REQUIRED FOR SMART LOGISTICS';
+                        distanceText.textContent = 'Location access needed for delivery check';
                         if (manual) window.showToast('Location Access Denied', 'error');
                         
                         // Random store fallback if proximity fails but they want to finalize

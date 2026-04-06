@@ -118,7 +118,7 @@
                                         class="text-3xl font-bold text-white tracking-tight">{{ number_format($product->price, 2) }}</span>
                                     <span
                                         class="text-dark-muted font-bold text-[9px] uppercase tracking-widest border-l border-white/10 pl-2 ml-1">Incl.
-                                        VAT</span>
+                                        VAT excluded</span>
                                 </div>
                             </div>
 

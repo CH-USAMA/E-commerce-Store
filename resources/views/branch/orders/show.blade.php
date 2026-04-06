@@ -36,7 +36,7 @@
                             <tfoot class="border-top">
                                 <tr>
                                     <td colspan="3" class="text-end fw-bold">VAT
-                                        ({{ $order->items->first()->product->vat_rate ?? 15 }}%)</td>
+                                        (0%)</td>
                                     <td class="text-end">R {{ number_format($order->vat, 2) }}</td>
                                 </tr>
                                 <tr>

@@ -32,8 +32,22 @@ class ProfileController extends Controller
         $user = Auth::user();
         $user->update(['phone' => $request->phone]);
 
+        // Standardize: Create a primary address that serves as both shipping and billing
         $user->addresses()->create([
             'address_name' => $request->address_name,
+            'type' => 'shipping', // Principal shipping address
+            'address_line_1' => $request->address_line_1,
+            'address_line_2' => $request->address_line_2,
+            'city' => $request->city,
+            'province' => $request->province,
+            'postal_code' => $request->postal_code,
+            'is_default' => true,
+        ]);
+
+        // Duplicate for billing to ensure system compatibility without redundant rows if they change later
+        $user->addresses()->create([
+            'address_name' => $request->address_name . ' (Billing)',
+            'type' => 'billing',
             'address_line_1' => $request->address_line_1,
             'address_line_2' => $request->address_line_2,
             'city' => $request->city,

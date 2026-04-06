@@ -52,9 +52,10 @@ class AuthController extends Controller
             $user->role = 'user';
             $user->save();
 
-            // Shipping Address
+            // Shipping Address (Primary)
             Address::create([
                 'user_id' => $user->id,
+                'address_name' => 'Primary Shipping',
                 'type' => 'shipping',
                 'address_line_1' => $request->shipping_address_line_1,
                 'address_line_2' => $request->shipping_address_line_2,
@@ -68,6 +69,7 @@ class AuthController extends Controller
             if ($request->has('billing_same_as_shipping')) {
                 Address::create([
                     'user_id' => $user->id,
+                    'address_name' => 'Primary Billing',
                     'type' => 'billing',
                     'address_line_1' => $request->shipping_address_line_1,
                     'address_line_2' => $request->shipping_address_line_2,
@@ -79,6 +81,7 @@ class AuthController extends Controller
             } else {
                 Address::create([
                     'user_id' => $user->id,
+                    'address_name' => 'Custom Billing',
                     'type' => 'billing',
                     'address_line_1' => $request->billing_address_line_1,
                     'address_line_2' => $request->billing_address_line_2,

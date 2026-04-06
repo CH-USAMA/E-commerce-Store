@@ -37,19 +37,17 @@
 | GET/POST/PUT/DELETE | `/admin/blog-categories/**` | `Admin\BlogCategoryController` | `admin.blog-categories.*` |
 | GET/POST/PUT/DELETE | `/admin/gallery/**` | `Admin\GalleryItemController` | `admin.gallery.*` |
 | GET/POST/PUT/DELETE | `/admin/team/**` | `Admin\TeamMemberController` | `admin.team.*` |
+| GET | `/admin/guests` | `Admin\GuestController@index` | `admin.guests.index` |
+| POST | `/admin/guests/purge` | `Admin\GuestController@purge` | `admin.guests.purge` |
+| POST | `/admin/guests/purge-old` | `Admin\GuestController@purgeOld` | `admin.guests.purge-old` |
+| GET | `/admin/marketing` | `Admin\MarketingController@index` | `admin.marketing.index` |
+| POST | `/admin/marketing` | `Admin\MarketingController@push` | `admin.marketing.push` |
+| DELETE | `/admin/marketing/{campaign}` | `Admin\MarketingController@destroy` | `admin.marketing.destroy` |
 | GET | `/admin/settings/payments` | `Admin\SystemController@payments` | `admin.settings.payments` |
 | POST | `/admin/settings/payments` | `Admin\SystemController@updatePayments` | `admin.settings.payments.update` |
 | GET | `/admin/settings/invoice` | `Admin\SystemController@invoiceSettings` | `admin.settings.invoice` |
 | POST | `/admin/settings/invoice` | `Admin\SystemController@updateInvoiceSettings` | `admin.settings.invoice.update` |
-| GET | `/admin/notifications/mark-all-read` | `Admin\MarketingController@markAllRead` | `admin.notifications.mark-all-read` |
-| GET | `/admin/marketing` | `Admin\MarketingController@index` | `admin.marketing.index` |
-| GET | `/admin/marketing/create` | `Admin\MarketingController@create` | `admin.marketing.create` |
-| POST | `/admin/marketing` | `Admin\MarketingController@push` | `admin.marketing.push` |
-| POST | `/admin/marketing/{campaign}/resend` | `Admin\MarketingController@resend` | `admin.marketing.resend` |
-| DELETE | `/admin/marketing/{campaign}` | `Admin\MarketingController@destroy` | `admin.marketing.destroy` |
-| GET | `/admin/guests` | `Admin\GuestController@index` | `admin.guests.index` |
-| POST | `/admin/guests/purge` | `Admin\GuestController@purge` | `admin.guests.purge` |
-| POST | `/admin/guests/purge-old` | `Admin\GuestController@purgeOld` | `admin.guests.purge-old` |
+| POST | `/admin/settings/test-email` | `Admin\SystemController@sendTestEmail` | `admin.settings.test-email` |
 
 **All admin routes**: `auth, role:admin` middleware.
 

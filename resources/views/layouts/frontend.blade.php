@@ -394,7 +394,7 @@
 
                     <a href="{{ route('order.track') }}"
                         class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all nav-link-shadow {{ request()->routeIs('order.track') ? 'bg-white/10 text-gold-400' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
-                        <i class="fas fa-truck-fast text-[9px]"></i> Track Delivery
+                        <i class="fas fa-truck-fast text-[9px]"></i> Track Order
                     </a>
 
                     {{-- Site-wide Search Bar --}}
@@ -441,7 +441,7 @@
                                     style="display:none;">
                                     <div class="px-4 py-3 mb-2 bg-white/5 rounded-xl">
                                         <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mb-1">
-                                            Credential identity</p>
+                                            Account Email</p>
                                         <p class="text-xs font-bold text-white truncate italic">{{ auth()->user()->email }}
                                         </p>
                                     </div>
@@ -497,7 +497,7 @@
                                 class="absolute right-0 mt-3 w-80 bg-[#0f0f0f] border border-white/10 rounded-[1.5rem] shadow-2xl py-4 z-50 p-2 overflow-hidden"
                                 style="display:none;">
                                 <div class="px-4 py-3 mb-2 bg-white/5 rounded-xl flex justify-between items-center">
-                                    <p class="text-[9px] font-black uppercase tracking-widest text-gold-400 italic">Alert Center</p>
+                                    <p class="text-[9px] font-black uppercase tracking-widest text-gold-400 italic">Notifications</p>
                                     <a href="{{ route('user.notifications.mark-read') }}" class="text-[8px] font-black text-dark-muted uppercase hover:text-white transition">Clear All</a>
                                 </div>
                                 <div class="max-h-96 overflow-y-auto space-y-1">
@@ -527,13 +527,13 @@
                                             <div class="w-12 h-12 rounded-full bg-white/5 mx-auto mb-4 flex items-center justify-center opacity-30">
                                                 <i class="fas fa-bell-slash text-xl text-dark-muted"></i>
                                             </div>
-                                            <p class="text-[10px] font-black text-dark-muted uppercase tracking-widest opacity-40 italic">System Secured. No alerts found.</p>
+                                            <p class="text-[10px] font-black text-dark-muted uppercase tracking-widest opacity-40 italic">No new notifications.</p>
                                         </div>
                                     @endforelse
                                 </div>
                                 <div class="mt-4 pt-4 border-t border-white/5 text-center">
                                     <a href="{{ route('user.dashboard') }}" class="text-[9px] font-black text-gold-400 uppercase tracking-widest hover:text-white transition-all flex items-center justify-center gap-2">
-                                        Open Full Dashboard Activity <i class="fas fa-chevron-right text-[7px]"></i>
+                                        View All Activity <i class="fas fa-chevron-right text-[7px]"></i>
                                     </a>
                                 </div>
                             </div>
@@ -569,7 +569,7 @@
                 <div>
                     <p
                         class="text-[10px] font-black uppercase tracking-[0.3em] text-gold-400 mb-6 border-b border-gold-400/20 pb-2">
-                        Navigation HUB</p>
+                        Menu</p>
                     <div class="flex flex-col gap-6">
                         <a href="{{ route('home') }}"
                             class="text-4xl font-black text-white hover:text-gold-400 transition uppercase tracking-tighter">Home</a>
@@ -586,7 +586,7 @@
                             class="text-4xl font-black text-white hover:text-gold-400 transition uppercase tracking-tighter">Contact</a>
                         <a href="{{ route('order.track') }}"
                             class="text-4xl font-black text-gold-400 hover:text-white transition uppercase tracking-tighter">Track
-                            Delivery</a>
+                            Order</a>
                     </div>
                 </div>
 
@@ -642,8 +642,7 @@
                         </div>
                     @else
                         <a href="{{ route('login') }}"
-                            class="btn-gold w-full py-6 text-sm tracking-[0.2em] uppercase font-black">Secure Login
-                            Access</a>
+                            class="btn-gold w-full py-6 text-sm tracking-[0.2em] uppercase font-black">Login</a>
                     @endauth
                 </div>
             </div>

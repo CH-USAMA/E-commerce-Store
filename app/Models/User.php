@@ -89,4 +89,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Store::class, 'store_user');
     }
+
+    /**
+     * Singular accessor for managed stores, returns the first one.
+     */
+    public function getManagedStoreAttribute()
+    {
+        return $this->managedStores->first();
+    }
 }

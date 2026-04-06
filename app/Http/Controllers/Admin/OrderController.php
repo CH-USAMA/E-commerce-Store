@@ -113,6 +113,7 @@ class OrderController extends Controller
                 'customer_city' => 'Johannesburg',
                 'customer_postal_code' => '2000',
                 'total' => $product->price,
+                'vat' => 0,
                 'status' => 'pending',
                 'payment_method' => 'cod',
                 'order_type' => rand(0, 1) ? 'pickup' : 'delivery',
@@ -123,6 +124,7 @@ class OrderController extends Controller
                 'product_id' => $product->id,
                 'quantity' => 1,
                 'price' => $product->price,
+                'vat' => 0,
             ]);
         });
 

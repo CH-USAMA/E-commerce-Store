@@ -10,16 +10,16 @@
             <header class="flex flex-col gap-2">
                 <div class="flex items-center gap-3">
                     <span class="w-8 h-1 bg-gold-400 rounded-full"></span>
-                    <span class="text-[10px] font-black uppercase tracking-[.4em] text-gold-400">Procurement Database</span>
+                    <span class="text-[10px] font-black uppercase tracking-[.4em] text-gold-400">Order History</span>
                 </div>
                 <h2 class="text-4xl lg:text-5xl font-black text-white italic tracking-tighter uppercase mb-0">My <span class="gradient-text">Orders</span></h2>
-                <p class="text-[11px] font-black uppercase tracking-widest text-dark-muted opacity-60">Full listing of historical and active Jabulani transactions</p>
+                <p class="text-[11px] font-black uppercase tracking-widest text-dark-muted opacity-60">List of all your past and current orders</p>
             </header>
         </div>
         <div class="col-md-3">
             <div class="premium-glass p-6 rounded-3xl border-white/5 text-center stat-card-glow">
-                <p class="text-[10px] font-black uppercase tracking-widest text-dark-muted mb-2">Total Records</p>
-                <div class="text-3xl font-black text-white italic tracking-tighter leading-none">{{ $orders->total() }} Entries</div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-dark-muted mb-2">Total Orders</p>
+                <div class="text-3xl font-black text-white italic tracking-tighter leading-none">{{ $orders->total() }} Orders</div>
             </div>
         </div>
     </div>
@@ -38,10 +38,10 @@
     <!-- Orders Management Table -->
     <div class="premium-glass rounded-[3rem] border-white/5 overflow-hidden">
         <div class="p-10 border-b border-white/5 flex items-center justify-between">
-            <h3 class="text-xs font-black uppercase tracking-widest text-white italic">Transactional Ledger</h3>
+            <h3 class="text-xs font-black uppercase tracking-widest text-white italic">Order List</h3>
             <div class="flex items-center gap-4">
                 <a href="{{ route('user.orders.export') }}" class="px-6 py-3 bg-white/5 rounded-full text-[10px] font-black uppercase tracking-widest text-green-400 border border-green-500/10 hover:border-green-500/30 transition-all">
-                    <i class="fas fa-file-csv me-2"></i> Export Data
+                    <i class="fas fa-file-csv me-2"></i> Download CSV
                 </a>
             </div>
         </div>
@@ -52,10 +52,10 @@
                     <table class="table table-borderless align-middle mb-0 text-white">
                         <thead>
                             <tr class="border-b border-white/5">
-                                <th class="py-6 ps-4 text-[10px] font-black uppercase tracking-widest text-dark-muted">Identifier</th>
-                                <th class="py-6 text-[10px] font-black uppercase tracking-widest text-dark-muted">Placement Date</th>
-                                <th class="py-6 text-[10px] font-black uppercase tracking-widest text-dark-muted">Unit Investment</th>
-                                <th class="py-6 text-[10px] font-black uppercase tracking-widest text-dark-muted">Logistics Status</th>
+                                <th class="py-6 ps-4 text-[10px] font-black uppercase tracking-widest text-dark-muted">Order Number</th>
+                                <th class="py-6 text-[10px] font-black uppercase tracking-widest text-dark-muted">Date</th>
+                                <th class="py-6 text-[10px] font-black uppercase tracking-widest text-dark-muted">Total Amount</th>
+                                <th class="py-6 text-[10px] font-black uppercase tracking-widest text-dark-muted">Status</th>
                                 <th class="py-6 pe-4 text-center text-[10px] font-black uppercase tracking-widest text-dark-muted">Actions</th>
                             </tr>
                         </thead>
@@ -81,7 +81,7 @@
                                     </td>
                                     <td class="py-4 font-sans">
                                         <div class="text-lg font-black text-white italic tracking-tighter">R {{ number_format($order->total, 2) }}</div>
-                                        <div class="text-[9px] font-black uppercase tracking-widest text-dark-muted italic opacity-50">Settled Value</div>
+                                        <div class="text-[9px] font-black uppercase tracking-widest text-dark-muted italic opacity-50">Total Paid</div>
                                     </td>
                                     <td class="py-4">
                                         @php
@@ -115,11 +115,11 @@
                     </div>
                     
                     <form action="{{ route('user.orders.index') }}" method="GET" class="flex-shrink-0 flex items-center gap-4 bg-white/5 px-6 py-3 rounded-2xl border border-white/5">
-                        <span class="text-[10px] font-black uppercase tracking-widest text-dark-muted opacity-60">Listing Threshold</span>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-dark-muted opacity-60">Items per page</span>
                         <select name="per_page" onchange="this.form.submit()" class="bg-transparent text-[10px] font-black uppercase tracking-widest text-white border-none focus:ring-0 cursor-pointer p-0">
-                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }} class="bg-dark text-white">10 Records</option>
-                            <option value="20" {{ request('per_page', 20) == 20 ? 'selected' : '' }} class="bg-dark text-white">20 Records</option>
-                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }} class="bg-dark text-white">50 Records</option>
+                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }} class="bg-dark text-white">10 Items</option>
+                            <option value="20" {{ request('per_page', 20) == 20 ? 'selected' : '' }} class="bg-dark text-white">20 Items</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }} class="bg-dark text-white">50 Items</option>
                         </select>
                     </form>
                 </div>
@@ -129,10 +129,10 @@
                     <div class="w-24 h-24 rounded-full bg-white/5 border border-white/5 flex items-center justify-center mx-auto mb-10 shadow-2xl opacity-40">
                         <i class="fas fa-database text-4xl text-dark-muted"></i>
                     </div>
-                    <h4 class="text-2xl font-black text-gray-500 italic mb-6">No historical records found.</h4>
-                    <p class="text-sm text-gray-600 max-w-sm mx-auto mb-10 italic">Our centralized database currently has no transactional history for your account profile.</p>
+                    <h4 class="text-2xl font-black text-gray-500 italic mb-6">No orders found.</h4>
+                    <p class="text-sm text-gray-600 max-w-sm mx-auto mb-10 italic">Your order history is empty.</p>
                     <a href="{{ route('products') }}" class="px-12 py-5 bg-gold-400 rounded-full text-[11px] font-black uppercase tracking-widest text-black shadow-gold-glow flex items-center justify-center gap-4 mx-auto w-fit">
-                        <i class="fas fa-shopping-bag"></i> Browse Jabulani Collection
+                        <i class="fas fa-shopping-bag"></i> Start Shopping
                     </a>
                 </div>
             @endif

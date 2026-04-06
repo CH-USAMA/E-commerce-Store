@@ -16,8 +16,8 @@
                 </div>
                 <h1 class="text-4xl md:text-5xl font-black mb-6 tracking-tight text-white italic">Almost <span
                         class="gradient-text">There!</span></h1>
-                <p class="text-dark-muted text-lg max-w-xl mx-auto font-medium">How would you like to proceed with your
-                    selection?</p>
+                <p class="text-dark-muted text-lg max-w-xl mx-auto font-medium">How would you like to finish your
+                    order?</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

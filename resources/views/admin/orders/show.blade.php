@@ -215,7 +215,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-file-invoice-dollar" style="color: var(--orange-400);"></i>
-                    <span class="fw-bold" style="font-size: 0.83rem;">Payment Verification Documentation</span>
+                    <span class="fw-bold" style="font-size: 0.83rem;">Proof of Payment</span>
                 </div>
                 @if($order->status == 'awaiting_payment')
                     <form action="{{ route('admin.orders.confirm-payment', $order) }}" method="POST"
@@ -231,18 +231,18 @@
                 <div class="row g-4 align-items-start">
                     <div class="col-md-5">
                         <div class="mb-3">
-                            <div class="form-label">Settlement Method</div>
+                            <div class="form-label">Payment Method</div>
                             <div class="fw-bold" style="font-size: 0.9rem;">Bank EFT Transfer</div>
                         </div>
                         <div>
-                            <div class="form-label">Audit Status</div>
+                            <div class="form-label">Payment Status</div>
                             @if($order->payment_confirmed_at)
                                 <div class="d-flex align-items-center gap-2 p-3 rounded-2"
                                      style="background: rgba(25,135,84,0.1); border: 1px solid rgba(25,135,84,0.2);">
                                     <i class="fas fa-check-double" style="color: var(--success-color);"></i>
                                     <div>
-                                        <div class="fw-bold" style="font-size: 0.78rem; color: var(--success-color);">Verified & Cleared</div>
-                                        <div style="font-size: 0.72rem; color: var(--text-muted);">Settled on {{ $order->payment_confirmed_at->format('d M Y H:i') }}</div>
+                                        <div class="fw-bold" style="font-size: 0.78rem; color: var(--success-color);">Payment Confirmed</div>
+                                        <div style="font-size: 0.72rem; color: var(--text-muted);">Confirmed on {{ $order->payment_confirmed_at->format('d M Y H:i') }}</div>
                                     </div>
                                 </div>
                             @else
@@ -250,8 +250,8 @@
                                      style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.2);">
                                     <i class="fas fa-shield-halved" style="color: var(--warning-color);"></i>
                                     <div>
-                                        <div class="fw-bold" style="font-size: 0.78rem; color: var(--warning-color);">Awaiting Verification</div>
-                                        <div style="font-size: 0.72rem; color: var(--text-muted);">Manual audit of institution account required.</div>
+                                        <div class="fw-bold" style="font-size: 0.78rem; color: var(--warning-color);">Waiting for Confirmation</div>
+                                        <div style="font-size: 0.72rem; color: var(--text-muted);">Please check your bank account for the funds.</div>
                                     </div>
                                 </div>
                             @endif
@@ -259,7 +259,7 @@
                     </div>
                     <div class="col-md-7">
                         @if($order->payment_screenshot)
-                            <div class="form-label">Customer Uploaded Proof of Payment</div>
+                            <div class="form-label">Customer Uploaded Receipt</div>
                             @php $ext = pathinfo($order->payment_screenshot, PATHINFO_EXTENSION); @endphp
                             @if(in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp']))
                                 <a href="{{ asset($order->payment_screenshot) }}" target="_blank"
@@ -275,7 +275,7 @@
                                     <i class="fas fa-file-pdf fa-3x mb-2" style="color: var(--error-color); opacity: 0.6;"></i>
                                     <div class="fw-bold mb-2" style="font-size: 0.83rem;">Document: {{ strtoupper($ext) }}</div>
                                     <a href="{{ asset($order->payment_screenshot) }}" target="_blank" class="btn btn-outline-secondary btn-sm">
-                                        <i class="fas fa-download me-1"></i> Download Documentation
+                                        <i class="fas fa-download me-1"></i> View Receipt
                                     </a>
                                 </div>
                             @endif
@@ -283,7 +283,7 @@
                             <div class="p-4 text-center rounded-2" style="background: var(--carbon-800); border: 1px dashed var(--border-default);">
                                 <i class="fas fa-file-circle-exclamation fa-2x d-block mb-2 opacity-20"></i>
                                 <div style="font-size: 0.78rem; color: var(--text-muted);">
-                                    No Proof of Payment uploaded by customer.
+                                    No receipt uploaded by customer.
                                 </div>
                             </div>
                         @endif
