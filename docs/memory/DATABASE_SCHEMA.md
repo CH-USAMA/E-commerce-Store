@@ -148,6 +148,10 @@
 | `stripe_enabled` | `0` or `1` | Enable Stripe checkout |
 | `stripe_secret_key` | string | Stripe secret key (stored in DB not .env) |
 | `stripe_public_key` | string | Stripe publishable key |
+| `paystack_enabled` | `0` or `1` | Enable/disable Paystack checkout |
+| `paystack_secret_key` | string | Paystack secret key |
+| `paystack_public_key` | string | Paystack public key |
+| `preferred_online_gateway` | `stripe` or `paystack` | Active online provider |
 | `max_delivery_km` | numeric | Max delivery radius (default 300) |
 | `invoice_company_name` | string | PDF invoice branding |
 | `invoice_company_address` | string | |

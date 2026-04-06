@@ -116,7 +116,7 @@ As of [2026-04-06], the system supports granular module-level permissions for Ad
 
 All controller methods use `$request->validate([...])` before any DB operations.
 Key validation rules enforced:
-- `payment_method`: must be `in:eft,payfast` (never raw user string)
+- `payment_method`: must be `in:eft,payfast` (Online payments are dynamically routed to Stripe or Paystack)
 - `status`: must be `in:awaiting_payment,pending,processing,shipped,delivered,cancelled`
 - `order_type`: must be `in:pickup,delivery`
 - File uploads: `mimes:jpg,jpeg,png,pdf|max:2048` (2MB limit)

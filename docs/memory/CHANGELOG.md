@@ -5,6 +5,18 @@
 
 ---
 
+## [2026-04-06] — Paystack Integration & Gateway Selection
+
+**Type**: Feature (Payments)  
+**Files Changed**: `SystemController.php`, `PaystackController.php`, `CartController.php`, `web.php`, `payments.blade.php`, `CHANGELOG.md`, `DATABASE_SCHEMA.md`, `ADMIN_PANEL.md`
+
+- **Paystack Integration**: Implemented a full redirect-based payment flow for Paystack (Public/Secret Key support).
+- **Gateway Selection**: Added an "Active Gateway Strategy" in the Admin Panel to switch the "Online Payment" method between Stripe and Paystack dynamically.
+- **Paystack Callback**: Implemented a secure verification handler that confirms transactions via the Paystack API before updating order status and sending confirmation emails.
+- **Unified Frontend**: Customers only see a single "Online Payment" option, while the backend determines the provider.
+
+---
+
 ## [2026-04-06] — Global Theme Engine & Admin Permission System
 
 **Type**: Feature & Security Hardening  
@@ -77,17 +89,25 @@
 ---
 
 ## [2026-04-02] — Stripe Integration Fix
+## [2026-04-02] — Stripe & Paystack Integration
 
-**Type**: Bug Fix
-**Files Changed**: `app/Http/Controllers/CartController.php`
+**Type**: Feature & Bug Fix
+**Files Changed**: `app/Http/Controllers/CartController.php`, `database/migrations/add_paystack_settings.php`
 
 - Fixed `Class "Stripe\Stripe" not found` — ran `composer install --no-dev`
-- Updated Stripe payment routing to handle both `payfast` and `stripe` as payment_method values
-- Added proper error handling: if Stripe fails, order is still recorded with warning message
-- Added `!empty($stripeSecret)` check to prevent empty key execution
-- Added `order_number` to Stripe session metadata
+- Updated payment routing to handle `payfast`, `stripe`, and `paystack`
+- Added Paystack integration with webhook verification
+- Added new settings keys:
+| Key | Type | Location | Description |
+| :--- | :--- | :--- | :--- |
+| `invoice_company_name` | string | Invoice page | Company name on PDF |
+| `stripe_enabled` | `0` or `1` | Payments page | Enable/disable Stripe checkout |
+| `paystack_enabled` | `0` or `1` | Payments page | Enable/disable Paystack checkout |
+| `preferred_online_gateway` | `stripe` or `paystack` | Payments page | Currently active online provider |
+| `paystack_public_key` | string | Payments page | Paystack public key |
+| `paystack_secret_key` | string | Payments page | Paystack secret key |
 
-**Deploy**: Run `composer install --no-dev` on Hostinger after `git pull`.
+**Deploy**: Run `composer install --no-dev` and `php artisan migrate` on Hostinger after `git pull`.
 
 ---
 

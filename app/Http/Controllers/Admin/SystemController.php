@@ -31,13 +31,17 @@ class SystemController extends Controller
         $data = $request->validate([
             'stripe_public_key' => 'nullable|string',
             'stripe_secret_key' => 'nullable|string',
-            'stripe_enabled' => 'nullable|in:0,1',
-            'max_delivery_km' => 'nullable|numeric|min:0',
+            'stripe_enabled'    => 'nullable|in:0,1',
+            'paystack_public_key' => 'nullable|string',
+            'paystack_secret_key' => 'nullable|string',
+            'paystack_enabled'    => 'nullable|in:0,1',
+            'preferred_online_gateway' => 'nullable|in:stripe,paystack',
+            'max_delivery_km'   => 'nullable|numeric|min:0',
         ]);
 
-        // Standard checkbox behavior: if unchecked, it's missing from request.
-        // We ensure it gets updated to '0' if not present.
+        // Standard checkbox behavior
         $data['stripe_enabled'] = $request->has('stripe_enabled') ? '1' : '0';
+        $data['paystack_enabled'] = $request->has('paystack_enabled') ? '1' : '0';
 
         foreach ($data as $key => $value) {
             \App\Models\Setting::updateOrCreate(['key' => $key], ['value' => $value ?? '']);

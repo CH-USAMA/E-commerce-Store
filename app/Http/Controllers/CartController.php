@@ -399,55 +399,67 @@ class CartController extends Controller
                 auth()->user()->update(['cart_data' => null]);
             }
 
-            if ($request->payment_method === 'payfast' || $request->payment_method === 'stripe') {
-                $stripeEnabled = \App\Models\Setting::where('key', 'stripe_enabled')->first()?->value === '1';
-                $stripeSecret = \App\Models\Setting::where('key', 'stripe_secret_key')->first()?->value;
+            if ($request->payment_method === 'payfast' || $request->payment_method === 'stripe' || $request->payment_method === 'paystack') {
+                $gateway = \App\Models\Setting::where('key', 'preferred_online_gateway')->first()?->value ?? 'stripe';
 
-                if ($stripeEnabled && !empty($stripeSecret)) {
-                    try {
-                        Stripe::setApiKey($stripeSecret);
+                if ($gateway === 'paystack') {
+                    $paystackEnabled = \App\Models\Setting::where('key', 'paystack_enabled')->first()?->value === '1';
+                    $paystackSecret = \App\Models\Setting::where('key', 'paystack_secret_key')->first()?->value;
 
-                        $lineItems = [];
-                        foreach ($products as $p) {
-                            $lineItems[] = [
-                                'price_data' => [
-                                    'currency' => 'zar',
-                                    'product_data' => [
-                                        'name' => $p->name,
-                                    ],
-                                    'unit_amount' => (int) ($p->price * 100), // Stripe uses cents
-                                ],
-                                'quantity' => $cart[$p->id],
-                            ];
-                        }
-
-                        $session = Session::create([
-                            'payment_method_types' => ['card'],
-                            'line_items' => $lineItems,
-                            'mode' => 'payment',
-                            'success_url' => route('order.success') . '?order_number=' . $order->order_number,
-                            'cancel_url' => route('checkout'),
-                            'metadata' => [
-                                'order_id' => $order->id,
-                                'order_number' => $order->order_number,
-                            ],
-                        ]);
-
-                        return redirect($session->url);
-                    } catch (\Exception $stripeEx) {
-                        \Illuminate\Support\Facades\Log::error('Stripe Session Creation Failed: ' . $stripeEx->getMessage());
-                        return redirect()->route('order.success')
-                            ->with('order_number', $order->order_number)
-                            ->with('order_id', $order->id)
-                            ->with('warning', 'Payment gateway initialization failed, but your order has been recorded. Our team will contact you for settlement.');
+                    if ($paystackEnabled && !empty($paystackSecret)) {
+                        return (new \App\Http\Controllers\PaystackController())->initialize($order);
                     }
                 } else {
-                    \Illuminate\Support\Facades\Log::warning('Stripe attempted but not fully configured/enabled.');
-                    return redirect()->route('order.success')
-                        ->with('order_number', $order->order_number)
-                        ->with('order_id', $order->id)
-                        ->with('warning', 'Online payment is currently unavailable. Your order has been placed as a pending request.');
+                    // Default to Stripe
+                    $stripeEnabled = \App\Models\Setting::where('key', 'stripe_enabled')->first()?->value === '1';
+                    $stripeSecret = \App\Models\Setting::where('key', 'stripe_secret_key')->first()?->value;
+
+                    if ($stripeEnabled && !empty($stripeSecret)) {
+                        try {
+                            Stripe::setApiKey($stripeSecret);
+
+                            $lineItems = [];
+                            foreach ($products as $p) {
+                                $lineItems[] = [
+                                    'price_data' => [
+                                        'currency' => 'zar',
+                                        'product_data' => [
+                                            'name' => $p->name,
+                                        ],
+                                        'unit_amount' => (int) ($p->price * 100), // Stripe uses cents
+                                    ],
+                                    'quantity' => $cart[$p->id],
+                                ];
+                            }
+
+                            $session = Session::create([
+                                'payment_method_types' => ['card'],
+                                'line_items' => $lineItems,
+                                'mode' => 'payment',
+                                'success_url' => route('order.success') . '?order_number=' . $order->order_number,
+                                'cancel_url' => route('checkout'),
+                                'metadata' => [
+                                    'order_id' => $order->id,
+                                    'order_number' => $order->order_number,
+                                ],
+                            ]);
+
+                            return redirect($session->url);
+                        } catch (\Exception $stripeEx) {
+                            \Illuminate\Support\Facades\Log::error('Stripe Session Creation Failed: ' . $stripeEx->getMessage());
+                            return redirect()->route('order.success')
+                                ->with('order_number', $order->order_number)
+                                ->with('order_id', $order->id)
+                                ->with('warning', 'Payment gateway initialization failed, but your order has been recorded. Our team will contact you for settlement.');
+                        }
+                    }
                 }
+
+                \Illuminate\Support\Facades\Log::warning('Online payment gateway attempted but not fully configured/enabled.');
+                return redirect()->route('order.success')
+                    ->with('order_number', $order->order_number)
+                    ->with('order_id', $order->id)
+                    ->with('warning', 'Online payment is currently unavailable. Your order has been placed as a pending request.');
             }
 
             return redirect()->route('order.success')->with('order_number', $order->order_number)->with('order_id', $order->id)->with('success', 'Order placed successfully!');

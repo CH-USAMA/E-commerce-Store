@@ -82,6 +82,9 @@ Route::middleware(['auth'])->prefix('email')->name('verification.')->group(funct
 Route::get('auth/google', [\App\Http\Controllers\Auth\SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [\App\Http\Controllers\Auth\SocialAuthController::class, 'handleGoogleCallback']);
 
+// Paystack Callback
+Route::get('paystack/callback', [\App\Http\Controllers\PaystackController::class, 'callback'])->name('paystack.callback');
+
 // Cart Routes
 Route::get('/cart', [\App\Http\Controllers\CartController::class, 'index'])->name('cart');
 Route::post('/cart/add', [\App\Http\Controllers\CartController::class, 'add'])->name('cart.add');

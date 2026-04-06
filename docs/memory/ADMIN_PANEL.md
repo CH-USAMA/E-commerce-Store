@@ -71,9 +71,15 @@ All stored in `settings` DB table. Managed via `Admin > Settings`.
 | `invoice_company_phone` | string | Invoice page | Phone on PDF and site footer |
 | `invoice_company_email` | string | Invoice page | Email on PDF and contact page |
 | `invoice_registration_number` | string | Invoice page | Reg number on PDF |
-| `invoice_footer_text` | string | Invoice page | Footer text on PDF |
 | `invoice_logo` | file path | Invoice page | Logo on PDF (`storage/settings/{file}`) |
 | `invoice_eft_accounts` | JSON array | Invoice page | Bank account objects shown on checkout and PDF |
+| `stripe_enabled` | `0` or `1` | Payments page | Enable/disable Stripe checkout |
+| `stripe_secret_key` | string | Payments page | Stripe secret API key |
+| `stripe_public_key` | string | Payments page | Stripe publishable key |
+| `paystack_enabled` | `0` or `1` | Payments page | Enable/disable Paystack checkout |
+| `paystack_public_key` | string | Payments page | Paystack public key |
+| `paystack_secret_key` | string | Payments page | Paystack secret key |
+| `preferred_online_gateway` | `stripe` or `paystack` | Payments page | Active online provider |
 | `theme_primary_color` | string (hex) | Theme page | Main brand color (e.g. #FF8C00) |
 | `theme_background_color`| string (hex) | Theme page | Site-wide background color |
 | `theme_surface_color` | string (hex) | Theme page | Card and surface background color |

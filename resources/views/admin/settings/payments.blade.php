@@ -17,44 +17,87 @@
         </button>
     </div>
 
-    {{-- Stripe --}}
-    <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
+    {{-- Gateway Selection --}}
+    <div class="card mb-3 border-jabulani">
+        <div class="card-header bg-jabulani-light">
             <div class="d-flex align-items-center gap-2">
-                <i class="fab fa-stripe fa-lg" style="color: #635bff;"></i>
-                <span class="fw-bold" style="font-size: 0.83rem;">Stripe Online Payments</span>
-            </div>
-            <div class="form-check form-switch mb-0">
-                <input class="form-check-input" type="checkbox" name="stripe_enabled" value="1"
-                       id="stripe_enabled" {{ ($settings['stripe_enabled'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="stripe_enabled" style="font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                    Enable Gateway
-                </label>
+                <i class="fas fa-toggle-on text-jabulani"></i>
+                <span class="fw-bold" style="font-size: 0.83rem;">Active Gateway Strategy</span>
             </div>
         </div>
         <div class="card-body">
-            <div class="alert alert-info mb-3 py-2">
-                <i class="fas fa-info-circle me-2" style="color: var(--info-color);"></i>
-                Collecting payments online requires a Stripe account. Find your keys in the
-                <a href="https://dashboard.stripe.com/apikeys" target="_blank"
-                   style="color: var(--orange-400); text-decoration: underline; font-weight: 600;">Stripe Dashboard</a>.
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <div class="fw-bold mb-1" style="font-size: 0.8rem;">Preferred Online Gateway</div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Choose which provider processes the "Online Payment" option on checkout.</div>
+                </div>
+                <div class="col-md-5">
+                    <select name="preferred_online_gateway" class="form-select border-jabulani">
+                        <option value="stripe" {{ ($settings['preferred_online_gateway'] ?? 'stripe') == 'stripe' ? 'selected' : '' }}>Stripe (Global / Cards)</option>
+                        <option value="paystack" {{ ($settings['preferred_online_gateway'] ?? '') == 'paystack' ? 'selected' : '' }}>Paystack (Africa / Multi-Option)</option>
+                    </select>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Stripe Public Key (Publishable)</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-key"></i></span>
-                        <input type="text" name="stripe_public_key" class="form-control"
-                               value="{{ $settings['stripe_public_key'] ?? '' }}" placeholder="pk_test_...">
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            {{-- Stripe --}}
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fab fa-stripe fa-lg" style="color: #635bff;"></i>
+                        <span class="fw-bold" style="font-size: 0.83rem;">Stripe Config</span>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" name="stripe_enabled" value="1"
+                               id="stripe_enabled" {{ ($settings['stripe_enabled'] ?? '') == '1' ? 'checked' : '' }}>
+                        <label class="form-check-label" for="stripe_enabled" style="font-size: 0.65rem; font-weight: 700;">
+                            ENABLE
+                        </label>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Stripe Secret Key</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                        <input type="password" name="stripe_secret_key" class="form-control"
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size: 0.75rem;">Public Key</label>
+                        <input type="text" name="stripe_public_key" class="form-control form-control-sm"
+                               value="{{ $settings['stripe_public_key'] ?? '' }}" placeholder="pk_test_...">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size: 0.75rem;">Secret Key</label>
+                        <input type="password" name="stripe_secret_key" class="form-control form-control-sm"
                                value="{{ $settings['stripe_secret_key'] ?? '' }}" placeholder="sk_test_...">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            {{-- Paystack --}}
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="https://paystack.com/assets/img/login/paystack-logo.png" height="18" alt="Paystack" style="filter: brightness(0) invert(1);">
+                        <span class="fw-bold" style="font-size: 0.83rem;">Paystack Config</span>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" name="paystack_enabled" value="1"
+                               id="paystack_enabled" {{ ($settings['paystack_enabled'] ?? '') == '1' ? 'checked' : '' }}>
+                        <label class="form-check-label" for="paystack_enabled" style="font-size: 0.65rem; font-weight: 700;">
+                            ENABLE
+                        </label>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size: 0.75rem;">Public Key</label>
+                        <input type="text" name="paystack_public_key" class="form-control form-control-sm"
+                               value="{{ $settings['paystack_public_key'] ?? '' }}" placeholder="pk_test_...">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size: 0.75rem;">Secret Key</label>
+                        <input type="password" name="paystack_secret_key" class="form-control form-control-sm"
+                               value="{{ $settings['paystack_secret_key'] ?? '' }}" placeholder="sk_test_...">
                     </div>
                 </div>
             </div>

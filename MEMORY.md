@@ -1,6 +1,6 @@
 # Project Memory — Jabulani Store
 
-> **Last Updated**: 2026-04-06
+> **Last Updated**: 2026-04-06 (Paystack Integration Update)
 > **Live URL**: https://store.jabulanigroupofcompanies.co.za
 > **Local URL**: http://jabulani-system.test
 > **Deployment**: Git push (local) → `git pull` on Hostinger (live). Uses `.env.production` on server.
