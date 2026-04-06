@@ -34,8 +34,8 @@ class SocialAuthController extends Controller
                 $user->google_refresh_token = $googleUser->refreshToken ?? $user->google_refresh_token;
 
                 // Ensure they are marked as verified since Google has already verified them
-                if (!$user->email_verified_at) {
-                    $user->email_verified_at = now();
+                if (!$user->hasVerifiedEmail()) {
+                    $user->markEmailAsVerified();
                 }
 
                 $user->save();

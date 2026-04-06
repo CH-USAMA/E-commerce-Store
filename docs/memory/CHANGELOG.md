@@ -5,6 +5,32 @@
 
 ---
 
+## [2026-04-06] — Global Theme Engine & Admin Permission System
+
+**Type**: Feature & Security Hardening  
+**Files Changed**: `User.php`, `web.php`, `Kernel.php`, `CheckPermission.php`, `UserController.php`, `SystemController.php`, `frontend.blade.php`, `admin.blade.php`, `user.blade.php`, `home.blade.php`, `theme.blade.php`, `SocialAuthController.php`, `AuthController.php`
+
+### 🎨 Global Theme Customization
+- **Custom Theme Engine**: Implemented a dynamic theme system in the Admin Panel (System > Theme Settings).
+- **Dynamic CSS Variables**: Injected `--brand-primary`, `--brand-primary-rgb`, `--bg-main`, `--bg-surface`, and `--text-primary` into all layouts. All hardcoded yellow/gold accents replaced with these variables.
+- **Visual Polish**: Removed hardcoded yellow `sepia` and `hue-rotate` filters from category images. Implemented dynamic RGBA shadow calculation based on primary color.
+- **Contrast Logic**: Theme automatically adjusts primary text color (black/white) based on the background to ensure readability.
+
+### 🔐 Admin Permission System (RBAC Lite)
+- **Granular Permissions**: Added a `permissions` JSON column to the `users` table.
+- **Module Access**: Admins can now be restricted to specific modules: `manage_products`, `manage_orders`, `manage_content`, `manage_users`, `manage_settings`, `view_analytics`.
+- **Dynamic Sidebar**: Sidebar links and dashboard stats now hide/show based on the logged-in user's assigned permissions.
+- **Permission Middleware**: Created `CheckPermission` middleware to enforce route-level security.
+
+### 🛠️ Auth & System Fixes
+- **Social Auth Fix**: Added `email_verified_at` to `User::$fillable`. Google logins now correctly mark users as verified without sending redundant verification emails.
+- **Manual Registration**: Explicitly called `sendEmailVerificationNotification()` in `AuthController` to ensure delivery.
+- **Regex Repair**: Fixed regex delimiter issues in `SystemController`.
+
+**Deploy**: `git pull` + `php artisan migrate` + `php artisan route:clear` + `php artisan view:clear`.
+
+---
+
 ## [2026-04-02] — AIO (AI Optimization) & llms.txt Implementation
 
 **Type**: SEO & AI Web Scraper Optimization

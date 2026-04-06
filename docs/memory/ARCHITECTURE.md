@@ -28,6 +28,7 @@
 | `role:admin` | Custom | `users.role === 'admin'` |
 | `role:manager` | Custom | `users.role === 'manager'` |
 | `role:user` | Custom | `users.role === 'user'` |
+| `permission:{name}` | Custom | Checks `users.permissions` JSON for `{name}` |
 | `profile.complete` | Custom | Redirects to `/profile/complete` if phone missing |
 | `throttle:6,1` | Built-in | Rate limiting (6 req/min) on auth and contact forms |
 | `signed` | Built-in | Email verification link validation |
@@ -46,7 +47,7 @@
 | `/cart` | `cart.` | `web` | Cart (session-based) |
 | `/checkout` | `checkout.` | `profile.complete` | Checkout (guest or auth) |
 | `/user` | `user.` | `auth,verified,role:user,profile.complete` | Customer portal |
-| `/admin` | `admin.` | `auth,role:admin` | Admin portal |
+| `/admin` | `admin.` | `auth,role:admin,permission:{module}` | Admin portal (PBAC) |
 | `/branch` | `branch.` | `auth,role:manager` | Branch manager portal |
 
 ---

@@ -49,6 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'google_refresh_token',
         'role',
         'permissions',
+        'email_verified_at',
     ];
 
     /**

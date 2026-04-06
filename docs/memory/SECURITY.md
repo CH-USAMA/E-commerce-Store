@@ -45,6 +45,14 @@ Custom middleware checks `auth()->user()->role === $role`.
 - 403 returned if role doesn't match
 - Unauthenticated → redirected to login
 
+### PBAC (Permission-Based Access Control)
+As of [2026-04-06], the system supports granular module-level permissions for Admin/Staff users.
+- **Middleware**: `CheckPermission` (alias: `permission:{name}`)
+- **Data Source**: `users.permissions` (JSON column)
+- **Logic**: `auth()->user()->hasPermission($name)` check.
+- **Super Admin Override**: Users with `role === 'admin'` and no permissions set (or `'all'` in permissions) automatically have full access.
+- **Available Modules**: `manage_products`, `manage_orders`, `manage_content`, `manage_users`, `manage_settings`, `view_analytics`.
+
 ---
 
 ## 3. URL Security — ID Obfuscation
@@ -77,9 +85,11 @@ Custom middleware checks `auth()->user()->role === $role`.
 
 | Model | Protected Fields (NOT in fillable) |
 |:---|:---|
-| `User` | `role`, `uuid`, `id`, `email_verified_at` |
+| `User` | `role`, `uuid`, `id` |
 | `Order` | `uuid`, `id` |
 | `Product` | `uuid`, `id` |
+
+*Note: `email_verified_at` was added to User::$fillable on [2026-04-06] to support seamless Social Auth account creation.*
 
 ---
 

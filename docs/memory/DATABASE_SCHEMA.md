@@ -35,6 +35,7 @@
 | `google_id` | varchar null | Social auth |
 | `google_token` | text null | |
 | `google_refresh_token` | text null | |
+| `permissions` | json null | Granular module access (e.g., `manage_products`) |
 | `remember_token` | varchar(100) null | |
 | `created_at` / `updated_at` | timestamps | |
 
@@ -156,6 +157,12 @@
 | `invoice_footer_text` | string | Footer on PDF |
 | `invoice_logo` | path string | Stored in `storage/app/public/settings/` |
 | `invoice_eft_accounts` | JSON array | Array of bank account objects |
+| `theme_primary_color` | string | Hex code (e.g., `#FF8C00`) |
+| `theme_text_color` | string | Secondary text color |
+| `theme_primary_text_color` | string | Text color ON primary background (auto-contrast) |
+| `theme_background_color` | string | Main site background |
+| `theme_surface_color` | string | Card/Surface background |
+| `theme_muted_text_color` | string | Lower contrast text |
 
 ### `notifications`
 | Column | Type | Notes |

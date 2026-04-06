@@ -1,6 +1,6 @@
 # Project Memory — Jabulani Store
 
-> **Last Updated**: 2026-04-02
+> **Last Updated**: 2026-04-06
 > **Live URL**: https://store.jabulanigroupofcompanies.co.za
 > **Local URL**: http://jabulani-system.test
 > **Deployment**: Git push (local) → `git pull` on Hostinger (live). Uses `.env.production` on server.
@@ -78,6 +78,10 @@ The store MUST use simple, conventional e-commerce terminology. Avoid technical/
 - Use: **Checkout** (Not Terminal/Authorization)
 - Use: **Items** (Not Artifacts/Units/Inventory units)
 - Keep labels friendly and shopper-focused (e.g., "Your Items" vs "Line Item Manifest").
+### Rule 8 — Permission Integrity (PBAC)
+All NEW admin routes or modules MUST be registered with the `permission:{name}` middleware.
+- Sidebar links must be wrapped in `@if(auth()->user()->hasPermission('...'))`
+- Check `docs/memory/SECURITY.md` for the list of existing module permissions.
 
 ---
 

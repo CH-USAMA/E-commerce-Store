@@ -48,8 +48,11 @@
 | GET | `/admin/settings/invoice` | `Admin\SystemController@invoiceSettings` | `admin.settings.invoice` |
 | POST | `/admin/settings/invoice` | `Admin\SystemController@updateInvoiceSettings` | `admin.settings.invoice.update` |
 | POST | `/admin/settings/test-email` | `Admin\SystemController@sendTestEmail` | `admin.settings.test-email` |
+| GET | `/admin/settings/theme` | `Admin\SystemController@themeSettings` | `admin.settings.theme` |
+| POST | `/admin/settings/theme` | `Admin\SystemController@updateThemeSettings` | `admin.settings.theme.update` |
 
-**All admin routes**: `auth, role:admin` middleware.
+**All admin routes**: `auth, role:admin` middleware.  
+**PBAC Enforcement**: Specific modules are further protected by the `permission:{module}` middleware (e.g., `manage_products`, `manage_orders`).
 
 ---
 
@@ -71,6 +74,12 @@ All stored in `settings` DB table. Managed via `Admin > Settings`.
 | `invoice_footer_text` | string | Invoice page | Footer text on PDF |
 | `invoice_logo` | file path | Invoice page | Logo on PDF (`storage/settings/{file}`) |
 | `invoice_eft_accounts` | JSON array | Invoice page | Bank account objects shown on checkout and PDF |
+| `theme_primary_color` | string (hex) | Theme page | Main brand color (e.g. #FF8C00) |
+| `theme_background_color`| string (hex) | Theme page | Site-wide background color |
+| `theme_surface_color` | string (hex) | Theme page | Card and surface background color |
+| `theme_text_color` | string (hex) | Theme page | Primary text color |
+| `theme_primary_text_color`| string (hex) | Theme page | Text color on primary background (auto-calc) |
+| `theme_muted_text_color` | string (hex) | Theme page | Muted/Secondary text color |
 
 ### EFT Accounts JSON Structure
 ```json
