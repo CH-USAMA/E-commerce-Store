@@ -86,6 +86,7 @@ All stored in `settings` DB table. Managed via `Admin > Settings`.
 | `theme_text_color` | string (hex) | Theme page | Primary text color |
 | `theme_primary_text_color`| string (hex) | Theme page | Text color on primary background (auto-calc) |
 | `theme_muted_text_color` | string (hex) | Theme page | Muted/Secondary text color |
+| `hide_pricing` | `0` or `1` | Payments page | When `1`, hides prices site-wide and replaces Add to Cart with a WhatsApp "Contact Us" CTA on every product; cart/checkout routes redirect to `/contact` (guarded by `pricing.enabled` middleware) |
 
 ### EFT Accounts JSON Structure
 ```json

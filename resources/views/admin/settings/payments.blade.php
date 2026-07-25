@@ -104,6 +104,33 @@
         </div>
     </div>
 
+    {{-- Storefront Pricing --}}
+    <div class="card mb-3 border-jabulani">
+        <div class="card-header bg-jabulani-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-tag" style="color: var(--orange-400);"></i>
+                    <span class="fw-bold" style="font-size: 0.83rem;">Storefront Pricing</span>
+                </div>
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" name="hide_pricing" value="1"
+                           id="hide_pricing" {{ ($settings['hide_pricing'] ?? '') == '1' ? 'checked' : '' }}>
+                    <label class="form-check-label" for="hide_pricing" style="font-size: 0.65rem; font-weight: 700;">
+                        ENABLE
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="fw-bold mb-1" style="font-size: 0.8rem;">Hide Pricing Site-Wide (Inquiry Mode)</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">
+                When enabled, prices are hidden everywhere on the storefront and replaced with a "WhatsApp Us" button on every product.
+                Add to Cart, the cart icon, and checkout are disabled while this is on — customers place orders by contacting you directly.
+                Turn this off the moment your pricing is verified to instantly restore normal cart &amp; checkout.
+            </div>
+        </div>
+    </div>
+
     {{-- Delivery Logistics --}}
     <div class="card mb-3">
         <div class="card-header">

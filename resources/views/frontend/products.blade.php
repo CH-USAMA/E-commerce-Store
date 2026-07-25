@@ -146,10 +146,7 @@
                                         @endif
                                         {{-- Quick Actions on Hover --}}
                                         <div class="absolute inset-0 bg-dark/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <button onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }})"
-                                                class="bg-gold-400 text-dark font-black px-8 py-3.5 rounded-2xl text-[11px] uppercase tracking-widest hover:bg-white transition transform translate-y-4 group-hover:translate-y-0 duration-500 shadow-xl flex items-center gap-2">
-                                                <i class="fas fa-cart-plus text-sm"></i> Add to Cart
-                                            </button>
+                                            @include('frontend.partials.price_or_contact', ['product' => $product])
                                         </div>
                                     </div>
                                     {{-- Info --}}
@@ -161,7 +158,11 @@
                                             <a href="{{ route('product.detail', $product->slug) }}">{{ $product->name }}</a>
                                         </h3>
                                         <div class="flex items-center justify-between">
-                                            <span class="text-gold-400 font-black text-xl">R {{ number_format($product->price, 2) }}</span>
+                                            @if(($settings['hide_pricing'] ?? '0') != '1')
+                                                <span class="text-gold-400 font-black text-xl">R {{ number_format($product->price, 2) }}</span>
+                                            @else
+                                                <span class="text-gold-400 font-black text-xs uppercase tracking-widest">Contact for Price</span>
+                                            @endif
                                             <a href="{{ route('product.detail', $product->slug) }}" class="text-dark-muted hover:text-gold-400 transition text-xs font-bold">
                                                 View Details <i class="fas fa-arrow-right ml-1"></i>
                                             </a>

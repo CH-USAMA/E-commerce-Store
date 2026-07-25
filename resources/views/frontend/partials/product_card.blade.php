@@ -1,11 +1,13 @@
 <div
     class="group relative bg-[#0d0d0d] rounded-[2.5rem] border border-white/5 hover:border-gold-400/20 transition-all duration-500 overflow-hidden">
     {{-- Price Badge --}}
-    <div class="absolute top-6 left-6 z-20">
-        <span class="bg-gold-400 text-dark font-black px-4 py-2 rounded-2xl text-xs">
-            R {{ number_format($product->price, 2) }}
-        </span>
-    </div>
+    @if(($settings['hide_pricing'] ?? '0') != '1')
+        <div class="absolute top-6 left-6 z-20">
+            <span class="bg-gold-400 text-dark font-black px-4 py-2 rounded-2xl text-xs">
+                R {{ number_format($product->price, 2) }}
+            </span>
+        </div>
+    @endif
 
     {{-- Image --}}
     <div class="relative aspect-square overflow-hidden bg-dark-card">
@@ -28,10 +30,7 @@
         {{-- Quick Actions --}}
         <div
             class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <button onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }})"
-                class="bg-gold-400 text-dark font-black px-8 py-3.5 rounded-2xl text-[11px] uppercase tracking-widest hover:bg-white transition transform translate-y-4 group-hover:translate-y-0 duration-500 shadow-xl flex items-center gap-2">
-                <i class="fas fa-cart-plus text-sm"></i> Add to Cart
-            </button>
+            @include('frontend.partials.price_or_contact', ['product' => $product])
         </div>
     </div>
 

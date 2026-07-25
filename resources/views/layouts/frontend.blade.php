@@ -577,14 +577,16 @@
                     @endauth
 
                     <!-- Cart -->
-                    <a href="{{ route('cart') }}"
-                        class="relative w-12 h-12 flex items-center justify-center text-gray-300 hover:text-gold-400 hover:bg-white/5 rounded-2xl transition-all duration-300">
-                        <i class="fas fa-shopping-bag text-lg"></i>
-                        @php $cartQty = collect(session()->get('cart', []))->sum(); @endphp
-                        <span id="cart-badge"
-                            class="absolute -top-1 -right-1 bg-gold-400 text-dark text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-lg shadow-xl ring-4 ring-black/50"
-                            style="{{ $cartQty > 0 ? '' : 'display: none;' }}">{{ $cartQty }}</span>
-                    </a>
+                    @if(($settings['hide_pricing'] ?? '0') != '1')
+                        <a href="{{ route('cart') }}"
+                            class="relative w-12 h-12 flex items-center justify-center text-gray-300 hover:text-gold-400 hover:bg-white/5 rounded-2xl transition-all duration-300">
+                            <i class="fas fa-shopping-bag text-lg"></i>
+                            @php $cartQty = collect(session()->get('cart', []))->sum(); @endphp
+                            <span id="cart-badge"
+                                class="absolute -top-1 -right-1 bg-gold-400 text-dark text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-lg shadow-xl ring-4 ring-black/50"
+                                style="{{ $cartQty > 0 ? '' : 'display: none;' }}">{{ $cartQty }}</span>
+                        </a>
+                    @endif
 
                     <!-- Mobile Toggle -->
                     <button @click="mobileMenuOpen = !mobileMenuOpen"

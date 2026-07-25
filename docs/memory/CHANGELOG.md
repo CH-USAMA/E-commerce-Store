@@ -5,6 +5,18 @@
 
 ---
 
+## [2026-07-25] — Hide Pricing / Inquiry Mode
+
+**Type**: Feature (Storefront)  
+**Files Changed**: `SystemController.php`, `Kernel.php`, `CheckPricingEnabled.php` (new), `web.php`, `payments.blade.php`, `price_or_contact.blade.php` (new), `product_card.blade.php`, `products.blade.php`, `product-single.blade.php`, `layouts/frontend.blade.php`, `ADMIN_PANEL.md`
+
+- **New setting `hide_pricing`**: toggle on `Admin > Settings > Payments` ("Storefront Pricing" card). When enabled, hides prices site-wide (homepage carousels, shop/search listing, product detail page) and replaces Add to Cart with a WhatsApp "Contact Us" CTA (using `invoice_company_phone`, no price in the prefilled message).
+- **Route guard**: new `pricing.enabled` middleware (`CheckPricingEnabled`) wraps all `/cart/*` and `/checkout/*` routes (except `/cart/count`) and redirects to `/contact` while `hide_pricing` is on. `/order-success` and `/track-order` remain unguarded so existing orders still work.
+- **Header cart icon** hidden while `hide_pricing` is on.
+- SEO JSON-LD price schema and `llms.txt`/`llms-full.txt` catalog pages intentionally left unchanged (out of scope).
+
+---
+
 ## [2026-04-06] — Paystack Integration & Gateway Selection
 
 **Type**: Feature (Payments)  

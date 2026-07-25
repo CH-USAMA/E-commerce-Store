@@ -86,20 +86,23 @@ Route::get('auth/google/callback', [\App\Http\Controllers\Auth\SocialAuthControl
 Route::get('paystack/callback', [\App\Http\Controllers\PaystackController::class, 'callback'])->name('paystack.callback');
 
 // Cart Routes
-Route::get('/cart', [\App\Http\Controllers\CartController::class, 'index'])->name('cart');
-Route::post('/cart/add', [\App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
-Route::post('/cart/update', [\App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
-Route::post('/cart/remove', [\App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/count', [\App\Http\Controllers\CartController::class, 'count'])->name('cart.count');
-Route::post('/cart/nearest-store', [\App\Http\Controllers\CartController::class, 'nearestStore'])->name('cart.nearest-store');
-Route::get('/cart/clear', [\App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
-// Checkout Routes
-Route::get('/checkout/auth', [\App\Http\Controllers\CartController::class, 'checkoutAuth'])->name('checkout.auth');
-Route::post('/checkout/guest', [\App\Http\Controllers\CartController::class, 'guestCheckout'])->name('checkout.guest');
 
-Route::middleware(['profile.complete'])->group(function () {
-    Route::get('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
-    Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'processCheckout'])->name('checkout.process');
+Route::middleware(['pricing.enabled'])->group(function () {
+    Route::get('/cart', [\App\Http\Controllers\CartController::class, 'index'])->name('cart');
+    Route::post('/cart/add', [\App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update', [\App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/remove', [\App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/nearest-store', [\App\Http\Controllers\CartController::class, 'nearestStore'])->name('cart.nearest-store');
+    Route::get('/cart/clear', [\App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
+    // Checkout Routes
+    Route::get('/checkout/auth', [\App\Http\Controllers\CartController::class, 'checkoutAuth'])->name('checkout.auth');
+    Route::post('/checkout/guest', [\App\Http\Controllers\CartController::class, 'guestCheckout'])->name('checkout.guest');
+
+    Route::middleware(['profile.complete'])->group(function () {
+        Route::get('/checkout', [\App\Http\Controllers\CartController::class, 'checkout'])->name('checkout');
+        Route::post('/checkout', [\App\Http\Controllers\CartController::class, 'processCheckout'])->name('checkout.process');
+    });
 });
 
 Route::get('/order-success', [\App\Http\Controllers\CartController::class, 'orderSuccess'])->name('order.success');

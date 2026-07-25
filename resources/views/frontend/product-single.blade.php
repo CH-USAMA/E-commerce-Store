@@ -109,47 +109,64 @@
 
                     <div
                         class="card-dark p-8 rounded-[2rem] border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent shadow-2xl relative">
+                        @php
+                            $hidePricing = ($settings['hide_pricing'] ?? '0') == '1';
+                            $waPhone = preg_replace('/[^0-9]/', '', $settings['invoice_company_phone'] ?? '27660684585');
+                            $waMessage = $hidePricing
+                                ? "Hi, I'm interested in {$product->name}"
+                                : "Hi, I am interested in {$product->name} (R " . number_format($product->price, 2) . ")";
+                            $waLink = "https://wa.me/{$waPhone}?text=" . urlencode($waMessage);
+                        @endphp
                         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-8">
-                            <div>
-                                <p class="text-[8px] font-bold uppercase tracking-[0.4em] text-gold-400/60 mb-2">Price</p>
-                                <div class="flex items-baseline gap-1.5">
-                                    <span class="text-xs font-bold text-gold-400/80">R</span>
-                                    <span
-                                        class="text-3xl font-bold text-white tracking-tight">{{ number_format($product->price, 2) }}</span>
-                                    <span
-                                        class="text-dark-muted font-bold text-[9px] uppercase tracking-widest border-l border-white/10 pl-2 ml-1">Incl.
-                                        VAT excluded</span>
+                            @if(!$hidePricing)
+                                <div>
+                                    <p class="text-[8px] font-bold uppercase tracking-[0.4em] text-gold-400/60 mb-2">Price</p>
+                                    <div class="flex items-baseline gap-1.5">
+                                        <span class="text-xs font-bold text-gold-400/80">R</span>
+                                        <span
+                                            class="text-3xl font-bold text-white tracking-tight">{{ number_format($product->price, 2) }}</span>
+                                        <span
+                                            class="text-dark-muted font-bold text-[9px] uppercase tracking-widest border-l border-white/10 pl-2 ml-1">Incl.
+                                            VAT excluded</span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div
-                                class="flex items-center gap-3 bg-black/40 border border-white/10 rounded-xl p-1 shadow-inner">
-                                <button @click="qty = Math.max(1, qty-1)"
-                                    class="w-10 h-10 flex items-center justify-center text-dark-muted hover:text-gold-400 transition-all rounded-lg hover:bg-white/5">
-                                    <i class="fas fa-minus text-[10px]"></i>
-                                </button>
-                                <input type="text" x-model="qty" readonly
-                                    class="w-8 bg-transparent text-center text-base font-black text-white focus:outline-none">
-                                <button @click="qty = Math.min(999, qty+1)"
-                                    class="w-10 h-10 flex items-center justify-center text-dark-muted hover:text-gold-400 transition-all rounded-lg hover:bg-white/5">
-                                    <i class="fas fa-plus text-[10px]"></i>
-                                </button>
-                            </div>
+                                <div
+                                    class="flex items-center gap-3 bg-black/40 border border-white/10 rounded-xl p-1 shadow-inner">
+                                    <button @click="qty = Math.max(1, qty-1)"
+                                        class="w-10 h-10 flex items-center justify-center text-dark-muted hover:text-gold-400 transition-all rounded-lg hover:bg-white/5">
+                                        <i class="fas fa-minus text-[10px]"></i>
+                                    </button>
+                                    <input type="text" x-model="qty" readonly
+                                        class="w-8 bg-transparent text-center text-base font-black text-white focus:outline-none">
+                                    <button @click="qty = Math.min(999, qty+1)"
+                                        class="w-10 h-10 flex items-center justify-center text-dark-muted hover:text-gold-400 transition-all rounded-lg hover:bg-white/5">
+                                        <i class="fas fa-plus text-[10px]"></i>
+                                    </button>
+                                </div>
+                            @else
+                                <div>
+                                    <p class="text-[8px] font-bold uppercase tracking-[0.4em] text-gold-400/60 mb-2">Pricing</p>
+                                    <p class="text-xl font-bold text-white tracking-tight">Contact us for a quote</p>
+                                </div>
+                            @endif
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8">
-                            <button
-                                @click="$data.adding = true; fetch('/cart/add', {method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({product_id:{{ $product->id }},quantity:qty})}).then(r=>r.json()).then(data=>{$data.adding=false;window.updateCartBadge(data.cart_count);window.showToast(data.message);})"
-                                :disabled="adding"
-                                class="btn-gold flex items-center justify-center gap-2 py-4 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:-translate-y-1 active:scale-95">
-                                <i class="fas" :class="adding ? 'fa-spinner fa-spin' : 'fa-shopping-cart'"></i>
-                                <span x-text="adding ? 'Processing...' : 'Add to Cart'"></span>
-                            </button>
+                        <div class="grid grid-cols-1 {{ $hidePricing ? '' : 'sm:grid-cols-2' }} gap-3 mt-8">
+                            @if(!$hidePricing)
+                                <button
+                                    @click="$data.adding = true; fetch('/cart/add', {method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({product_id:{{ $product->id }},quantity:qty})}).then(r=>r.json()).then(data=>{$data.adding=false;window.updateCartBadge(data.cart_count);window.showToast(data.message);})"
+                                    :disabled="adding"
+                                    class="btn-gold flex items-center justify-center gap-2 py-4 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:-translate-y-1 active:scale-95">
+                                    <i class="fas" :class="adding ? 'fa-spinner fa-spin' : 'fa-shopping-cart'"></i>
+                                    <span x-text="adding ? 'Processing...' : 'Add to Cart'"></span>
+                                </button>
+                            @endif
 
-                            <a href="https://wa.me/27660684585?text=Hi, I am interested in {{ urlencode($product->name) }} (R {{ number_format($product->price, 2) }})"
+                            <a href="{{ $waLink }}"
                                 target="_blank"
-                                class="flex items-center justify-center gap-2 py-4 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest text-white border border-white/10 bg-white/5 hover:bg-white/10 transition-all hover:border-gold-400/30">
-                                <i class="fab fa-whatsapp text-base text-green-500"></i> WhatsApp
+                                class="flex items-center justify-center gap-2 py-4 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:border-gold-400/30 {{ $hidePricing ? 'btn-gold' : 'text-white border border-white/10 bg-white/5 hover:bg-white/10' }}">
+                                <i class="fab fa-whatsapp text-base {{ $hidePricing ? '' : 'text-green-500' }}"></i> {{ $hidePricing ? 'Contact Us' : 'WhatsApp' }}
                             </a>
                         </div>
                     </div>

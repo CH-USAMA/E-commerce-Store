@@ -37,11 +37,13 @@ class SystemController extends Controller
             'paystack_enabled'    => 'nullable|in:0,1',
             'preferred_online_gateway' => 'nullable|in:stripe,paystack',
             'max_delivery_km'   => 'nullable|numeric|min:0',
+            'hide_pricing'      => 'nullable|in:0,1',
         ]);
 
         // Standard checkbox behavior
         $data['stripe_enabled'] = $request->has('stripe_enabled') ? '1' : '0';
         $data['paystack_enabled'] = $request->has('paystack_enabled') ? '1' : '0';
+        $data['hide_pricing'] = $request->has('hide_pricing') ? '1' : '0';
 
         foreach ($data as $key => $value) {
             \App\Models\Setting::updateOrCreate(['key' => $key], ['value' => $value ?? '']);

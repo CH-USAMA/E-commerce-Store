@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\CheckRole::class,
         'permission' => \App\Http\Middleware\CheckPermission::class,
         'profile.complete' => \App\Http\Middleware\CheckProfileCompletion::class,
+        'pricing.enabled' => \App\Http\Middleware\CheckPricingEnabled::class,
     ];
 }
