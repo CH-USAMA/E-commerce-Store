@@ -39,10 +39,10 @@
 
                     {{-- Content --}}
                     <div class="relative z-20 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-                        <div class="max-w-4xl pt-32 md:pt-40">
+                        <div class="max-w-xl md:max-w-4xl pt-40">
                             {{-- Bullet Points --}}
-                            <div class="flex flex-wrap items-center gap-3 mb-8 animate-fade-in-up" style="animation-delay: 0.1s;">
-                                @foreach(['Hardware stores', 'Crush & Quarry', 'Building material', 'Construction solutions'] as $bullet)
+                            <div class="flex flex-wrap items-center gap-1 md:gap-2 mb-8 animate-fade-in-up" style="animation-delay: 0.1s;">
+                                @foreach(['Hardware stores', 'Crush & Quarry', 'Building material'] as $bullet)
                                     <div
                                         class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-white/10 backdrop-blur-md hover:bg-black/60 transition-colors">
                                         <span
@@ -55,7 +55,7 @@
                             </div>
 
                             <h1
-                                class="text-5xl md:text-7xl font-black text-white leading-[1.1] mb-8 tracking-tighter uppercase italic drop-shadow-2xl">
+                                class="text-4xl lg:text-6xl font-black text-white leading-[1.1] mb-8 tracking-tighter uppercase italic drop-shadow-2xl">
                                 {!! str_replace('Jabulani Group of Companies', '<span class="gradient-text">Jabulani Group</span> <br><span class="text-4xl md:text-6xl text-white/90">of Companies</span>', $banner->title) !!}
                             </h1>
 
@@ -65,15 +65,15 @@
 
                             <div class="flex flex-wrap items-center gap-6">
                                 <a href="{{ route('products') }}"
-                                    class="group relative px-10 py-5 bg-gold-400 overflow-hidden rounded-full transition-all duration-300 hover:shadow-[0_0_30px_rgba(var(--brand-primary-rgb),0.4)] hover:-translate-y-1">
+                                    class="group relative px-5 py-2 bg-gold-400 overflow-hidden rounded-full transition-all duration-300 hover:shadow-[0_0_30px_rgba(var(--brand-primary-rgb),0.4)] hover:-translate-y-1">
                                     <span
-                                        class="relative z-10 text-dark font-black uppercase tracking-widest text-sm flex items-center gap-2">
+                                        class="relative z-10 text-dark font-black uppercase tracking-widest text-xs flex items-center gap-2">
                                         Shop Now <i
                                             class="fas fa-shopping-bag text-xs transition-transform group-hover:scale-125"></i>
                                     </span>
                                 </a>
                                 <a href="{{ route('contact') }}"
-                                    class="px-10 py-5 border-2 border-white/20 rounded-full text-white font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black hover:border-white transition-all duration-300 backdrop-blur-sm">
+                                    class="px-5 py-2 border-2 border-white/20 rounded-full text-white font-black uppercase tracking-widest text-xs hover:bg-white hover:text-black hover:border-white transition-all duration-300 backdrop-blur-sm">
                                     Get Quote
                                 </a>
                             </div>
@@ -115,7 +115,7 @@
         class="py-4 bg-gold-400 border-y border-gold-400/20 overflow-hidden whitespace-nowrap flex relative z-20 shadow-[0_10px_30px_rgba(var(--brand-primary-rgb),0.15)]">
         <div class="flex animate-marquee items-center">
             @for($i = 0; $i < 6; $i++)
-                @foreach(['JABULANI HARDWARE', 'JABULANI CRUSH & QUARRY', 'JABULANI BUILDING MATERIAL', 'JABULANI CONSTRUCTION'] as $item)
+                @foreach(['JABULANI HARDWARE', 'JABULANI CRUSH & QUARRY', 'JABULANI BUILDING MATERIAL'] as $item)
                     <span
                         class="flex items-center text-[12px] font-black text-dark/80 hover:text-dark transition-colors duration-300 uppercase tracking-[0.4em] px-12 cursor-default">
                         <i class="fas fa-certificate text-[10px] mr-12 text-dark/40 animate-pulse"></i>

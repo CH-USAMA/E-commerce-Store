@@ -17,3 +17,4 @@ yarn-error.log
 /.idea
 /.vscode
 backup-frontend.zip
+jabulani_db_export.sql
