@@ -126,6 +126,20 @@ Verified live: `/cart`, `/checkout`, `/checkout/auth` all 302 → `/contact`.
 
 ## Resolved Issues (Historical)
 
+### [2026-08-17] 500 on /admin/banners — stale route cache after deploy
+- **Symptom**: `/admin/banners` returned 500. Log: `Route [admin.banners.move] not defined.`
+- **Cause**: live had `bootstrap/cache/routes-v7.php` (dated Jul 25). While a route cache
+  exists, `routes/web.php` is **never read**, so the newly deployed `admin.banners.move`
+  route did not exist and the view's `route()` call threw. `config`, `view` and `cache` were
+  cleared on deploy — `route` was not.
+- **Fix**: `php artisan route:clear` on live. Recovery confirmed: last error 19:30:41, clean
+  from 19:42 onward.
+- **Prevention**: `route:clear` added as a mandatory step in `DEPLOYMENT.md` and `MEMORY.md`
+  Rule 2. The clears are idempotent — always run all of them.
+- **Note**: with `APP_DEBUG=false` the browser shows only a generic 500. This was the first
+  real exercise of reading `storage/logs/` instead of an Ignition page, which is the intended
+  workflow now.
+
 ### [2026-08-17] APP_DEBUG=true in Production
 - Any visitor triggering an unhandled exception got an Ignition page with stack traces,
   source excerpts, environment variables and DB credentials — no auth required

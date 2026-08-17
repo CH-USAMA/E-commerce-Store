@@ -189,8 +189,41 @@ git push origin master
 git branch -f backup-pre-<change> HEAD          # rollback point
 git fetch https://github.com/CH-USAMA/E-commerce-Store.git master
 git merge --ff-only FETCH_HEAD
+php artisan migrate --force                     # only if a migration landed
+php artisan route:clear                         # MANDATORY — see below
 php artisan view:clear
+php artisan config:clear
+git push origin main                            # keep the canonical repo in sync
 ```
+
+### `route:clear` is mandatory — this has already caused a production 500
+
+Live carries a cached `bootstrap/cache/routes-v7.php`. **While that file exists,
+`routes/web.php` is never read**, so a newly deployed route simply does not exist as far as
+the app is concerned. Every `route('new.name')` call then throws `Route [x] not defined`,
+which is a **500 on every page referencing it**.
+
+Happened 2026-08-17: `admin.banners.move` was deployed and `config`/`view`/`cache` were all
+cleared — but not `route`. `/admin/banners` returned 500 for about 12 minutes. The deploy
+output gave no hint; the only evidence was `storage/logs/laravel-YYYY-MM-DD.log`.
+
+The clears are cheap and idempotent, so run all of them every time rather than trying to
+decide which are needed.
+
+### Diagnosing a production 500
+
+`APP_DEBUG=false` (correctly), so the browser shows a generic page. The detail is in
+`storage/logs/laravel-YYYY-MM-DD.log` — daily rotation, 14-day retention:
+
+```bash
+f="storage/logs/laravel-$(date +%F).log"
+grep -n "production.ERROR" "$f" | tail -3          # headline messages
+ln=$(grep -n "production.ERROR" "$f" | tail -1 | cut -d: -f1)
+sed -n "${ln},$((ln+8))p" "$f"                     # that entry's first frames
+```
+
+Read the **headline** rather than the trace tail: `tail` alone lands you in the middle of a
+60-frame stack and shows middleware, not the cause.
 
 ### Upload limits — Hostinger already exceeds what the app needs
 

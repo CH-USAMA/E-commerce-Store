@@ -65,9 +65,26 @@ php artisan test && git push origin master
 git branch -f backup-pre-<change> HEAD                                  # rollback point
 git fetch https://github.com/CH-USAMA/E-commerce-Store.git master
 git merge --ff-only FETCH_HEAD                                          # can only ff or fail
+php artisan migrate --force                                             # only if a migration landed
+php artisan route:clear                                                 # ← MANDATORY, see below
 php artisan view:clear
+php artisan config:clear
 git push origin main                                                    # keep canonical in sync
 ```
+
+> ⚠️ **`route:clear` is not optional.** Live carries a cached
+> `bootstrap/cache/routes-v7.php`. While it exists, `routes/web.php` is **not read at all**,
+> so any newly added route is invisible and every `route('new.name')` call throws
+> `Route [x] not defined` — a **500 on every page that references it**.
+>
+> This happened on 2026-08-17: the `admin.banners.move` route was deployed, config/view/cache
+> were cleared but `route:clear` was not, and `/admin/banners` returned 500 for ~12 minutes.
+> Nothing in the deploy output hinted at it — the failure only surfaced when the page was
+> opened.
+>
+> Run `route:clear` on **every** deploy that touches `routes/*.php`. Cheap and idempotent, so
+> simply always run it. The same trap applies to `config:clear` when `.env` or `config/*`
+> changed, and `view:clear` for Blade edits.
 
 `--ff-only` is the safety property: it either fast-forwards cleanly or refuses, never
 half-applies a merge on production.
