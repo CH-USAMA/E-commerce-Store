@@ -1,6 +1,8 @@
 # Project Memory — Jabulani Store
 
-> **Last Updated**: 2026-08-17 (Image Upload Fixes + Deployment Reality Check)
+> **Last Updated**: 2026-08-17 (Image Uploads, Banner Ordering, APP_DEBUG, Payment-Flow Review)
+> **Commerce Status**: ⚠️ **Inquiry mode** — `hide_pricing = '1'`, no payment gateway
+> configured, enquiries route to WhatsApp. See Rule 10 before re-enabling pricing.
 > **Live URL**: https://store.jabulanigroupofcompanies.co.za
 > **Local URL**: http://jabulani-system.test
 > **Live path**: `~/domains/jabulanigroupofcompanies.co.za/public_html/store` (a *subdirectory* of the marketing site's `public_html`, alongside `agency/` and `POS/`)
@@ -156,6 +158,21 @@ works). Before diagnosing an environment-shaped bug:
 - Check `git status` on live before pulling — production may hold commits dev does not
 - Confirm the buggy code is actually deployed before claiming a fix is a production fix
 - When a doc contradicts a measurement, **fix the doc in the same change**
+
+### Rule 10 — Inquiry Mode Is Load-Bearing Security (as of 2026-08-17)
+The store runs with `hide_pricing = '1'`; there is **no payment gateway configured** and
+enquiries go to WhatsApp. `CheckPricingEnabled` redirects all `/cart/*` and `/checkout/*`
+traffic to `/contact`, and that middleware is currently the only thing keeping two serious
+payment defects unexploitable.
+
+**Before setting `hide_pricing = 0`, the 🔴 items in `KNOWN_ISSUES.md` must be fixed** —
+the Stripe bypass in `CartController::orderSuccess()` and the client-controlled upload
+filename in `processCheckout()`. Re-enabling pricing re-arms both immediately.
+
+Note `/order-success` and `/track-order` are deliberately **unguarded** so existing orders
+keep working, so the Stripe bypass is already partly live against pre-existing
+`pending` + `payfast` orders.
+
 
 ---
 

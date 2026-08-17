@@ -7,6 +7,80 @@
 
 ## Active Issues
 
+### 🛑 DO NOT set `hide_pricing = 0` until the payment findings below are fixed
+
+Reviewed 2026-08-17. The store currently runs in **inquiry mode** (`hide_pricing = '1'`),
+so `CheckPricingEnabled` redirects all `/cart/*` and `/checkout/*` traffic to `/contact`
+and enquiries go to WhatsApp. That middleware is the **only** thing preventing two serious
+defects from being exploitable. Re-enabling pricing re-arms both instantly.
+
+Verified live: `/cart`, `/checkout`, `/checkout/auth` all 302 → `/contact`.
+
+---
+
+### 🔴 Stripe payment can be bypassed (partly live even in inquiry mode)
+- **Where**: `CartController::orderSuccess()` (~line 487)
+- **Defect**: an order is marked `processing` purely because someone loaded
+  `/order-success?order_number=…`. There is **no** webhook, no `Session::retrieve()`, no
+  `payment_status` check — nothing contacts Stripe at all.
+- **Exploit**: check out with online payment, abandon the Stripe page, then visit
+  `/order-success?order_number=<your own number>`. Order is marked paid and a confirmation
+  email is sent. No guessing required.
+- **Why still partly live**: `/order-success` is deliberately unguarded so existing orders
+  keep working. As of 2026-08-17 there were **7 orders** in `pending` + `payfast` that could
+  each be flipped to `processing` by anyone holding the order number.
+- **Contrast**: `PaystackController::callback()` does this correctly — it calls
+  `transaction/verify/{reference}` and checks `data.status === 'success'`. Stripe never got
+  the same treatment.
+- **Cheap interim fix**: with no payment gateway configured, `orderSuccess()` has no reason
+  to mutate status at all. Deleting that block closes the finding with no design decision.
+- **Proper fix**: Stripe webhook (CSRF-exempt route + signature verification) as the source
+  of truth, optionally plus a `Session::retrieve()` check on return for instant feedback.
+
+### 🔴 Payment screenshot keeps the uploader's file extension
+- **Where**: `CartController::processCheckout()` (~line 374)
+- **Defect**: `$filename = time().'_'.$file->getClientOriginalName();` then moved into
+  `public/payments/`. The `mimes` rule validates file **content**, not the name — so a
+  genuine JPEG named `evil.php` passes and is written as a `.php` file into a web-served
+  directory. PHP hidden in an EXIF comment is a standard polyglot. Nothing in
+  `public/.htaccess` disables PHP execution in subdirectories, and there is no
+  `public/payments/.htaccess`.
+- **Not** a traversal risk — Symfony strips directory separators from `getClientOriginalName()`.
+- **Unconfirmed**: live execution was never demonstrated (writing a test `.php` into the
+  production web root was correctly refused). Treat as high-confidence, unverified.
+- **Fix**: use `Str::uuid().'.'.$ext` like `ValidatesImageUploads::storeImage()` already does,
+  and add a `public/payments/.htaccess` denying PHP execution.
+- **Dormant** while `hide_pricing = 1` (unreachable via the blocked checkout).
+
+### 🟠 Stock is never decremented by an order
+- Nothing in the checkout touches `ProductStoreStock` — it is only ever written by the admin
+  product screens and the branch stock page. Unlimited overselling; stock figures are
+  display-only; the `reserved` WMS state is never used by a real order.
+- Moot while no orders can be placed, but must be solved before pricing is re-enabled.
+
+### 🟡 VAT is always recorded as 0
+- `'vat' => 0` is hardcoded on both `Order` and `OrderItem` in `processCheckout()`, though
+  products carry `vat_rate` (default 15) and prices are documented as VAT-inclusive.
+- Invoices therefore cannot show a VAT breakdown — likely a problem for SARS tax invoices.
+
+### 🟡 `/track-order` is public and unthrottled
+- No auth and no rate limit; exposes `customer_name`, `customer_address`, `customer_city`,
+  `total` and `status`. Order numbers are `JB-YYYYMMDD-` + 6 chars of `[A-Z0-9]` (~2.2×10⁹),
+  so not casually enumerable, but the date prefix narrows the space and nothing slows attempts.
+- **Unaffected by inquiry mode** — this one is live now.
+
+### 🟡 `store_id` is not validated at checkout
+- `Store::find($request->store_id)` runs on unvalidated input and is absent from the
+  `validate()` list, so an order can be saved with a null or arbitrary `store_id`.
+
+### 🟡 `orders/fake` debug route ships in production
+- `Route::get('orders/fake', …'createFakeOrder')` — admin-only, but a debug artifact.
+
+> **Confirmed sound during the same review** (worth not re-auditing): order totals are
+> computed **server-side** from database prices — the cart session holds only
+> `product_id => quantity`, so prices cannot be tampered with. `User\OrderController::show()`
+> checks ownership and 403s. Admin order queries use the query builder throughout.
+
 ### ⚠️ EFT Screenshots Are World-Readable
 - **Risk**: Proof-of-payment uploads land in `public/payments/` and are served directly, so
   anyone who guesses or is given a filename can read a customer's bank details

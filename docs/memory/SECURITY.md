@@ -239,7 +239,52 @@ Expired** rather than a validation error.
 
 ---
 
-## 10. HTTPS & Transport
+## 10. Payment Flow Review (2026-08-17)
+
+The store is in **inquiry mode** (`hide_pricing = '1'`, no gateway configured, enquiries go
+to WhatsApp). `CheckPricingEnabled` redirects `/cart/*` and `/checkout/*` to `/contact` —
+verified live, all 302. That middleware is currently the **only** control preventing two
+serious defects from being exploitable.
+
+| Finding | Severity | Reachable in inquiry mode? |
+|:---|:---|:---|
+| Stripe payment bypass in `orderSuccess()` | 🔴 Critical | **Partly** — `/order-success` is unguarded |
+| Upload filename keeps client extension | 🔴 Critical | No — needs `processCheckout()` |
+| Stock never decremented | 🟠 High | No (moot, no orders) |
+| VAT always 0 | 🟡 Medium | No (moot) |
+| `/track-order` public + unthrottled | 🟡 Medium | **Yes — live now** |
+| `store_id` unvalidated | 🟡 Medium | No |
+| `orders/fake` debug route | 🟡 Low | Admin-only |
+
+Full detail and fixes in `KNOWN_ISSUES.md`. **Re-enabling pricing re-arms the 🔴 items —
+see `MEMORY.md` Rule 10.**
+
+### Why the Stripe bypass is still partly live
+
+`/order-success` and `/track-order` were deliberately left unguarded so existing orders keep
+working. `orderSuccess()` promotes any `pending` + `payfast` order to `processing` purely
+because the URL was loaded. As of 2026-08-17 there were **7** such orders, each flippable by
+anyone holding its order number — making an unpaid order look paid and emailing a
+confirmation.
+
+With no gateway configured, `orderSuccess()` has no legitimate reason to mutate status at
+all; deleting that block closes the finding without any design decision.
+
+### Verified sound in the same review
+
+Do not re-audit these without cause:
+
+- **Order totals are computed server-side** from database prices. The cart session holds only
+  `product_id => quantity`, so prices cannot be tampered with by the client.
+- `User\OrderController::show()` checks `user_id` ownership and 403s on mismatch.
+- Admin order queries use the query builder throughout — no string interpolation.
+- `PaystackController::callback()` verifies server-side against
+  `transaction/verify/{reference}` and requires `data.status === 'success'` before promoting
+  an order. This is the pattern Stripe should follow.
+
+---
+
+## 11. HTTPS & Transport
 
 - **Local**: HTTP (`http://jabulani-system.test`)
 - **Production**: HTTPS enforced (`Strict-Transport-Security` header + Hostinger SSL)
