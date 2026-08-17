@@ -1,3 +1,15 @@
+# Config dotfiles are readable by default here — .user.ini was being served with a
+# 200 over HTTP. Nothing secret in it, but server config should not be public.
+<FilesMatch "^\.(user\.ini|env|htaccess|gitignore)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
