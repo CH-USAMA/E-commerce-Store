@@ -137,15 +137,71 @@ git push                       # Push the revert
 - **Domain**: `store.jabulanigroupofcompanies.co.za`
 - **SSL**: Managed by Hostinger (Let's Encrypt auto-renewal)
 - **Document Root**: Must point to `/public` folder of the Laravel app
-- **Composer**: Available on Hostinger via SSH
-- **Upload limits — `public/.user.ini`**: Hostinger runs PHP-FPM/CGI and honours this file.
-  It sets `upload_max_filesize=16M` / `post_max_size=24M`, which the image upload rules
-  (`max:8192`) depend on being higher than they are. **This file must be deployed** — it is not
-  gitignored. Changes take up to 5 minutes to apply (`user_ini.cache_ttl`) or need a PHP-FPM
-  restart from the control panel. Verify after deploy with a temporary `phpinfo()` route, then
-  remove it. If the ceiling silently reverts to the 2M default, uploads over 8MB will fail with
-  a 419 Page Expired instead of a validation message.
-- **`composer dump-autoload` after pulling** any change to `composer.json`'s `autoload.files`
-  — `app/helpers.php` (which provides `image_url()`/`image_path()`, used by ~28 views) is loaded
-  through it. Without the dump, every page rendering an image throws
-  `Call to undefined function image_url()`.
+- **Composer**: Available on Hostinger via SSH at `/usr/local/bin/composer` (2.8.11); PHP 8.2.30
+
+### SSH access
+
+The live checkout is at
+`~/domains/jabulanigroupofcompanies.co.za/public_html/store` (note: `store/` is a
+subdirectory of the marketing site's `public_html`, alongside `agency/` and `POS/`).
+
+```
+ssh -p 65002 u175002435@82.25.96.26
+```
+
+Password auth and publickey are both accepted. Add keys under
+**hPanel → Websites → Advanced → SSH Access**. If SSH is unavailable, hPanel's
+**Advanced → GIT** page can pull without a shell.
+
+### Live git remote differs from the dev remote
+
+Measured 2026-08-17 — these are **two different GitHub repositories**:
+
+| | Branch | Remote |
+|---|---|---|
+| Live | `main` | `git@github.com:JabulaniGroup/Jabulani-E-commerce-Store.git` |
+| Dev | `master` | `https://github.com/CH-USAMA/E-commerce-Store.git` |
+
+Their histories share a common ancestor, so they merge cleanly, but **pushing to the
+dev repo does not deploy anything**. To deploy from the dev repo, merge live's branch
+locally first so the live pull is a pure fast-forward:
+
+```bash
+# locally — merge production's branch in, resolve, test
+git remote add live ssh://u175002435@82.25.96.26:65002/home/u175002435/domains/jabulanigroupofcompanies.co.za/public_html/store
+git fetch live main && git merge live/main
+git push origin master
+
+# on live — --ff-only can only fast-forward or fail safely, never half-apply
+git branch -f backup-pre-<change> HEAD          # rollback point
+git fetch https://github.com/CH-USAMA/E-commerce-Store.git master
+git merge --ff-only FETCH_HEAD
+php artisan view:clear
+```
+
+### Upload limits — Hostinger already exceeds what the app needs
+
+Measured on the live **web** SAPI 2026-08-17 (CLI `php -i` shows different values, and
+`.user.ini` never applies to CLI — you must check via a web request):
+
+```
+upload_max_filesize = 1536M    post_max_size = 1536M
+memory_limit        = 1536M    max_execution_time = 360
+```
+
+`public/.user.ini` is committed but **is not honoured on this host** — its 16M/24M values
+did not take effect. That is fine: the binding limit is Laravel's own `max:8192` (8MB) in
+`ValidatesImageUploads`, which produces a readable validation error. The file is kept only
+so a host with stingy defaults cannot reintroduce the discarded-POST → 419 failure; its
+16M ceiling still sits above the 8MB rule, so it can never downgrade this app.
+
+### `composer dump-autoload` is no longer mandatory
+
+`app/helpers.php` is listed in `composer.json`'s `autoload.files`, but that list is baked
+into `vendor/composer/autoload_files.php` and only refreshed by a dump — and `vendor/` is
+gitignored. `AppServiceProvider::register()` therefore also `require_once`s the file, so a
+bare `git pull` is sufficient. Run the dump anyway when you have a shell (it is the
+cleaner state), but a deploy without it will not break.
+
+New *classes* never need a dump: `optimize-autoloader` is on but
+`classmap-authoritative` is not, so PSR-4 resolves classes missing from the classmap.

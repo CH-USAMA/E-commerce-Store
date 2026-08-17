@@ -67,11 +67,15 @@ Six overlapping defects that together made banner/product image uploads look ran
    (only 2 of 35 admin views rendered errors), and the product/banner forms used zero `old()`.
    A rejected upload bounced back to a blank form with no message, which read as a hang.
    **Fix**: global `$errors` alert in the admin layout + `old()`/`@error` on the image forms.
-3. **PHP aborted large uploads before Laravel ran.** `upload_max_filesize=2M`,
-   `post_max_size=8M`. Over the post limit PHP discards all of `$_POST`, dropping the CSRF
-   token → 419 Page Expired. **Fix**: `public/.user.ini` raises the ceiling to 16M/24M, and
-   Laravel's `max:8192` now sits below it so oversize files get a readable message.
-   Gallery previously promised `max:5120` while PHP capped at 2M — unsatisfiable.
+3. **PHP aborted large uploads before Laravel ran** — *local only, NOT production.*
+   The `upload_max_filesize=2M` / `post_max_size=8M` ceiling was the **local dev PHP**.
+   Live (checked on the web SAPI 2026-08-17) allows 1536M, so the discarded-POST → 419
+   Page Expired path was never reachable in production. The gallery rule's impossible
+   `max:5120`-vs-2M contradiction was likewise local only.
+   **Fix**: `public/.user.ini` (16M/24M) guards a stingy host; it is **not honoured on
+   Hostinger** and is not needed there. The real binding limit is Laravel's `max:8192`.
+   Check upload limits with a **web** request — `.user.ini` never applies to CLI, so
+   `php -i` over SSH reports different numbers.
 4. **Requests that hung forever in the Network tab.** `SESSION_DRIVER=file`; PHP holds an
    exclusive `flock()` on the session file for a whole request, so an impatient second submit
    blocked on the lock doing no work. Time waiting in a syscall does not count toward
