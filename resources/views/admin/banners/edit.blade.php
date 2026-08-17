@@ -97,6 +97,19 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="mb-3">
+                            <label for="sort_order" class="form-label">Display Order</label>
+                            <input type="number" name="sort_order" id="sort_order" min="0"
+                                class="form-control @error('sort_order') is-invalid @enderror"
+                                value="{{ old('sort_order', $banner->sort_order) }}">
+                            @error('sort_order')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">
+                                Lowest number shows first in the slider. The arrows on the
+                                banners list are usually easier than editing this by hand.
+                            </div>
+                        </div>
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('admin.banners.index') }}" class="btn btn-outline-secondary">Back</a>
                             <button type="submit" class="btn btn-jabulani">Update Banner</button>

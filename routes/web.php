@@ -137,6 +137,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::resource('blog', \App\Http\Controllers\Admin\BlogPostController::class);
         Route::resource('blog-categories', \App\Http\Controllers\Admin\BlogCategoryController::class);
         Route::resource('gallery', \App\Http\Controllers\Admin\GalleryItemController::class);
+        // Declared BEFORE the resource so 'banners/{banner}/move/{direction}' is not
+        // shadowed by the resource's own {banner} wildcards.
+        Route::post('banners/{banner}/move/{direction}', [\App\Http\Controllers\Admin\BannerController::class, 'move'])
+            ->whereIn('direction', ['up', 'down'])
+            ->name('banners.move');
         Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class);
     });
 

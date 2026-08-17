@@ -101,6 +101,20 @@ Only the **first** slide is `loading="eager"` + `fetchpriority="high"` (it is th
 element); the rest are `loading="lazy"`. Previously every slide was eager, so a visitor
 downloaded all banners at full size on first paint.
 
+**Ordering.** `banners.sort_order` controls the sequence (lowest first) via
+`Banner::ordered()`, which the admin index and the homepage both use — so the list always
+matches what visitors see. The index shows the slide number with **up/down arrows**
+(`POST admin/banners/{banner}/move/{up|down}`), disabled at the boundaries. The forms also
+expose a numeric **Display Order** field; leaving it blank on create puts the banner last
+(`Banner::nextSortOrder()`) rather than at position 0.
+
+The move action swaps the two rows' `sort_order` values inside a transaction rather than
+renumbering the whole list, and nudges by ±1 if the pair happens to be tied. Both saves fire
+`saved`, so the `banners` cache is invalidated automatically.
+
+> The `banners.move` route is declared **before** `Route::resource('banners', …)` in
+> `routes/web.php`. Registered after, the resource's `{banner}` wildcards would shadow it.
+
 ---
 
 ## 2. Complete Admin Route Table

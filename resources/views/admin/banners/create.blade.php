@@ -80,6 +80,22 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="mb-3">
+                            <label for="sort_order" class="form-label">
+                                Display Order <span class="text-muted fw-normal">(optional)</span>
+                            </label>
+                            <input type="number" name="sort_order" id="sort_order" min="0"
+                                class="form-control @error('sort_order') is-invalid @enderror"
+                                value="{{ old('sort_order') }}" placeholder="Leave empty to add at the end">
+                            @error('sort_order')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">
+                                Lowest number shows first in the slider. Leave empty and this
+                                banner goes last &mdash; you can reorder any time with the arrows
+                                on the banners list.
+                            </div>
+                        </div>
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('admin.banners.index') }}" class="btn btn-outline-secondary">Back</a>
                             <button type="submit" class="btn btn-jabulani">Save Banner</button>

@@ -245,6 +245,15 @@ banner stayed invisible for up to 60 minutes. Live had 5 rows rendering 4 slides
 - [ ] Remaining slides are `loading="lazy"`
 - [ ] First paint does not download every banner at full size
 
+### Banner ordering
+- [ ] Admin banners list is in the same order as the homepage slider
+- [ ] Up arrow moves a banner one position earlier; down arrow one later
+- [ ] Up is disabled on the first row, down on the last
+- [ ] Reordering shows on the homepage immediately (cache invalidated by the swap)
+- [ ] Creating a banner with **Display Order blank** puts it **last**, not first
+- [ ] Setting Display Order by hand on the edit form takes effect
+- [ ] Two banners sharing a Display Order still render in a stable order (`id` breaks the tie)
+
 ---
 
 ## 8. Route Key Binding (slug/uuid models)

@@ -16,7 +16,8 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th class="ps-4">Image</th>
+                            <th class="ps-4" style="width: 90px;">Order</th>
+                            <th>Image</th>
                             <th>Title</th>
                             <th>Subtitle</th>
                             <th>Link</th>
@@ -26,7 +27,37 @@
                     <tbody>
                         @forelse($banners as $banner)
                             <tr>
+                                {{-- Rows are already in slider order, so $loop maps to the
+                                     visible sequence on the homepage. --}}
                                 <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <span class="badge bg-secondary" style="font-size: 0.65rem;"
+                                              title="Slide {{ $loop->iteration }} of {{ $banners->count() }}">
+                                            {{ $loop->iteration }}
+                                        </span>
+                                        <div class="d-flex flex-column">
+                                            <form action="{{ route('admin.banners.move', [$banner, 'up']) }}"
+                                                  method="POST" class="m-0">
+                                                @csrf
+                                                <button type="submit" class="btn btn-outline-secondary btn-sm py-0 px-1"
+                                                        style="line-height: 1;" title="Move up"
+                                                        @disabled($loop->first)>
+                                                    <i class="fas fa-chevron-up" style="font-size: 0.6rem;"></i>
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('admin.banners.move', [$banner, 'down']) }}"
+                                                  method="POST" class="m-0 mt-1">
+                                                @csrf
+                                                <button type="submit" class="btn btn-outline-secondary btn-sm py-0 px-1"
+                                                        style="line-height: 1;" title="Move down"
+                                                        @disabled($loop->last)>
+                                                    <i class="fas fa-chevron-down" style="font-size: 0.6rem;"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
                                     <img src="{{ image_url($banner->image) }}"
                                          alt="{{ $banner->title }}"
                                          style="width: 80px; height: 42px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-default);">
@@ -58,11 +89,11 @@
                                            class="btn btn-outline-secondary btn-sm" title="View on site">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
-                                        <a href="{{ route('admin.banners.edit', $banner->id) }}"
+                                        <a href="{{ route('admin.banners.edit', $banner) }}"
                                            class="btn btn-outline-primary btn-sm" title="Edit">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <form action="{{ route('admin.banners.destroy', $banner->id) }}" method="POST"
+                                        <form action="{{ route('admin.banners.destroy', $banner) }}" method="POST"
                                               class="d-inline" onsubmit="return confirm('Delete this banner?')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete">
@@ -74,7 +105,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-5" style="color: var(--text-muted);">
+                                <td colspan="6" class="text-center py-5" style="color: var(--text-muted);">
                                     <i class="fas fa-image fa-2x d-block mb-2 opacity-20"></i>
                                     No banners found.
                                 </td>

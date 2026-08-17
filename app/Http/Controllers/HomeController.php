@@ -8,7 +8,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $banners = \Illuminate\Support\Facades\Cache::remember('banners', 3600, fn() => \App\Models\Banner::all());
+        $banners = \Illuminate\Support\Facades\Cache::remember('banners', 3600, fn() => \App\Models\Banner::ordered()->get());
         $stores = \Illuminate\Support\Facades\Cache::remember('stores_all', 3600, fn() => \App\Models\Store::all());
         $brands = \Illuminate\Support\Facades\Cache::remember('brands', 3600, fn() => \App\Models\Brand::all());
         $categories = \Illuminate\Support\Facades\Cache::remember('categories_top', 3600, fn() => \App\Models\Category::topLevel()->with('children')->get());

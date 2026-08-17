@@ -170,9 +170,11 @@
 | `image` | string, required | desktop crop, landscape ≈ 1920×1080 |
 | `image_mobile` | string, **nullable** | *added 2026-08-17.* Portrait crop ≈ 1080×1350 for ≤768px. Null → falls back to `image`. Art direction via `<picture>`; see `ADMIN_PANEL.md § 1` |
 | `link` | string, nullable | optional CTA target |
+| `sort_order` | unsigned int, default 0, **indexed** | *added 2026-08-17.* Lowest shows first. Backfilled to `id` on migration so the pre-existing on-screen order was preserved |
 
-No display-order column — the slider renders in primary-key order. There is no limit on the
-number of banners.
+There is no limit on the number of banners. Order comes from `Banner::ordered()`
+(`sort_order` then `id` — `id` is the tie-breaker so the sequence is deterministic even when
+two rows share a `sort_order`). New banners default to the end via `Banner::nextSortOrder()`.
 | `invoice_eft_accounts` | JSON array | Array of bank account objects |
 | `theme_primary_color` | string | Hex code (e.g., `#FF8C00`) |
 | `theme_text_color` | string | Secondary text color |

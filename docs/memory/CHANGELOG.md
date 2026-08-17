@@ -5,6 +5,45 @@
 
 ---
 
+## [2026-08-17] — Banner Display Order (sort_order + reorder arrows)
+
+**Type**: Feature (Admin)
+**Files Changed**: migration `add_sort_order_to_banners_table` (new), `Banner.php`,
+`HomeController.php`, `Admin/BannerController.php`, `routes/web.php`,
+`admin/banners/{index,create,edit}.blade.php`, `DATABASE_SCHEMA.md`, `ADMIN_PANEL.md`,
+`TESTING_CHECKLIST.md`
+
+The hero slider rendered in primary-key order, so the sequence could only be changed by
+deleting and re-creating banners.
+
+- **`banners.sort_order`** — unsigned int, default 0, indexed. **Backfilled to `id`** on
+  migration so the live slider's existing order was preserved exactly; without that every row
+  would default to 0 and the sequence could silently reshuffle on deploy.
+- **`Banner::ordered()`** — `sort_order` then `id`. The `id` tie-break makes the order
+  deterministic even when two rows share a `sort_order`, which legacy rows can.
+  Used by both `HomeController::index` and the admin index, so the list always matches
+  what visitors see.
+- **Up/down arrows** on the banners list — `POST admin/banners/{banner}/move/{up|down}`,
+  disabled at the boundaries, with the slide number shown per row. The action swaps the two
+  rows' `sort_order` inside a transaction rather than renumbering the list, and nudges by ±1
+  if the pair is tied. Both saves fire `saved`, so the `banners` cache invalidates itself.
+- **Display Order** field on both forms. Blank on create means *last*
+  (`Banner::nextSortOrder()`), not position 0 — otherwise every new banner would jump to the
+  front of the slider.
+- The `banners.move` route is registered **before** `Route::resource('banners', …)`; after it,
+  the resource's `{banner}` wildcards would shadow it.
+
+### Verified
+
+Backfill preserved the original order (`sort_order == id` for all rows). Moving the last
+banner up twice stepped it 5 → 4 → 3 one position at a time. Cache invalidated by the swap.
+First row refuses "up" and last refuses "down" with a readable message. Original order
+restored afterwards.
+
+**Deploy**: requires `php artisan migrate`.
+
+---
+
 ## [2026-08-17] — Hero Banner Count Fix, Content-Cache Invalidation & Mobile Art Direction
 
 **Type**: Bug Fix (stale cache) & Feature (responsive banners)
