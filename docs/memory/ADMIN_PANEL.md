@@ -61,6 +61,46 @@ Every admin file input should follow this shape:
   `old('field', $model->field)`, because a rejected image bounces the whole form back. A file
   input itself cannot be repopulated — the user must reselect the file.
 
+### Homepage hero banners
+
+There is **no cap** on the number of banners — `HomeController` uses `Banner::all()` and the
+slider renders one slide per row. If a newly saved banner does not appear, the cause is the
+`banners` cache key, not a limit (see `ARCHITECTURE.md § 4`); that is now invalidated on save.
+
+**Two images per banner** (`banners.image`, `banners.image_mobile`):
+
+| Field | Required | Recommended | Purpose |
+|:---|:---|:---|:---|
+| `image` | yes | landscape ≈ 1920×1080 | desktop / tablet |
+| `image_mobile` | no | portrait ≈ 1080×1350 | phones ≤ 768px |
+
+The hero renders them with `<picture>`:
+
+```blade
+<picture>
+    @if($banner->image_mobile)
+        <source media="(max-width: 768px)" srcset="{{ image_url($banner->image_mobile) }}">
+    @endif
+    <img src="{{ image_url($banner->image) }}" ...>
+</picture>
+```
+
+This is **art direction**, not resolution switching. The hero is
+`h-[calc(100vh-60px)]` with `object-cover`, so on a portrait phone a wide banner is cropped
+hard to its centre — cutting the subject and any text baked into the image. `<picture>` +
+`media` lets the browser choose *before* downloading, so a phone never fetches the desktop file.
+
+`image_mobile` is nullable and falls back to `image`, so it can be added per banner. The edit
+form offers a "remove mobile image" checkbox (`remove_image_mobile`) so a crop can be dropped
+without replacing it, and the index shows a "mobile set" / "desktop only" marker per row.
+
+A `-mobile` filename convention was **rejected**: nothing validates the partner file exists,
+a rename breaks it silently, and it is invisible in the admin UI. Use the column.
+
+Only the **first** slide is `loading="eager"` + `fetchpriority="high"` (it is the LCP
+element); the rest are `loading="lazy"`. Previously every slide was eager, so a visitor
+downloaded all banners at full size on first paint.
+
 ---
 
 ## 2. Complete Admin Route Table

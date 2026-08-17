@@ -25,9 +25,27 @@
                     x-transition:leave-start="opacity-100 translate-x-0" x-transition:leave-end="opacity-0 -translate-x-full"
                     class="absolute inset-0 z-10 w-full h-full" style="display: none;">
 
-                    {{-- Background Image & Subtle Shadows --}}
-                    <img src="{{ image_url($banner->image) }}" alt="Jabulani Hero"
-                        class="absolute inset-0 w-full h-full object-cover object-center" loading="eager" />
+                    {{-- Background Image & Subtle Shadows
+
+                         <picture> gives art direction: the browser evaluates the media
+                         query and downloads ONLY the matching file, so a phone never
+                         fetches the wide desktop banner. image_mobile is optional and
+                         falls back to image.
+
+                         Only the first slide loads eagerly — the rest are lazy, so the
+                         page no longer pulls every banner at full size on first paint.
+                         fetchpriority="high" tells the browser this is the LCP element. --}}
+                    <picture>
+                        @if($banner->image_mobile)
+                            <source media="(max-width: 768px)"
+                                srcset="{{ image_url($banner->image_mobile) }}">
+                        @endif
+                        <img src="{{ image_url($banner->image) }}" alt="{{ $banner->title ?: 'Jabulani Hero' }}"
+                            class="absolute inset-0 w-full h-full object-cover object-center"
+                            loading="{{ $index === 0 ? 'eager' : 'lazy' }}"
+                            @if($index === 0) fetchpriority="high" @endif
+                            decoding="async" />
+                    </picture>
 
                     {{-- Top & Bottom Subtle Overlays for Readability --}}
                     <div

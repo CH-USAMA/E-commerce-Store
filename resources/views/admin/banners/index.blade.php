@@ -30,6 +30,15 @@
                                     <img src="{{ image_url($banner->image) }}"
                                          alt="{{ $banner->title }}"
                                          style="width: 80px; height: 42px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-default);">
+                                    @if($banner->image_mobile)
+                                        <div class="mt-1" style="font-size: 0.62rem; color: var(--success-color);">
+                                            <i class="fas fa-mobile-screen"></i> mobile set
+                                        </div>
+                                    @else
+                                        <div class="mt-1" style="font-size: 0.62rem; color: var(--text-muted);">
+                                            <i class="fas fa-mobile-screen"></i> desktop only
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="fw-semibold" style="font-size: 0.83rem;">{{ $banner->title }}</td>
                                 <td style="font-size: 0.78rem; color: var(--text-secondary); max-width: 200px;" class="text-truncate">{{ $banner->subtitle }}</td>

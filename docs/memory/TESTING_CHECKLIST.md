@@ -216,6 +216,37 @@ feature images and the invoice logo — they all share `ValidatesImageUploads`.
 
 ---
 
+## 7b. Homepage Hero Banners & Content Cache
+
+### Count — no cap exists
+- [ ] Add a banner → it appears on the homepage **immediately**, no waiting, no cache clear
+- [ ] Slide count and dot count both equal the number of rows in `banners`
+- [ ] Delete a banner → it disappears immediately
+
+Before 2026-08-17 the `banners` key was cached for an hour with no invalidation, so a new
+banner stayed invisible for up to 60 minutes. Live had 5 rows rendering 4 slides.
+
+### Cache invalidation (same bug class, 9 keys)
+- [ ] Editing a **store**, **brand**, **category**, **team member** or **gallery item**
+      shows on the public page immediately
+- [ ] Editing a blog post shows immediately on its detail page
+- [ ] **Changing a blog post's slug** → the *old* URL no longer serves the pre-edit copy
+
+### Mobile art direction
+- [ ] Upload only a desktop image → phone shows it (cropped centre), no error
+- [ ] Upload a mobile image too → DevTools ▸ Network at ≤768px shows the **mobile** file
+      downloaded and the desktop file **not** downloaded
+- [ ] Resize above 768px → desktop file is used
+- [ ] Tick "remove mobile image" → falls back to desktop, file deleted from disk
+- [ ] Banner index shows "mobile set" / "desktop only" per row
+
+### Hero performance
+- [ ] Only the **first** slide is `loading="eager"` with `fetchpriority="high"`
+- [ ] Remaining slides are `loading="lazy"`
+- [ ] First paint does not download every banner at full size
+
+---
+
 ## 8. Route Key Binding (slug/uuid models)
 
 `Product`, `Category`, `Brand`, `Store` bind by `slug`; `Order`, `User` bind by `uuid`.

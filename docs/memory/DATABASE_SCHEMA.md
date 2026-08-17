@@ -160,6 +160,19 @@
 | `invoice_registration_number` | string | Company reg number |
 | `invoice_footer_text` | string | Footer on PDF |
 | `invoice_logo` | path string | `settings/{uuid}.{ext}` in **`public/settings/`** (not `storage/app/public/`). Max 1MB. The PDF embeds it via `image_path()`, not a URL — DomPDF cannot fetch http. See `ARCHITECTURE.md § 7` |
+
+### `banners`
+
+| Column | Type | Notes |
+|:---|:---|:---|
+| `id` | PK | route key (banners are **not** slug/uuid-bound) |
+| `title`, `subtitle`, `description` | string / text | `title` is rendered into the hero `<h1>` via `str_replace` |
+| `image` | string, required | desktop crop, landscape ≈ 1920×1080 |
+| `image_mobile` | string, **nullable** | *added 2026-08-17.* Portrait crop ≈ 1080×1350 for ≤768px. Null → falls back to `image`. Art direction via `<picture>`; see `ADMIN_PANEL.md § 1` |
+| `link` | string, nullable | optional CTA target |
+
+No display-order column — the slider renders in primary-key order. There is no limit on the
+number of banners.
 | `invoice_eft_accounts` | JSON array | Array of bank account objects |
 | `theme_primary_color` | string | Hex code (e.g., `#FF8C00`) |
 | `theme_text_color` | string | Secondary text color |

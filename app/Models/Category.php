@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FlushesContentCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
     use HasFactory;
+    use FlushesContentCache;
+
+    /** Homepage category slider — see HomeController::index(). */
+    protected static array $contentCacheKeys = ['categories_top'];
 
     protected static function booted()
     {

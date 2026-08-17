@@ -5,6 +5,63 @@
 
 ---
 
+## [2026-08-17] — Hero Banner Count Fix, Content-Cache Invalidation & Mobile Art Direction
+
+**Type**: Bug Fix (stale cache) & Feature (responsive banners)
+**Reported as**: "it just adds 4 images in swiper or banner… I want the number of images I
+choose to upload"
+
+**Files Changed**: `Models/Concerns/FlushesContentCache.php` (new), migration
+`add_image_mobile_to_banners_table` (new), `Banner.php`, `Store.php`, `Brand.php`,
+`Category.php`, `TeamMember.php`, `GalleryItem.php`, `BlogPost.php`,
+`Admin/BannerController.php`, `home.blade.php`, `admin/banners/{create,edit,index}.blade.php`,
+`ARCHITECTURE.md`, `ADMIN_PANEL.md`, `DATABASE_SCHEMA.md`, `TESTING_CHECKLIST.md`
+
+### There was never a 4-banner limit — it was a stale cache
+
+`HomeController` uses `Banner::all()` with no `take()`. The real cause was
+`Cache::remember('banners', 3600, …)` that **nothing ever invalidated**. Live had **5**
+banners in the database while the cache held a 4-row snapshot, so the homepage rendered 4
+slides. The 5th would have appeared on its own within the hour.
+
+Nine keys had the same defect: `banners`, `stores_all`, `stores_page`, `brands`,
+`categories_top`, `team_about`, `team_all`, `gallery_all`, `blog_post_{slug}`. Every one
+produced "I saved it and nothing changed".
+
+### Changes
+
+- **`FlushesContentCache` trait** on all seven owning models, hooking `saved` and `deleted`.
+  Invalidation lives on the model, not in controllers, so admin CRUD, tinker, seeders and the
+  CSV import are all covered. Caching is kept (TTL stays 3600) — invalidation, not removal,
+  is what keeps the site fast *and* correct.
+  `BlogPost` also clears the **previous** slug's key via `getOriginal('slug')`, or a renamed
+  post keeps serving its pre-edit copy on the old URL.
+- **`banners.image_mobile`** — nullable column for a portrait crop, rendered through
+  `<picture>` + `<source media="(max-width: 768px)">`. This is art direction: the hero is
+  `object-cover` at near-viewport height, so a wide banner is cropped hard to its centre on a
+  portrait phone. `<picture>` lets the browser choose *before* downloading, so a phone never
+  fetches the desktop file. Nullable → falls back to `image`, so it can be added per banner
+  and existing rows are untouched.
+  A `-mobile` filename convention was **rejected**: nothing validates the partner file exists,
+  a rename breaks it silently, and it is invisible in the admin UI.
+- Edit form gained a `remove_image_mobile` checkbox; both images are pruned on replace and on
+  delete; the index shows "mobile set" / "desktop only" per row.
+- **Hero loading fixed**: previously *every* slide was `loading="eager"`, so a visitor
+  downloaded all banners at full size on first paint. Now only the first is eager with
+  `fetchpriority="high"` (it is the LCP element); the rest are lazy.
+
+### Verified
+
+Warmed the cache, then created / updated / deleted a banner — invalidated in all three cases,
+and the homepage went from 4 to 5 slides. Confirmed all nine keys invalidate, including the
+old-slug case. Rendered the hero with a mobile crop set: exactly one `<source>` emitted, the
+desktop `<img>` retained as fallback, 1 eager + 4 lazy.
+
+**Deploy**: needs `php artisan migrate` (adds `banners.image_mobile`). Existing banners keep
+working with no data change.
+
+---
+
 ## [2026-08-17] — Image Upload Fixes (7 bugs) + Deployment Reality Check
 
 **Type**: Bug Fix (Admin uploads) & Documentation Correction

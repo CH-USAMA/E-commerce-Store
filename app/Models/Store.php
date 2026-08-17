@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FlushesContentCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Store extends Model
 {
     use HasFactory;
+    use FlushesContentCache;
+
+    /** Homepage store list + the /stores page — see HomeController. */
+    protected static array $contentCacheKeys = ['stores_all', 'stores_page'];
 
     protected static function booted()
     {

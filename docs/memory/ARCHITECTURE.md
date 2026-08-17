@@ -89,6 +89,38 @@
 | Trait | File | Used by |
 |:---|:---|:---|
 | `ValidatesImageUploads` | `app/Http/Controllers/Concerns/ValidatesImageUploads.php` | all 10 `Admin\*` upload controllers |
+| `FlushesContentCache` | `app/Models/Concerns/FlushesContentCache.php` | `Banner`, `Store`, `Brand`, `Category`, `TeamMember`, `GalleryItem`, `BlogPost` |
+
+### Public content cache (added 2026-08-17)
+
+`HomeController` wraps public content in `Cache::remember(..., 3600, ...)`. Those keys
+originally had **no invalidation**, so an admin save left the site serving a stale copy for
+up to an hour — it presented as "I uploaded it and nothing changed". A 5th banner sat in the
+live database while the homepage rendered 4 slides.
+
+`FlushesContentCache` hooks the models' `saved` and `deleted` events, so **every** write path
+invalidates: admin CRUD, tinker, seeders, CSV import. Models declare
+`protected static array $contentCacheKeys = [...]`, or override `contentCacheKeys()` when the
+key depends on the row.
+
+| Key | Owner model | Read by |
+|:---|:---|:---|
+| `banners` | `Banner` | `HomeController::index` |
+| `stores_all` | `Store` | `HomeController::index` |
+| `stores_page` | `Store` | `HomeController::stores` |
+| `brands` | `Brand` | `HomeController::index` |
+| `categories_top` | `Category` | `HomeController::index` |
+| `team_about` | `TeamMember` | `HomeController::about` (first 4 — an intentional limit) |
+| `team_all` | `TeamMember` | `HomeController::team` |
+| `gallery_all` | `GalleryItem` | `HomeController::gallery` |
+| `blog_post_{slug}` | `BlogPost` | `HomeController::blogDetail` |
+
+`BlogPost` also clears the **previous** slug's key via `getOriginal('slug')` — otherwise a
+renamed post keeps serving its pre-edit copy on the old URL.
+
+**Adding a new cached key**: register it on the owning model's `$contentCacheKeys`, or the
+same stale-content bug returns. Caching without invalidation is the failure mode to avoid,
+not caching itself — the TTL stays at 3600 because invalidation now handles freshness.
 
 Single source of truth for image upload rules and storage. Provides:
 

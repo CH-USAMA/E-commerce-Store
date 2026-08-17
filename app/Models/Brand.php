@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\FlushesContentCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Brand extends Model
 {
     use HasFactory;
+    use FlushesContentCache;
+
+    /** Homepage brand strip — see HomeController::index(). */
+    protected static array $contentCacheKeys = ['brands'];
 
     protected static function booted()
     {

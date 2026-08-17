@@ -30,12 +30,16 @@ class BannerController extends Controller
         $request->validate([
             'title' => 'required',
             'image' => $this->imageRules(required: true),
-        ], $this->imageMessages());
+            // Optional portrait crop; the hero falls back to `image` when absent.
+            'image_mobile' => $this->imageRules(),
+        ], $this->imageMessages() + $this->imageMessages('image_mobile'));
 
         $data = $request->all();
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $this->storeImage($request, 'image', self::IMAGE_DIR);
+        foreach (['image', 'image_mobile'] as $field) {
+            if ($request->hasFile($field)) {
+                $data[$field] = $this->storeImage($request, $field, self::IMAGE_DIR);
+            }
         }
 
         \App\Models\Banner::create($data);
@@ -53,18 +57,31 @@ class BannerController extends Controller
         $request->validate([
             'title' => 'required',
             'image' => $this->imageRules(),
-        ], $this->imageMessages());
+            'image_mobile' => $this->imageRules(),
+        ], $this->imageMessages() + $this->imageMessages('image_mobile'));
 
         $data = $request->all();
 
-        if ($request->hasFile('image')) {
-            $oldImage = $banner->image;
-            $data['image'] = $this->storeImage($request, 'image', self::IMAGE_DIR);
+        foreach (['image', 'image_mobile'] as $field) {
+            if (! $request->hasFile($field)) {
+                continue;
+            }
+
+            $replaced = $banner->{$field};
+            $data[$field] = $this->storeImage($request, $field, self::IMAGE_DIR);
 
             // Only prune the replaced file once the new one is safely written.
-            if ($oldImage) {
-                Storage::disk('public')->delete($oldImage);
+            if ($replaced) {
+                Storage::disk('public')->delete($replaced);
             }
+        }
+
+        // Explicit opt-out, so a mobile crop can be removed without replacing it.
+        if ($request->boolean('remove_image_mobile') && ! $request->hasFile('image_mobile')) {
+            if ($banner->image_mobile) {
+                Storage::disk('public')->delete($banner->image_mobile);
+            }
+            $data['image_mobile'] = null;
         }
 
         $banner->update($data);
@@ -74,8 +91,8 @@ class BannerController extends Controller
 
     public function destroy(\App\Models\Banner $banner)
     {
-        if ($banner->image) {
-            Storage::disk('public')->delete($banner->image);
+        foreach (array_filter([$banner->image, $banner->image_mobile]) as $path) {
+            Storage::disk('public')->delete($path);
         }
         $banner->delete();
         return redirect()->route('admin.banners.index')->with('success', 'Banner deleted successfully.');
