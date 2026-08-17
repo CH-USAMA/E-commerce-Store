@@ -5,6 +5,65 @@
 
 ---
 
+## [2026-08-17] — Recently Viewed, "Order Again", and a Working Product Status
+
+**Type**: Feature (Storefront + User Portal) & Bug Fix
+**Files Changed**: `app/Support/RecentlyViewed.php` (new),
+`frontend/partials/recently_viewed.blade.php` (new), `Product.php`, `HomeController.php`,
+`User/OrderController.php`, `Admin/ProductController.php`, `routes/web.php`,
+`frontend/product-single.blade.php`, `user/orders/{show,index}.blade.php`,
+`admin/products/{create,edit}.blade.php`
+
+### Recently viewed products
+
+Session-based, so it works for guests as well as logged-in customers, needs no migration and
+adds no database write to product pages. Only IDs are stored — serialising models would
+freeze prices and re-display deleted products. Capped at 8, most-recent-first, revisits move
+to the front instead of duplicating, and the current product is excluded from its own strip.
+
+Rendering reuses `product_card.blade.php`, so it inherits price hiding, `image_url()` and the
+WhatsApp CTA automatically. **Never cached** — the `Cache::remember` keys are for shared
+content; this is per-session.
+
+Cross-device continuity would need a `users.recently_viewed` column; deliberately deferred.
+
+### "Order again" — dual-mode by design
+
+One `POST user/orders/{order}/reorder` route that decides server-side:
+
+| `hide_pricing` | Behaviour |
+|:---|:---|
+| `1` (now) | Redirects to WhatsApp pre-filled with the order's items, using the same `invoice_company_phone` as the storefront CTA |
+| `0` (later) | Merges the items into the cart and redirects to `/cart` |
+
+Deliberately **not** inside the `pricing.enabled` group — that group would bounce it to
+`/contact`. Because the branch is server-side, **re-enabling pricing switches this to a real
+cart reorder with no view changes**. Both paths are covered by tests.
+
+Items whose product was deleted or deactivated are skipped rather than failing the whole
+action, and the customer is told how many were dropped. Quantities merge into an existing
+cart rather than replacing it. Cart persistence mirrors `CartController::syncCartToDb()`
+locally on purpose — CartController is the payment path and was not refactored.
+
+### Product `status` made functional (it never worked)
+
+`status` was documented as controlling storefront visibility but was **not in `$fillable`**,
+never validated, had no form field, and was filtered by no query. Every product sat at the
+column default `active`, permanently. Now fillable, validated `required|in:active,inactive`,
+selectable on both admin forms, and enforced by `Product::scopeActive()` across the homepage,
+listing, search, product detail and recently-viewed. Inactive products 404.
+
+### Verified
+
+Four tests, all passing: view-order tracking and de-duplication; inactive product 404s and
+disappears from search, then restores; reorder → WhatsApp with the cart untouched under
+`hide_pricing=1`; reorder → `/cart` with correct product IDs and quantities under
+`hide_pricing=0`, with `/cart` confirmed reachable. Inquiry mode restored afterwards.
+
+**Deploy**: no migration. New route → **`php artisan route:clear` is mandatory**.
+
+---
+
 ## [2026-08-17] — Banner Display Order (sort_order + reorder arrows)
 
 **Type**: Feature (Admin)

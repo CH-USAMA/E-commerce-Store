@@ -114,6 +114,9 @@ Route::middleware(['auth', 'verified', 'role:user', 'profile.complete'])->prefix
     Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/orders', [\App\Http\Controllers\User\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\User\OrderController::class, 'show'])->name('orders.show');
+    // "Order again". Deliberately NOT inside the `pricing.enabled` group: it decides
+    // between WhatsApp and the cart itself, so it stays usable while pricing is hidden.
+    Route::post('/orders/{order}/reorder', [\App\Http\Controllers\User\OrderController::class, 'reorder'])->name('orders.reorder');
     Route::get('/notifications', [\App\Http\Controllers\User\NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/mark-read', [\App\Http\Controllers\User\NotificationController::class, 'markAllRead'])->name('notifications.mark-read');
     Route::get('/orders-export', [\App\Http\Controllers\User\OrderController::class, 'export'])->name('orders.export');

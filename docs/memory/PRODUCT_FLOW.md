@@ -16,7 +16,7 @@
 | `sku` | nullable | |
 | `price` | required, numeric | VAT-inclusive |
 | `vat_rate` | default 15 | South African standard rate |
-| `status` | required | `active` or `inactive` |
+| `status` | `required\|in:active,inactive` | Selectable on both admin forms. **Enforced** by `Product::scopeActive()` on every public query — inactive products 404 on their own URL and vanish from listings, search, the homepage and "recently viewed". *Was a dead field until 2026-08-17: not fillable, not validated, no form control, filtered nowhere — see `KNOWN_ISSUES.md`.* |
 | `image` | `nullable\|mimes:jpg,jpeg,png,gif,webp,avif\|max:8192` | Stored as `products/{uuid}.{ext}` in **`public/products/`** — the `public` disk root is overridden to `public_path('')`, so there is no `/storage/` segment. Render with `image_url()`, never `asset()`. See `ARCHITECTURE.md § 7` |
 | Homepage flags | boolean | `is_featured`, `is_top_selling`, `is_new_arrival` |
 

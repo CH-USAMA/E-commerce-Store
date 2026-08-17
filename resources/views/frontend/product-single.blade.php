@@ -211,4 +211,7 @@
         </div>
     </div>
 
+    {{-- Recently viewed — excludes the product being viewed right now. --}}
+    @include('frontend.partials.recently_viewed', ['excludeId' => $product->id])
+
 @endsection

@@ -39,6 +39,7 @@ class ProductController extends Controller
             'is_featured' => 'boolean',
             'is_top_selling' => 'boolean',
             'is_new_arrival' => 'boolean',
+            'status' => 'required|in:active,inactive',
             'image' => $this->imageRules(),
             'stocks' => 'nullable|array',
             'stocks.*' => 'numeric',
@@ -97,6 +98,7 @@ class ProductController extends Controller
             'is_featured' => 'boolean',
             'is_top_selling' => 'boolean',
             'is_new_arrival' => 'boolean',
+            'status' => 'required|in:active,inactive',
             'image' => $this->imageRules(),
             // The edit form posts nested rows — stocks[<storeId>][quantity] etc. — unlike
             // the create form's flat stocks[<storeId>]. A `stocks.*' => 'numeric'` rule

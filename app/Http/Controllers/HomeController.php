@@ -12,15 +12,16 @@ class HomeController extends Controller
         $stores = \Illuminate\Support\Facades\Cache::remember('stores_all', 3600, fn() => \App\Models\Store::all());
         $brands = \Illuminate\Support\Facades\Cache::remember('brands', 3600, fn() => \App\Models\Brand::all());
         $categories = \Illuminate\Support\Facades\Cache::remember('categories_top', 3600, fn() => \App\Models\Category::topLevel()->with('children')->get());
-        // Fetch products by new flags, with fallbacks for unflagged databases
-        $featuredProducts = \App\Models\Product::with('category', 'subcategory')->where('is_featured', true)->take(12)->get();
-        $topSellingProducts = \App\Models\Product::with('category', 'subcategory')->where('is_top_selling', true)->take(10)->get();
+        // Fetch products by new flags, with fallbacks for unflagged databases.
+        // ->active() keeps deactivated products off the storefront (see Product::scopeActive).
+        $featuredProducts = \App\Models\Product::active()->with('category', 'subcategory')->where('is_featured', true)->take(12)->get();
+        $topSellingProducts = \App\Models\Product::active()->with('category', 'subcategory')->where('is_top_selling', true)->take(10)->get();
         if ($topSellingProducts->isEmpty()) {
-            $topSellingProducts = \App\Models\Product::with('category', 'subcategory')->inRandomOrder()->take(10)->get();
+            $topSellingProducts = \App\Models\Product::active()->with('category', 'subcategory')->inRandomOrder()->take(10)->get();
         }
-        $newArrivalProducts = \App\Models\Product::with('category', 'subcategory')->where('is_new_arrival', true)->take(10)->get();
+        $newArrivalProducts = \App\Models\Product::active()->with('category', 'subcategory')->where('is_new_arrival', true)->take(10)->get();
         if ($newArrivalProducts->isEmpty()) {
-            $newArrivalProducts = \App\Models\Product::with('category', 'subcategory')->latest()->take(10)->get();
+            $newArrivalProducts = \App\Models\Product::active()->with('category', 'subcategory')->latest()->take(10)->get();
         }
 
         $latestPosts = \App\Models\BlogPost::with('category')->latest()->take(3)->get();
@@ -104,7 +105,7 @@ class HomeController extends Controller
         $search = $request->get('search');
         $sort = $request->get('sort', 'latest');
 
-        $query = \App\Models\Product::with('category', 'subcategory')
+        $query = \App\Models\Product::active()->with('category', 'subcategory')
             ->when($selectedCategory, function ($q) use ($selectedCategory) {
                 $q->whereHas('category', fn($q) => $q->where('slug', $selectedCategory));
             })
@@ -146,9 +147,16 @@ class HomeController extends Controller
 
     public function productDetail($slug)
     {
-        $product = \App\Models\Product::where('slug', $slug)
+        // A deactivated product 404s rather than staying reachable by direct link.
+        $product = \App\Models\Product::active()
+            ->where('slug', $slug)
             ->with('category', 'subcategory', 'brand')
             ->firstOrFail();
+
+        // Record the visit for the "Recently viewed" strip. Session-based, so it works
+        // for guests as well as logged-in customers and costs no database write.
+        \App\Support\RecentlyViewed::record($product);
+
         return view('frontend.product-single', compact('product'));
     }
 

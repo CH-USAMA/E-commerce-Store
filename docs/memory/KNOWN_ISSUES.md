@@ -69,6 +69,21 @@ Verified live: `/cart`, `/checkout`, `/checkout/auth` all 302 → `/contact`.
   so not casually enumerable, but the date prefix narrows the space and nothing slows attempts.
 - **Unaffected by inquiry mode** — this one is live now.
 
+### 🔴 Checkout crashes for a logged-in customer with no saved address
+- **Found**: 2026-08-17, while building "Order again"
+- **Where**: `CartController::processCheckout()` (~line 363)
+- **Defect**: it inserts `'address_name' => 'Default Site'`, but the `addresses` table has
+  **no `address_name` column** — the columns are `id, user_id, type, address_line_1,
+  address_line_2, city, province, postal_code, is_default`. `Address::$fillable` also lists
+  the non-existent `address_name`.
+- **Effect**: a non-existent column raises `SQLSTATE[42S22]` (mass assignment would have
+  ignored it silently, a missing column does not). The `try/catch` rolls the transaction back,
+  so the customer sees *"Something went wrong. Please try again."* and **the order is lost** —
+  every time, for any logged-in customer whose address book is empty.
+- **Fix**: drop `address_name` from the insert and from `Address::$fillable`, or add the
+  column. Also give `type` and `province` values — both are real columns.
+- **Dormant** while `hide_pricing = 1`. **This will fire on day one of re-enabling pricing.**
+
 ### 🟡 `store_id` is not validated at checkout
 - `Store::find($request->store_id)` runs on unvalidated input and is absent from the
   `validate()` list, so an order can be saved with a null or arbitrary `store_id`.
@@ -125,6 +140,21 @@ Verified live: `/cart`, `/checkout`, `/checkout/auth` all 302 → `/contact`.
 ---
 
 ## Resolved Issues (Historical)
+
+### [2026-08-17] Product `status` was a dead feature
+- `PRODUCT_FLOW.md` documented `status` as `required | active or inactive` controlling
+  storefront visibility. In reality **none of it worked**:
+  - `status` was **not in `Product::$fillable`** → every write silently dropped it
+  - `ProductController` never validated it
+  - Neither the create nor the edit form had a field for it
+  - No public query filtered on it
+- So every product sat at the column default `active` and could not be changed. All 331
+  products were `active` — not a coincidence, an inevitability.
+- **Fixed**: added `status` to `$fillable`, `required|in:active,inactive` validation, a
+  Status select on both admin forms, and `Product::scopeActive()` applied to every public
+  query (homepage sections, listing, search, product detail, recently-viewed).
+- Inactive products now **404** on their own URL and drop out of every listing. Verified by
+  deactivating a product, confirming 404 + absence from search, then restoring it.
 
 ### [2026-08-17] 500 on /admin/banners — stale route cache after deploy
 - **Symptom**: `/admin/banners` returned 500. Log: `Route [admin.banners.move] not defined.`

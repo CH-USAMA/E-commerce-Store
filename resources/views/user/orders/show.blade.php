@@ -38,6 +38,15 @@
             </header>
         </div>
         <div class="col-md-4 flex items-center justify-end gap-4">
+            {{-- One button, both modes. The controller decides between WhatsApp and the
+                 cart, so this markup does not change when pricing is re-enabled. --}}
+            <form action="{{ route('user.orders.reorder', $order) }}" method="POST" class="m-0">
+                @csrf
+                <button type="submit"
+                    class="px-8 py-4 bg-gold-400 rounded-full text-[10px] font-black uppercase tracking-widest text-dark hover:-translate-y-0.5 transition-all flex items-center gap-3">
+                    <i class="fas fa-rotate-right"></i> Order Again
+                </button>
+            </form>
             <a href="{{ route('order.track', ['order_number' => $order->order_number]) }}" class="px-8 py-4 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-gold-400 hover:border-gold-400/30 transition-all flex items-center gap-3">
                 <i class="fas fa-location-arrow"></i> Real-time Tracking
             </a>

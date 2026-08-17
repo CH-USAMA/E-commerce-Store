@@ -130,6 +130,24 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                                <option value="active" @selected(old('status', $product->status) === 'active')>
+                                    Active &mdash; visible on the storefront
+                                </option>
+                                <option value="inactive" @selected(old('status', $product->status) === 'inactive')>
+                                    Inactive &mdash; hidden from customers
+                                </option>
+                            </select>
+                            @error('status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">
+                                Inactive products 404 on their own URL and drop out of listings,
+                                search, the homepage and "recently viewed".
+                            </div>
+                        </div>
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="featuredSwitch"
                                 @checked(old('is_featured', $product->is_featured))>

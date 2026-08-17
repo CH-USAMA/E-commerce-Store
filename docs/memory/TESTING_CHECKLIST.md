@@ -256,6 +256,40 @@ banner stayed invisible for up to 60 minutes. Live had 5 rows rendering 4 slides
 
 ---
 
+## 7c. Recently Viewed & Order Again
+
+### Recently viewed
+- [ ] Visit 3 products → the strip on a product page shows them, newest first
+- [ ] The product being viewed is **not** in its own strip
+- [ ] Revisiting a product moves it to the front and does not duplicate it
+- [ ] Works while logged out (session-based)
+- [ ] Deactivating a product removes it from the strip without clearing the session
+- [ ] Prices stay hidden in the strip while `hide_pricing = 1` (it reuses `product_card`)
+
+### Order again — inquiry mode (`hide_pricing = 1`)
+- [ ] Button appears on `/user/orders` rows and on the order detail page
+- [ ] Clicking it opens WhatsApp pre-filled with quantities and product names
+- [ ] The cart stays **empty** — nothing is added in this mode
+
+### Order again — pricing enabled (`hide_pricing = 0`)
+- [ ] Clicking it lands on `/cart` with the order's items and quantities
+- [ ] Items merge into an existing cart rather than replacing it
+- [ ] A deleted/deactivated product is skipped, with a message naming how many
+- [ ] An order whose items are all unavailable returns an error and changes nothing
+- [ ] Another user's order returns **403**
+
+> Switching `hide_pricing` must change the behaviour with **no code or view change** — that
+> is the point of the design. If it doesn't, the branch in
+> `User\OrderController::reorder()` is wrong.
+
+## 7d. Product Status
+- [ ] Set a product Inactive in admin → its URL 404s
+- [ ] It disappears from listing, search, homepage sections and recently-viewed
+- [ ] Set it back to Active → reachable and listed again
+- [ ] Status persists on save (it was silently dropped before 2026-08-17 — not in `$fillable`)
+
+---
+
 ## 8. Route Key Binding (slug/uuid models)
 
 `Product`, `Category`, `Brand`, `Store` bind by `slug`; `Order`, `User` bind by `uuid`.

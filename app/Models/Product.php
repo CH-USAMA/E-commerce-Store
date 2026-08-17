@@ -37,7 +37,22 @@ class Product extends Model
         'is_top_selling',
         'is_new_arrival',
         'image',
+        // Was missing, so `status` silently ignored every write and stayed at the column
+        // default 'active' forever — the documented active/inactive switch never worked.
+        'status',
     ];
+
+    /**
+     * Only products that should be publicly visible.
+     *
+     * `status` existed and was documented as controlling storefront visibility, but no
+     * public query ever filtered on it — so deactivating a product hid it from nowhere.
+     * Apply this to every customer-facing query.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 
     public function category()
     {

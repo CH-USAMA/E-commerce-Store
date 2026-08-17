@@ -98,9 +98,18 @@
                                         </span>
                                     </td>
                                     <td class="py-4 pe-4 text-center">
-                                        <a href="{{ route('user.orders.show', $order) }}" class="inline-flex items-center justify-center w-12 h-12 rounded-full border border-white/10 text-dark-muted hover:text-gold-400 hover:border-gold-400/30 transition-all">
-                                            <i class="fas fa-arrow-right"></i>
-                                        </a>
+                                        <div class="inline-flex items-center gap-2">
+                                            <form action="{{ route('user.orders.reorder', $order) }}" method="POST" class="m-0">
+                                                @csrf
+                                                <button type="submit" title="Order again"
+                                                    class="inline-flex items-center justify-center w-12 h-12 rounded-full border border-gold-400/30 text-gold-400 hover:bg-gold-400 hover:text-dark transition-all">
+                                                    <i class="fas fa-rotate-right"></i>
+                                                </button>
+                                            </form>
+                                            <a href="{{ route('user.orders.show', $order) }}" title="View order" class="inline-flex items-center justify-center w-12 h-12 rounded-full border border-white/10 text-dark-muted hover:text-gold-400 hover:border-gold-400/30 transition-all">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
