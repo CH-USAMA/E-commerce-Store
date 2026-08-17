@@ -7,10 +7,11 @@
 
 ## Active Issues
 
-### ⚠️ APP_DEBUG=true in Production
-- **Risk**: Exposes stack traces and environment info to end users on errors
-- **File**: `.env.production` line 4
-- **Fix**: Set `APP_DEBUG=false` in production `.env`
+### ⚠️ EFT Screenshots Are World-Readable
+- **Risk**: Proof-of-payment uploads land in `public/payments/` and are served directly, so
+  anyone who guesses or is given a filename can read a customer's bank details
+- **Fix**: serve them through an authenticated controller route instead of the public dir
+- **Status**: Open (Phase 5)
 
 ### ⚠️ Payment Method Alias: `payfast` = Stripe
 - **Issue**: The Stripe Online payment option uses `value="payfast"` in the HTML form and stores `payfast` in `orders.payment_method`
@@ -50,6 +51,15 @@
 ---
 
 ## Resolved Issues (Historical)
+
+### [2026-08-17] APP_DEBUG=true in Production
+- Any visitor triggering an unhandled exception got an Ignition page with stack traces,
+  source excerpts, environment variables and DB credentials — no auth required
+- Set `APP_DEBUG=false` in the live `.env` + `php artisan config:clear`. A timestamped
+  `.env.backup-*` was left on the server
+- Verified via a temporary **web** probe (`app.debug = false`) — CLI alone would not prove
+  what visitors receive — and by confirming a 404 and a `ModelNotFound` leak nothing
+- Full detail in `SECURITY.md § 8`. **Keep it false**; diagnose from `storage/logs/` instead
 
 ### [2026-08-17] Image Uploads: Extension Errors, Silent Failures, Hanging Requests
 Six overlapping defects that together made banner/product image uploads look random.

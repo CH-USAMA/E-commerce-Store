@@ -113,7 +113,7 @@ half-applies a merge on production.
 | Setting | Local | Production |
 |:---|:---|:---|
 | `APP_ENV` | `local` | `production` |
-| `APP_DEBUG` | `true` | `true` ⚠️ (should be false — re-confirmed live 2026-08-17) |
+| `APP_DEBUG` | `true` | **`false`** ✅ (set 2026-08-17 — keep it false; read `storage/logs/` to diagnose) |
 | `MAIL_MAILER` | `log` | `smtp` (Hostinger) |
 | `DB_DATABASE` | `jabulanistore` | `u175002435_store` |
 | `APP_URL` | `http://jabulani-system.test` | `https://store.jabulanigroupofcompanies.co.za` |

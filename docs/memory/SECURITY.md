@@ -145,30 +145,44 @@ Key validation rules enforced:
 
 | Risk | Current State | Recommended Action |
 |:---|:---|:---|
-| `APP_DEBUG=true` in production | ⚠️ **Active — re-confirmed on live 2026-08-17** | Set `APP_DEBUG=false` in the live `.env`, then `php artisan config:clear` |
+| `APP_DEBUG=true` in production | ✅ **RESOLVED 2026-08-17** — now `false` | Keep it false. See below |
 | EFT screenshots world-readable in `public/payments/` | ⚠️ Active | Move behind an auth'd controller route (Phase 5) |
-| `.env` contains SSH/DB password in comments | ⚠️ Found | Delete those comment lines from `.env` |
+| `.env` contains SSH/DB password in comments | ✅ Not present — re-checked live 2026-08-17 (0 matches) | None; entry kept for history |
+| No branded `500.blade.php` | 🔲 Missing | `errors/404.blade.php` exists; with `APP_DEBUG=false` a 500 now falls back to Laravel's bare page |
 | `unsafe-inline` in CSP | ⚠️ Active | Tighten in Phase 5 with nonce-based CSP |
 | Stripe keys in DB not encrypted at rest | ⚠️ Note | Consider encrypting `settings` values in Phase 5 |
 | No 2FA for admin | 🔲 Missing | Consider adding TOTP in Phase 5 |
 | No login attempt log | 🔲 Missing | Extend `ActivityLog` to record failed logins |
 
-### On `APP_DEBUG=true` with `APP_ENV=production`
+### `APP_DEBUG` on production — resolved 2026-08-17
 
-Verified directly in the live `.env` on 2026-08-17 — still `true`. With
-`spatie/laravel-ignition` installed, **any** visitor who triggers an unhandled exception
-receives an error page exposing stack traces, source excerpts, environment variables and
-DB credentials. No authentication is required to see it.
+**Was**: `APP_DEBUG=true` alongside `APP_ENV=production`. With `spatie/laravel-ignition`
+installed, **any** visitor who triggered an unhandled exception received an error page
+exposing stack traces, source excerpts, environment variables and DB credentials — no
+authentication required.
 
-One-line fix, but it is a production config change and was left alone deliberately pending
-sign-off:
+**Applied** on live (`~/domains/jabulanigroupofcompanies.co.za/public_html/store`):
 
 ```bash
-# on live: ~/domains/jabulanigroupofcompanies.co.za/public_html/store
-sed -i 's/^APP_DEBUG=true/APP_DEBUG=false/' .env && php artisan config:clear
+cp -p .env ".env.backup-$(date +%Y%m%d-%H%M%S)"     # backup kept on the server
+sed -i 's/^APP_DEBUG=true$/APP_DEBUG=false/' .env
+php artisan config:clear
 ```
 
-Note that `config:cache` is **not** in use here, so `config:clear` is sufficient.
+`config:cache` is **not** in use, so `config:clear` is sufficient. `bootstrap/cache/config.php`
+was confirmed absent beforehand — had it existed, the `.env` edit would have had no effect
+until cleared.
+
+**Verified**: `diff` against the backup showed exactly one changed line; CLI and a temporary
+web probe both reported `app.debug = false` / `app.env = production` (checking via the **web**
+SAPI matters — CLI alone would not prove what visitors get); a 404 and a `ModelNotFound` both
+returned clean pages with zero occurrences of `ignition`, `Whoops`, `stack trace`, `APP_KEY`,
+`DB_PASSWORD` or `vendor/laravel`; all 11 public routes plus the admin gate still healthy.
+
+**Keep it false.** If errors need diagnosing on production, read
+`storage/logs/laravel-YYYY-MM-DD.log` (daily rotation, 14-day retention) rather than
+re-enabling debug. Note that with debug off, Laravel renders
+`resources/views/errors/*.blade.php` if present — worth adding branded 404/500 pages.
 
 ---
 
