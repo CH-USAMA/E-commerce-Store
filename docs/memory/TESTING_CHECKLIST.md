@@ -92,9 +92,18 @@
 ### Product Creation
 - [ ] Create product with all fields including image
 - [ ] Slug auto-generated from name
-- [ ] Image stored in `public/storage/products/`
+- [ ] Image stored in `public/products/` (**not** `public/storage/products/` — the `public`
+      disk root is overridden to `public_path('')`; see `ARCHITECTURE.md § 7`)
+- [ ] Thumbnail renders on `admin/products/index` **and** on the storefront card
 - [ ] Status `active` — product appears on frontend
 - [ ] Status `inactive` — product hidden from frontend
+
+### Product Editing (regression — was fully broken before 2026-08-17)
+- [ ] The **Edit** button on `admin/products` opens the form (was a 404 — see below)
+- [ ] Saving with at least one store present succeeds (the `stocks.*` rule rejected every
+      save while stores existed)
+- [ ] Per-store quantity / incoming / reserved / damaged all persist
+- [ ] Replacing the image deletes the previous file, leaving no orphan in `public/products/`
 
 ### Branch Stock Management
 - [ ] Update stock for a branch → `product_store_stocks` updated
@@ -159,3 +168,70 @@
 - [ ] Order tracking by order number (public)
 - [ ] Cart add/remove/update via AJAX
 - [ ] Cart count updates in header
+
+---
+
+## 7. Image Uploads (all admin modules)
+
+Applies to banners, products, categories, brands, gallery, services, team, stores, blog
+feature images and the invoice logo — they all share `ValidatesImageUploads`.
+
+### Formats
+- [ ] Upload **`.webp`** → accepted (rejected on banners before 2026-08-17)
+- [ ] Upload **`.avif`** → accepted
+- [ ] Upload `.jpg`, `.png`, `.gif` → accepted
+- [ ] Upload **`.svg`** → rejected. Deliberate; do not "fix" (`SECURITY.md § 9`)
+- [ ] Rename a `.txt` to `.png` and upload → rejected with
+      *"Please upload a JPG, PNG, GIF, WebP or AVIF image."* (validation is by content, not
+      filename)
+- [ ] An iPhone `.heic` is not offered by the file picker (`accept` list)
+
+### Error feedback — the "stuck UI" regression
+- [ ] A rejected upload shows a **visible red alert**, not a silent bounce
+- [ ] Every other field retains its typed value, including per-store stock quantities
+- [ ] The message names formats in plain language, not a list of MIME tokens
+
+### Submit locking — the hanging-request regression
+- [ ] On submit the button disables and reads "Uploading…"
+- [ ] Double-clicking Save does not create a second pending request
+      (DevTools → Network: exactly one request. Two would deadlock on the file-session
+      `flock()` and hang forever — see `ADMIN_PANEL.md § 1`)
+- [ ] A **delete** button's `confirm()` → Cancel leaves the button enabled and usable
+- [ ] Navigating back to a submitted form leaves it usable, not stuck disabled
+
+### Size
+- [ ] A file over 8MB is rejected with *"Image must be 8MB or smaller."* — a readable
+      message, **not** a 419 Page Expired
+- [ ] A ~5MB file uploads successfully (live allows 1536M; only the 8MB app rule binds)
+- [ ] Gallery accepts a 4MB image (its old `max:5120` rule was unsatisfiable locally)
+
+### Display & storage
+- [ ] The uploaded image appears in the admin index thumbnail and on the storefront
+- [ ] Legacy `images/*` records still render (regression check for `image_url()`)
+- [ ] A filename containing `+` or a space renders correctly — the URL should show `%2B` /
+      `%20`, not a broken image
+- [ ] Invoice **PDF** embeds the logo (uses `image_path()`; DomPDF cannot fetch an http src)
+- [ ] Replacing an image deletes the old file; deleting the record deletes its file
+- [ ] Two uploads within the same second do not overwrite each other (filenames are UUIDs)
+
+---
+
+## 8. Route Key Binding (slug/uuid models)
+
+`Product`, `Category`, `Brand`, `Store` bind by `slug`; `Order`, `User` bind by `uuid`.
+Passing `->id` to `route()` yields a **404**, not a leaked integer — it fails only at
+runtime, so it cannot be caught by a syntax check.
+
+- [ ] From each of `admin/products`, `admin/categories`, `admin/brands`, `admin/stores`:
+      click **Edit** → form opens (200). All but stores were 404 before 2026-08-17
+- [ ] On each edit form, **Save** succeeds (the form `action` must also use the model)
+- [ ] Delete works from both the index and the edit page
+- [ ] No admin URL contains an integer id
+
+Quick automated sweep — render an index, follow its own links:
+
+```php
+$html = $this->actingAs($admin)->get('/admin/products')->getContent();
+preg_match_all('#href="([^"]*/admin/products/[^"/]+/edit)"#', $html, $m);
+$this->assertSame(200, $this->actingAs($admin)->get($m[1][0])->getStatusCode());
+```

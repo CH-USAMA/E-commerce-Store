@@ -159,7 +159,7 @@
 | `invoice_company_email` | string | |
 | `invoice_registration_number` | string | Company reg number |
 | `invoice_footer_text` | string | Footer on PDF |
-| `invoice_logo` | path string | Stored in `storage/app/public/settings/` |
+| `invoice_logo` | path string | `settings/{uuid}.{ext}` in **`public/settings/`** (not `storage/app/public/`). Max 1MB. The PDF embeds it via `image_path()`, not a URL — DomPDF cannot fetch http. See `ARCHITECTURE.md § 7` |
 | `invoice_eft_accounts` | JSON array | Array of bank account objects |
 | `theme_primary_color` | string | Hex code (e.g., `#FF8C00`) |
 | `theme_text_color` | string | Secondary text color |

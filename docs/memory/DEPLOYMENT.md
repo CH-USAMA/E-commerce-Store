@@ -93,14 +93,27 @@ php artisan cache:clear
 
 ---
 
-## 5. Storage Link
+## 5. Storage Link — NOT required
 
-The `public/storage` symlink must exist on the server:
+> ⚠️ **Corrected 2026-08-17.** This section previously said the symlink was "required for
+> product images, banners, gallery, invoice logos". It is not.
+
+`config/filesystems.php` overrides the `public` disk root to `public_path('')`, so uploads
+are written **directly into `public/<folder>/`** and served at `/<folder>/{file}`. Nothing
+resolves through `/storage/`.
+
 ```bash
-php artisan storage:link
+php artisan storage:link      # harmless, but not needed by any upload path
 ```
-This links `public/storage` → `storage/app/public/`.
-Required for: product images, banners, gallery, invoice logos.
+
+The existing `public/storage` → `storage/app/public/` symlink is vestigial. `image_url()`
+still probes `storage/app/public/` as a fallback, purely so any row predating the root
+override keeps resolving — no current code writes there.
+
+If uploads 404 after a deploy, the symlink is **not** the cause. Check instead that
+`public/<folder>/` exists and is writable, and remember `public/.gitignore` contains a
+blanket `*`, so uploaded files are never in git and never deploy — they live only on the
+server and must be preserved across migrations.
 
 ---
 

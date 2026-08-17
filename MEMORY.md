@@ -1,10 +1,11 @@
 # Project Memory — Jabulani Store
 
-> **Last Updated**: 2026-04-06 (Paystack Integration Update)
+> **Last Updated**: 2026-08-17 (Image Upload Fixes + Deployment Reality Check)
 > **Live URL**: https://store.jabulanigroupofcompanies.co.za
 > **Local URL**: http://jabulani-system.test
-> **Deployment**: Git push (local) → `git pull` on Hostinger (live). Uses `.env.production` on server.
-> **Branch Status**: The "Compact User Portal Redesign & Checkout Hardening" experiment is isolated on branch `feature/ui-redesign-and-hardening`. The `master` branch remains representing the stable live production code.
+> **Live path**: `~/domains/jabulanigroupofcompanies.co.za/public_html/store` (a *subdirectory* of the marketing site's `public_html`, alongside `agency/` and `POS/`)
+> **Deployment**: ⚠️ **Two different repositories** — see Rule 2. Uses the server's own `.env`.
+> **Branch Status**: The "Compact User Portal Redesign & Checkout Hardening" experiment is isolated on branch `feature/ui-redesign-and-hardening`. Dev work happens on `master`; **live runs `main` in a different repo**.
 ---
 
 ## 📌 Context Index — Read These In Order
@@ -36,18 +37,72 @@ After ANY architectural change (routes, models, migrations, controllers):
 - Add an entry to `docs/memory/CHANGELOG.md` with date + summary
 
 ### Rule 2 — Deployment Awareness
-All changes are made locally first. The user **pushes to Git** and **pulls on Hostinger**.
-- Never give instructions that require direct SSH file editing
-- Always state: "Push to Git, then pull on Hostinger, then run: `php artisan ...`"
-- Post-deploy commands: `php artisan migrate`, `php artisan config:clear`, `php artisan cache:clear`, `php artisan route:clear`, `php artisan view:clear`
+
+⚠️ **Corrected 2026-08-17 after measuring the live server.** Dev and live are **two
+different GitHub repositories**. Pushing to the dev repo deploys nothing.
+
+| | Branch | Remote |
+|:---|:---|:---|
+| Dev (local) | `master` | `https://github.com/CH-USAMA/E-commerce-Store.git` |
+| **Live** | `main` | `git@github.com:JabulaniGroup/Jabulani-E-commerce-Store.git` |
+
+Their histories share a common ancestor, so they merge cleanly — but live may hold commits
+dev does not (production hotfixes edited on the server). **Never tell the user to just
+"pull on live"** without first checking `git log` on both sides: a blind pull can drop them
+into conflict resolution on production.
+
+**Correct procedure** — merge locally, then let live fast-forward:
+
+```bash
+# locally: bring production's branch in, resolve, TEST
+git remote add live ssh://u175002435@82.25.96.26:65002/home/u175002435/domains/jabulanigroupofcompanies.co.za/public_html/store
+git fetch live main && git merge live/main
+php artisan test && git push origin master
+
+# on live
+git branch -f backup-pre-<change> HEAD                                  # rollback point
+git fetch https://github.com/CH-USAMA/E-commerce-Store.git master
+git merge --ff-only FETCH_HEAD                                          # can only ff or fail
+php artisan view:clear
+git push origin main                                                    # keep canonical in sync
+```
+
+`--ff-only` is the safety property: it either fast-forwards cleanly or refuses, never
+half-applies a merge on production.
+
+- SSH **does** work: `ssh -p 65002 u175002435@82.25.96.26` (publickey or password; add keys
+  under hPanel → Websites → Advanced → SSH Access). The older "never give instructions that
+  require SSH" guidance was based on a false assumption. hPanel → Advanced → GIT can also
+  deploy with no shell.
+- `composer` is at `/usr/local/bin/composer` (2.8.11); PHP 8.2.30.
+- Post-deploy commands: `php artisan migrate`, `config:clear`, `cache:clear`, `route:clear`,
+  `view:clear`. `composer dump-autoload` is **no longer mandatory** — see `DEPLOYMENT.md`.
+- `git pull` never touches `.env`, `storage/` or `vendor/` (all gitignored).
+- ⚠️ **`public/.gitignore` contains a blanket `*`**, so any *new* file under `public/` is
+  invisible to git and will never deploy. Add an explicit `!filename` exception. This is why
+  `public/css/design-system.css` once 404'd in production.
 
 ### Rule 3 — Security Invariants (NEVER BREAK)
 - Orders are ALWAYS routed by `uuid` — never integer `id`
 - Users are ALWAYS routed by `uuid` — never integer `id`
 - Products are ALWAYS routed by `slug` — never integer `id`
-- Stores are ALWAYS routed by `slug`
+- Stores, **Categories and Brands** are ALWAYS routed by `slug`
+- **Pass the model to `route()`, never `->id`** — `route('admin.products.edit', $product)`.
+  Passing `->id` does not merely leak an integer: because these models bind by slug/uuid it
+  resolves as `where('slug','1')` and returns a **hard 404**. This was violated across
+  products/categories/brands until 2026-08-17 and made the product edit form unsavable.
 - `role` is NOT in `User::$fillable` — assign via `$user->role = 'admin'; $user->save()`
 - `payment_method` value `payfast` in DB = "Stripe Online" in UI (intentional alias)
+- **Never render a stored image path by hand.** Use `image_url()` (or `image_path()` for
+  DomPDF) from `app/helpers.php`. Three storage schemes are live at once and only the helper
+  resolves all of them — see `ARCHITECTURE.md § 7`.
+- **Never combine the `image` and `mimes` rules.** In Laravel 12 their allow-lists differ
+  over SVG, producing a rule whose own error message contradicts it. Use the
+  `ValidatesImageUploads` trait.
+- **SVG is not an accepted upload type** — it can carry embedded JS and is served
+  same-origin from `public/`. See `SECURITY.md § 9`.
+- The `public` disk sets `'throw' => false`; **always check whether a write returned
+  `false`** or the record saves with an empty path while reporting success.
 
 ### Rule 4 — Task Completeness
 - Do NOT leave a migration without updating `DATABASE_SCHEMA.md`
@@ -58,12 +113,20 @@ All changes are made locally first. The user **pushes to Git** and **pulls on Ho
 | Setting | Local | Production |
 |:---|:---|:---|
 | `APP_ENV` | `local` | `production` |
-| `APP_DEBUG` | `true` | `true` ⚠️ (should be false) |
+| `APP_DEBUG` | `true` | `true` ⚠️ (should be false — re-confirmed live 2026-08-17) |
 | `MAIL_MAILER` | `log` | `smtp` (Hostinger) |
 | `DB_DATABASE` | `jabulanistore` | `u175002435_store` |
 | `APP_URL` | `http://jabulani-system.test` | `https://store.jabulanigroupofcompanies.co.za` |
 | Stripe keys | Not set in `.env` | Set in `settings` DB table |
 | Google OAuth | In `.env` | In `.env.production` |
+| `upload_max_filesize` / `post_max_size` | **2M / 8M** | **1536M / 1536M** |
+| `max_execution_time` | `0` (unlimited) | `360` |
+| PHP / Composer | — | 8.2.30 / 2.8.11 |
+
+⚠️ **Local PHP limits are far stricter than production.** An upload that fails locally with
+419 Page Expired or "failed to upload" may work fine on live. Never conclude a size problem
+is a production problem without measuring the live **web** SAPI — `.user.ini` does not apply
+to CLI, so `php -i` over SSH reports different numbers than a browser request.
 
 ### Rule 6 — Test Before Declaring Done
 Reference `docs/memory/TESTING_CHECKLIST.md` for every feature area.
@@ -78,10 +141,21 @@ The store MUST use simple, conventional e-commerce terminology. Avoid technical/
 - Use: **Checkout** (Not Terminal/Authorization)
 - Use: **Items** (Not Artifacts/Units/Inventory units)
 - Keep labels friendly and shopper-focused (e.g., "Your Items" vs "Line Item Manifest").
+
 ### Rule 8 — Permission Integrity (PBAC)
 All NEW admin routes or modules MUST be registered with the `permission:{name}` middleware.
 - Sidebar links must be wrapped in `@if(auth()->user()->hasPermission('...'))`
 - Check `docs/memory/SECURITY.md` for the list of existing module permissions.
+
+### Rule 9 — Measure the Live Server, Don't Assume It
+Several long-standing entries in these docs turned out to be wrong when finally checked
+against production on 2026-08-17 (storage paths, upload limits, the git remote, whether SSH
+works). Before diagnosing an environment-shaped bug:
+- Check PHP limits via a **web** request, not `php -i` over SSH — `.user.ini` does not apply to CLI
+- Check `git remote -v` **and** `git branch` on the live checkout before telling anyone to pull
+- Check `git status` on live before pulling — production may hold commits dev does not
+- Confirm the buggy code is actually deployed before claiming a fix is a production fix
+- When a doc contradicts a measurement, **fix the doc in the same change**
 
 ---
 

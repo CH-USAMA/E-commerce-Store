@@ -84,6 +84,29 @@
 | `StoreService` | `app/Services/StoreService.php` | Finds nearest branch via Haversine formula |
 | `ActivityLog` | `app/Models/ActivityLog.php` | Static `record()` helper for audit logs |
 
+### Shared controller concerns
+
+| Trait | File | Used by |
+|:---|:---|:---|
+| `ValidatesImageUploads` | `app/Http/Controllers/Concerns/ValidatesImageUploads.php` | all 10 `Admin\*` upload controllers |
+
+Single source of truth for image upload rules and storage. Provides:
+
+| Member | Purpose |
+|:---|:---|
+| `IMAGE_MIMES` | `jpg,jpeg,png,gif,webp,avif` — SVG deliberately excluded (can carry embedded JS) |
+| `IMAGE_MAX_KB` | `8192` (8MB) |
+| `imageRules(bool $required, ?int $maxKb)` | returns e.g. `nullable\|mimes:…\|max:8192` |
+| `imageMessages(string $field, ?int $maxKb)` | plain-language `mimes`/`max`/`uploaded` messages |
+| `storeImage($request, $field, $dir)` | uuid filename, checks the `throw => false` return, aborts 500 on failure |
+
+**Never write `image|mimes:…` together.** As of Laravel 12 the `image` rule resolves to
+`jpg,jpeg,png,gif,bmp,webp` and no longer implies `svg` (that needs `image:allow_svg`), so
+combining them intersects the two lists and yields a rule whose error message contradicts
+itself. `mimes` alone already validates the file's real guessed type, not the client name.
+`CartController`'s `payment_screenshot` is the one field that does not use the trait — it
+also accepts `pdf`.
+
 ---
 
 ## 5. Config File Map
@@ -115,11 +138,61 @@
 
 ## 7. File Storage Paths
 
-| Asset | Storage Location | Access URL |
+> ⚠️ **Corrected 2026-08-17.** This table previously claimed uploads live under
+> `public/storage/…` / `storage/app/public/…`. That is wrong for this project.
+
+**The `public` disk root is overridden.** `config/filesystems.php` sets
+
+```php
+'public' => [
+    'driver' => 'local',
+    'root'   => public_path(''),      // NOT Laravel's default storage_path('app/public')
+    'url'    => env('APP_URL'),
+    'throw'  => false,               // failed writes return false, they do NOT raise
+],
+```
+
+So `$file->store('products', 'public')` writes to **`public/products/`**, served at
+`/products/{file}` — there is no `/storage/` segment. The `public/storage` symlink is
+vestigial and nothing depends on it.
+
+`'throw' => false` means **every write must have its return value checked** — an unchecked
+`false` saves an empty path while still reporting success. Use
+`ValidatesImageUploads::storeImage()`, which does this.
+
+### Three storage schemes are live simultaneously
+
+| Scheme | Example DB value | On disk | Origin |
+|:---|:---|:---|:---|
+| Legacy seeded | `images/Cement.webp` | `public/images/` | original seed data (~629 tracked files, incl. `public/images/products/` with 310) |
+| Banners | `uploads/banners/{uuid}.webp` | `public/uploads/banners/` | `BannerController` |
+| Disk uploads | `products/{uuid}.webp` | `public/products/` | all other upload controllers |
+
+| Asset | DB value / location | Access URL |
 |:---|:---|:---|
-| Product images | `public/storage/products/` | `/storage/products/{file}` |
+| Product images | `products/{uuid}.{ext}` | `/products/{file}` |
+| Banners | `uploads/banners/{uuid}.{ext}` | `/uploads/banners/{file}` |
+| Categories / brands / gallery / services / team / stores / blog | `{folder}/{uuid}.{ext}` | `/{folder}/{file}` |
+| Invoice logo | `settings/{uuid}.{ext}` | `/settings/{file}` |
 | Payment screenshots (EFT proof) | `public/payments/` | `/payments/{file}` |
-| Invoice logo | `storage/app/public/settings/` | via `Storage::url()` |
-| Banners | `public/storage/banners/` | `/storage/banners/{file}` |
-| Gallery items | `public/storage/gallery/` | `/storage/gallery/{file}` |
 | Daily logs | `storage/logs/laravel-YYYY-MM-DD.log` | Server only |
+
+### Never resolve an image path by hand
+
+`app/helpers.php` (loaded via `composer.json` `autoload.files` **and**
+`AppServiceProvider::register()`) is the only sanctioned resolver:
+
+| Helper | Returns | Use for |
+|:---|:---|:---|
+| `image_url($path, $fallback)` | browser URL, placeholder if missing | every Blade `<img src>` |
+| `image_path($path, $fallback)` | absolute filesystem path | DomPDF (`pdf/invoice.blade.php`) — it cannot fetch an http src |
+| `image_relative_path($path)` | path relative to `public/`, or null | existence checks |
+
+It resolves all three schemes above, passes absolute URLs through untouched, and
+`rawurlencode`s each path segment so a `+` in a filename is not read as a space.
+
+The dual registration is deliberate: `autoload.files` is baked into
+`vendor/composer/autoload_files.php` and only refreshed by `composer dump-autoload`, and
+`vendor/` is gitignored — so on a host with no shell, a bare `git pull` would otherwise
+leave `image_url()` undefined and fatal every view that renders an image. Each function is
+wrapped in `function_exists()`, so the double load is harmless.

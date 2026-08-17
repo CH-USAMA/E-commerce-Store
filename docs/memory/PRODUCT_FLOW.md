@@ -17,7 +17,7 @@
 | `price` | required, numeric | VAT-inclusive |
 | `vat_rate` | default 15 | South African standard rate |
 | `status` | required | `active` or `inactive` |
-| `image` | nullable, image file | Stored in `public/storage/products/` via `store('products', 'public')` |
+| `image` | `nullable\|mimes:jpg,jpeg,png,gif,webp,avif\|max:8192` | Stored as `products/{uuid}.{ext}` in **`public/products/`** — the `public` disk root is overridden to `public_path('')`, so there is no `/storage/` segment. Render with `image_url()`, never `asset()`. See `ARCHITECTURE.md § 7` |
 | Homepage flags | boolean | `is_featured`, `is_top_selling`, `is_new_arrival` |
 
 ---

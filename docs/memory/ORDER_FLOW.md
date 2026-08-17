@@ -46,7 +46,9 @@ customer_postal_code: nullable|string|max:10
 payment_method:    required|in:eft,payfast    ← payfast = Stripe in UI
 order_type:        required|in:pickup,delivery
 lat/lng:           nullable|numeric
-payment_screenshot: nullable|file|mimes:jpg,jpeg,png,pdf|max:2048
+payment_screenshot: nullable|file|mimes:jpg,jpeg,png,gif,webp,avif,pdf|max:8192
+                    ← widened 2026-08-17: customers commonly send WebP screenshots
+                      or AVIF phone photos. PDF kept for bank-generated proof.
 ```
 
 ### Order Number Format

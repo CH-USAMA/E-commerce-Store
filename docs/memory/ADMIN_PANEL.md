@@ -9,6 +9,58 @@
 - **Notification Bell**: Pulls unread DB notifications from `auth()->user()->unreadNotifications`
 - **Sidebar Sections**: Operations | Catalog | Network | Website | System
 
+### Layout-provided behaviour (added 2026-08-17)
+
+`layouts/admin.blade.php` now supplies two things to **all** admin pages. Do not duplicate
+them per-view, and do not remove them.
+
+**1. Global validation-error alert.** Renders `$errors->any()` above `@yield('content')`.
+Before this, only 2 of 35 admin views displayed errors at all — a rejected form silently
+redirected back to a blank page with no message, which users reported as the page "hanging".
+Individual forms may still add inline `@error(...)` for field-level highlighting, but the
+layout guarantees the message is never lost.
+
+**2. Submit-button locking.** A delegated `submit` listener disables the submit button and
+swaps its label to "Uploading…" / "Saving…" for the duration of the request.
+
+This is not cosmetic. `SESSION_DRIVER=file`, and PHP holds an **exclusive `flock()`** on the
+session file for a whole request. A second submit therefore blocks on the lock while doing
+no work of its own, and time spent waiting in a syscall does **not** count toward
+`max_execution_time` — so the duplicate request hangs indefinitely (visible as a
+never-completing request in DevTools). Preventing the second submit is the actual fix.
+
+Two implementation details that must be preserved if this is ever edited:
+
+| Detail | Why |
+|:---|:---|
+| Listener is on the **bubble** phase and checks `event.defaultPrevented` | Delete forms use inline `onsubmit="return confirm(...)"`. A capture-phase listener would lock the button even when the user cancels the confirm. |
+| `button.disabled = true` is deferred via `setTimeout(…, 0)` | Disabling a button *before* submit drops its `name`/`value` from the payload. |
+
+A `pageshow` handler unlocks forms restored from the back/forward cache.
+
+### Image upload form convention
+
+Every admin file input should follow this shape:
+
+```blade
+<input type="file" name="image"
+       class="form-control @error('image') is-invalid @enderror"
+       accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+@error('image')
+    <div class="invalid-feedback">{{ $message }}</div>
+@enderror
+<div class="form-text">JPG, PNG, GIF, WebP or AVIF &middot; max 8MB</div>
+```
+
+- Use the **explicit extension list**, not `accept="image/*"` — the latter lets an iPhone
+  offer HEIC, which the server then rejects. (`stores/` used `image/*` and was changed.)
+- `accept` is a UX filter only; the server rule is authoritative (`SECURITY.md § 9`).
+- Edit forms must show the current image via `image_url($model->image)` — never
+  `asset($model->image)` or a hand-rolled `Str::contains` check.
+- Every text/select/checkbox on a form containing an upload needs
+  `old('field', $model->field)`, because a rejected image bounces the whole form back. A file
+  input itself cannot be repopulated — the user must reselect the file.
+
 ---
 
 ## 2. Complete Admin Route Table

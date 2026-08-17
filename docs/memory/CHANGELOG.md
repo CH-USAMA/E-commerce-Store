@@ -5,6 +5,88 @@
 
 ---
 
+## [2026-08-17] — Image Upload Fixes (7 bugs) + Deployment Reality Check
+
+**Type**: Bug Fix (Admin uploads) & Documentation Correction
+**Reported as**: "sometimes when I upload images for banner or stocks it accepts webp or
+.png but sticks the UI and sometimes gives extension error"
+
+**Files Changed**: `app/helpers.php` (new), `Concerns/ValidatesImageUploads.php` (new),
+`public/.user.ini` (new), all 10 `Admin\*` upload controllers, `CartController.php`,
+`AppServiceProvider.php`, `composer.json`, `layouts/admin.blade.php`, 36 Blade views,
+`.gitignore`, `public/.gitignore`, `ARCHITECTURE.md`, `SECURITY.md`, `ADMIN_PANEL.md`,
+`DEPLOYMENT.md`, `KNOWN_ISSUES.md`, `TESTING_CHECKLIST.md`, `MEMORY.md`
+
+### Root causes — seven independent defects, which is why it looked random
+
+1. **WebP/AVIF rejected on banners.** `BannerController` used
+   `image|mimes:jpeg,png,jpg,gif,svg`. In Laravel 12 the `image` rule resolves to
+   `jpg,jpeg,png,gif,bmp,webp` and no longer implies `svg`. Both rules must pass, so the
+   real allow-list was just `jpg,jpeg,png,gif` — WebP failed on `mimes` while the message
+   advertised `svg`, which failed on `image`. Every other module used bare `image`, which
+   *does* allow WebP → the inconsistency.
+2. **Validation errors were invisible.** `layouts/admin.blade.php` had no `$errors` block
+   (2 of 35 views rendered errors) and the product/banner forms had no `old()`. A rejection
+   bounced back to a blank form with no message — the reported "stuck UI".
+3. **Requests that hung forever.** `SESSION_DRIVER=file`; PHP holds an exclusive `flock()`
+   on the session file per request, so an impatient second submit blocked on the lock doing
+   no work, and syscall waits do not count toward `max_execution_time`.
+4. **Silent write failures.** The `public` disk sets `'throw' => false`, so a failed
+   `store()` returned `false` and saved an empty image while reporting success.
+5. **Product edit could never save.** `ProductController@update` validated
+   `stocks.*` => `numeric`, but the edit form posts nested `stocks[<id>][quantity]`.
+6. **Admin Edit buttons 404'd** for products, categories and brands — views passed
+   `$model->id` to `route()` while the models bind by `slug`. The product edit form's
+   `update`/`destroy` actions were also pointed at 404 URLs.
+7. **Broken image paths.** Uploads land in `public/<folder>/` (the `public` disk root is
+   overridden to `public_path('')`), but `admin/products/index` prefixed non-legacy paths
+   with `images/` → 404 thumbnails, and `pdf/invoice.blade.php` looked under
+   `public/storage/`.
+
+### Changes
+
+- **`ValidatesImageUploads` trait** — one rule for all 11 upload paths:
+  `mimes:jpg,jpeg,png,gif,webp,avif|max:8192`, plain-language messages, and a
+  `storeImage()` that uses UUID filenames and checks the `throw => false` return value.
+  SVG stays excluded (embedded-JS/XSS risk).
+- **`image_url()` / `image_path()` / `image_relative_path()`** in `app/helpers.php` replace
+  ad-hoc `file_exists`/`Str::contains`/`'images/'`-prefixing across 28 views. Resolves all
+  three live storage schemes, so **no data migration was needed**. Registered via both
+  `composer.json` `autoload.files` **and** `AppServiceProvider::register()` so a deploy
+  without `composer dump-autoload` cannot fatal.
+- Global `$errors` alert + submit-button locking in the admin layout.
+- `old()` repopulation, inline `@error`, explicit `accept` lists and size hints on upload forms.
+- Replaced images are now pruned on update; records delete their files.
+- `public/.gitignore` gained `!.user.ini` — its blanket `*` silently swallows new files
+  (the same trap that once left `design-system.css` 404ing).
+
+### Corrections to prior documentation
+
+- **`ARCHITECTURE.md § 7` was wrong.** It claimed uploads live under `public/storage/…`.
+  They do not — the `public` disk root is `public_path('')`.
+- **The 2M/8M upload ceiling was local, not production.** Live's web SAPI allows 1536M, so
+  the 419 Page Expired path was never reachable on live. `public/.user.ini` is committed but
+  is **not** honoured on Hostinger; the binding limit is the app's own `max:8192`.
+- **Dev and live are two different GitHub repos** (`CH-USAMA/E-commerce-Store` `master` vs
+  `JabulaniGroup/Jabulani-E-commerce-Store` `main`). Pushing to dev deploys nothing. See
+  `MEMORY.md` Rule 2 for the merge-locally-then-fast-forward procedure.
+- SSH does work (`-p 65002`); the old "never give SSH instructions" rule was unfounded.
+
+### Verified
+
+All 9 public + 20 admin pages render 200 with zero empty image srcs; old-vs-new rules
+checked against real generated jpg/png/gif/webp/avif/svg files; helper verified against a
+deliberately stale autoloader; all Blade templates compile; live site confirmed 200 across
+10 routes post-deploy.
+
+**Still open**: `APP_DEBUG=true` on production (see `SECURITY.md § 8`), and EFT screenshots
+world-readable in `public/payments/`.
+
+**Deploy**: merge live's `main` locally → push → on live `git merge --ff-only` +
+`php artisan view:clear`. No migration. `composer dump-autoload` optional.
+
+---
+
 ## [2026-07-25] — Hide Pricing / Inquiry Mode
 
 **Type**: Feature (Storefront)  

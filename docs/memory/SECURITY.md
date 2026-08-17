@@ -79,6 +79,22 @@ As of [2026-04-06], the system supports granular module-level permissions for Ad
 {{ route('admin.orders.show', $order->id) }}
 ```
 
+### This is not only a disclosure rule — passing `->id` produces a hard 404
+
+Because these models bind by `slug`/`uuid`, `route('admin.products.edit', $product->id)`
+generates `/admin/products/1/edit`, which implicit binding resolves as
+`Product::where('slug', '1')` → **404**. The integer is never exposed because the page
+never loads.
+
+Found and fixed 2026-08-17: the Edit button 404'd for **products, categories and brands**,
+and the product edit form's `update`/`destroy` actions pointed at 404 URLs, so that form
+could not save at all. `stores` was already correct. 12 call sites across
+`admin/{products,categories,brands,stores}/{index,edit}.blade.php`.
+
+Blade compiles `->id` happily and the failure only appears at runtime, so this cannot be
+caught by a syntax check. Verify by rendering the index page and following its own links —
+see `TESTING_CHECKLIST.md § Route Key Binding`.
+
 ---
 
 ## 4. Mass Assignment Protection
@@ -119,7 +135,9 @@ Key validation rules enforced:
 - `payment_method`: must be `in:eft,payfast` (Online payments are dynamically routed to Stripe or Paystack)
 - `status`: must be `in:awaiting_payment,pending,processing,shipped,delivered,cancelled`
 - `order_type`: must be `in:pickup,delivery`
-- File uploads: `mimes:jpg,jpeg,png,pdf|max:2048` (2MB limit)
+- Image uploads: `mimes:jpg,jpeg,png,gif,webp,avif|max:8192` (8MB) via the
+  `ValidatesImageUploads` trait — see § 9
+- `payment_screenshot`: `mimes:jpg,jpeg,png,gif,webp,avif,pdf|max:8192`
 
 ---
 
@@ -127,20 +145,83 @@ Key validation rules enforced:
 
 | Risk | Current State | Recommended Action |
 |:---|:---|:---|
-| `APP_DEBUG=true` in production | ⚠️ Active | Set to `false` in `.env.production` immediately |
+| `APP_DEBUG=true` in production | ⚠️ **Active — re-confirmed on live 2026-08-17** | Set `APP_DEBUG=false` in the live `.env`, then `php artisan config:clear` |
+| EFT screenshots world-readable in `public/payments/` | ⚠️ Active | Move behind an auth'd controller route (Phase 5) |
 | `.env` contains SSH/DB password in comments | ⚠️ Found | Delete those comment lines from `.env` |
 | `unsafe-inline` in CSP | ⚠️ Active | Tighten in Phase 5 with nonce-based CSP |
 | Stripe keys in DB not encrypted at rest | ⚠️ Note | Consider encrypting `settings` values in Phase 5 |
 | No 2FA for admin | 🔲 Missing | Consider adding TOTP in Phase 5 |
 | No login attempt log | 🔲 Missing | Extend `ActivityLog` to record failed logins |
 
+### On `APP_DEBUG=true` with `APP_ENV=production`
+
+Verified directly in the live `.env` on 2026-08-17 — still `true`. With
+`spatie/laravel-ignition` installed, **any** visitor who triggers an unhandled exception
+receives an error page exposing stack traces, source excerpts, environment variables and
+DB credentials. No authentication is required to see it.
+
+One-line fix, but it is a production config change and was left alone deliberately pending
+sign-off:
+
+```bash
+# on live: ~/domains/jabulanigroupofcompanies.co.za/public_html/store
+sed -i 's/^APP_DEBUG=true/APP_DEBUG=false/' .env && php artisan config:clear
+```
+
+Note that `config:cache` is **not** in use here, so `config:clear` is sufficient.
+
 ---
 
 ## 9. File Upload Security
 
-- EFT screenshots: stored in `public/payments/` — publicly accessible by URL
-- Invoice logo: stored in `storage/app/public/settings/` — accessed via `Storage::url()`
-- No executable file types accepted (MIME type validation enforced)
+All image uploads go through `App\Http\Controllers\Concerns\ValidatesImageUploads`
+(see `ARCHITECTURE.md § 4`). Accepted: **`jpg,jpeg,png,gif,webp,avif`**, max **8MB**.
+
+### SVG is deliberately excluded
+
+An SVG is XML and can carry `<script>` or event handlers. Because uploads are served from
+`public/` as same-origin content, a stored SVG would execute in the site's origin — stored
+XSS with session access. Do **not** re-add it. Laravel 12 removed `svg` from the `image`
+rule for this reason; re-enabling it requires an explicit `image:allow_svg`, which this
+project does not use anywhere.
+
+Before 2026-08-17 the banner rule *claimed* to accept SVG (`mimes:jpeg,png,jpg,gif,svg`)
+but the `image` rule alongside it rejected them, so no SVG was ever stored — the exposure
+was latent, not realised.
+
+### Validation is by content, not filename
+
+`mimes` checks the file's guessed type via `Symfony\Component\Mime\MimeTypes`, not the
+client-supplied extension, so a `.txt` renamed to `.png` is rejected. Verified.
+The `accept=".jpg,.jpeg,.png,.gif,.webp,.avif"` attribute on the inputs is a UX filter
+only — never a control.
+
+### Stored filenames are UUIDs
+
+`storeImage()` names files `Str::uuid().'.'.$ext`, discarding the client filename entirely.
+This removes path-traversal and overwrite vectors, and fixes an earlier bug where banners
+used `time().$ext` so two uploads in the same second silently overwrote each other.
+
+### Locations
+
+- Image uploads: `public/{folder}/` — publicly accessible by URL (see `ARCHITECTURE.md § 7`)
+- Invoice logo: `public/settings/` — **not** `storage/app/public/settings/`
+- EFT screenshots: `public/payments/` — publicly accessible by URL
+
+> ⚠️ **Unresolved**: EFT proof-of-payment screenshots are world-readable at a guessable
+> path and may contain bank details. They should move behind an authenticated controller
+> route. Tracked as a Phase 5 item.
+
+### PHP-level upload ceiling
+
+Measured on the live **web** SAPI 2026-08-17: `upload_max_filesize` / `post_max_size` /
+`memory_limit` are all **1536M**, well above the 8MB application rule.
+`public/.user.ini` is committed but is not honoured on Hostinger.
+
+Check limits with a **web** request — `.user.ini` never applies to CLI, so `php -i` over
+SSH reports different values. If a host's `post_max_size` ever drops below an upload, PHP
+discards the entire `$_POST` including the CSRF token and the user gets a **419 Page
+Expired** rather than a validation error.
 
 ---
 
