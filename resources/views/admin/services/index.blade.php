@@ -31,14 +31,7 @@
                         @forelse($services as $service)
                             <tr>
                                 <td class="ps-4">
-                                    @php
-                                        $imagePath = $service->image;
-                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https', 'images/'])) {
-                                            $imagePath = 'images/' . $imagePath;
-                                        }
-                                        $finalUrl = $imagePath ? asset($imagePath) : asset('images/placeholder.webp');
-                                    @endphp
-                                    <img src="{{ $finalUrl }}" alt="{{ $service->title }}"
+                                    <img src="{{ image_url($service->image) }}" alt="{{ $service->title }}"
                                          style="width: 40px; height: 40px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-default);">
                                 </td>
                                 <td class="fw-semibold" style="font-size: 0.83rem;">{{ $service->title }}</td>

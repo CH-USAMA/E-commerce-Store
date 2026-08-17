@@ -3,7 +3,7 @@
 @section('title', 'Edit Product')
 
 @section('content')
-    <form action="{{ route('admin.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="row">
@@ -13,24 +13,41 @@
                         <h6 class="mb-3 fw-bold">General Information</h6>
                         <div class="mb-3">
                             <label class="form-label">Product Name</label>
-                            <input type="text" name="name" id="name" class="form-control" required
-                                value="{{ $product->name }}">
+                            <input type="text" name="name" id="name"
+                                class="form-control @error('name') is-invalid @enderror" required
+                                value="{{ old('name', $product->name) }}">
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Slug</label>
-                                <input type="text" name="slug" id="slug" class="form-control" required
-                                    value="{{ $product->slug }}">
+                                <input type="text" name="slug" id="slug"
+                                    class="form-control @error('slug') is-invalid @enderror" required
+                                    value="{{ old('slug', $product->slug) }}">
+                                @error('slug')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">SKU</label>
-                                <input type="text" name="sku" class="form-control" required value="{{ $product->sku }}">
+                                <input type="text" name="sku"
+                                    class="form-control @error('sku') is-invalid @enderror" required
+                                    value="{{ old('sku', $product->sku) }}">
+                                @error('sku')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control"
-                                rows="5">{{ $product->description }}</textarea>
+                            <textarea name="description"
+                                class="form-control @error('description') is-invalid @enderror"
+                                rows="5">{{ old('description', $product->description) }}</textarea>
+                            @error('description')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -63,24 +80,24 @@
                                                 <small class="text-muted" style="font-size: 0.7rem;">{{ $store->province }}</small>
                                             </td>
                                             <td>
-                                                <input type="number" name="stocks[{{ $store->id }}][quantity]" 
-                                                    class="form-control form-control-sm border-success-subtle bg-success-subtle/5" 
-                                                    value="{{ $stock->quantity ?? 0 }}" min="0">
+                                                <input type="number" name="stocks[{{ $store->id }}][quantity]"
+                                                    class="form-control form-control-sm border-success-subtle bg-success-subtle/5"
+                                                    value="{{ old('stocks.'.$store->id.'.quantity', $stock->quantity ?? 0) }}" min="0">
                                             </td>
                                             <td>
-                                                <input type="number" name="stocks[{{ $store->id }}][incoming]" 
-                                                    class="form-control form-control-sm border-info-subtle bg-info-subtle/5" 
-                                                    value="{{ $stock->incoming ?? 0 }}" min="0">
+                                                <input type="number" name="stocks[{{ $store->id }}][incoming]"
+                                                    class="form-control form-control-sm border-info-subtle bg-info-subtle/5"
+                                                    value="{{ old('stocks.'.$store->id.'.incoming', $stock->incoming ?? 0) }}" min="0">
                                             </td>
                                             <td>
-                                                <input type="number" name="stocks[{{ $store->id }}][reserved]" 
-                                                    class="form-control form-control-sm border-warning-subtle bg-warning-subtle/5" 
-                                                    value="{{ $stock->reserved ?? 0 }}" min="0">
+                                                <input type="number" name="stocks[{{ $store->id }}][reserved]"
+                                                    class="form-control form-control-sm border-warning-subtle bg-warning-subtle/5"
+                                                    value="{{ old('stocks.'.$store->id.'.reserved', $stock->reserved ?? 0) }}" min="0">
                                             </td>
                                             <td class="pe-3">
-                                                <input type="number" name="stocks[{{ $store->id }}][damaged]" 
-                                                    class="form-control form-control-sm border-danger-subtle bg-danger-subtle/5" 
-                                                    value="{{ $stock->damaged ?? 0 }}" min="0">
+                                                <input type="number" name="stocks[{{ $store->id }}][damaged]"
+                                                    class="form-control form-control-sm border-danger-subtle bg-danger-subtle/5"
+                                                    value="{{ old('stocks.'.$store->id.'.damaged', $stock->damaged ?? 0) }}" min="0">
                                             </td>
                                         </tr>
                                     @endforeach
@@ -97,27 +114,35 @@
                         <h6 class="mb-3 fw-bold">Pricing & Status</h6>
                         <div class="mb-3">
                             <label class="form-label">Base Price (R)</label>
-                            <input type="number" step="0.01" name="price" class="form-control" required
-                                value="{{ $product->price }}">
+                            <input type="number" step="0.01" name="price"
+                                class="form-control @error('price') is-invalid @enderror" required
+                                value="{{ old('price', $product->price) }}">
+                            @error('price')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label">VAT Rate (%)</label>
-                            <input type="number" step="0.01" name="vat_rate" class="form-control"
-                                value="{{ $product->vat_rate ?? '0.00' }}" required>
+                            <input type="number" step="0.01" name="vat_rate"
+                                class="form-control @error('vat_rate') is-invalid @enderror"
+                                value="{{ old('vat_rate', $product->vat_rate ?? '0.00') }}" required>
+                            @error('vat_rate')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="featuredSwitch"
-                                {{ $product->is_featured ? 'checked' : '' }}>
+                                @checked(old('is_featured', $product->is_featured))>
                             <label class="form-check-label" for="featuredSwitch">Featured Product</label>
                         </div>
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" name="is_top_selling" value="1"
-                                id="topSellingSwitch" {{ $product->is_top_selling ? 'checked' : '' }}>
+                                id="topSellingSwitch" @checked(old('is_top_selling', $product->is_top_selling))>
                             <label class="form-check-label" for="topSellingSwitch">Top Selling Item</label>
                         </div>
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" name="is_new_arrival" value="1"
-                                id="newArrivalSwitch" {{ $product->is_new_arrival ? 'checked' : '' }}>
+                                id="newArrivalSwitch" @checked(old('is_new_arrival', $product->is_new_arrival))>
                             <label class="form-check-label" for="newArrivalSwitch">New Arrival</label>
                         </div>
                     </div>
@@ -131,7 +156,8 @@
                             <select name="category_id" id="main-category" class="form-select" required>
                                 <option value="">Select Category</option>
                                 @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" data-children="{{ $category->children->toJson() }}" {{ $product->category_id == $category->id ? 'selected' : '' }}>
+                                    <option value="{{ $category->id }}" data-children="{{ $category->children->toJson() }}"
+                                        @selected(old('category_id', $product->category_id) == $category->id)>
                                         {{ $category->name }}
                                     </option>
                                 @endforeach
@@ -143,7 +169,8 @@
                                 <option value="">Select Sub-Category</option>
                                 @if($product->category && $product->category->children)
                                     @foreach($product->category->children as $child)
-                                        <option value="{{ $child->id }}" {{ $product->subcategory_id == $child->id ? 'selected' : '' }}>
+                                        <option value="{{ $child->id }}"
+                                            @selected(old('subcategory_id', $product->subcategory_id) == $child->id)>
                                             {{ $child->name }}
                                         </option>
                                     @endforeach
@@ -155,7 +182,8 @@
                             <select name="brand_id" class="form-select">
                                 <option value="">Select Brand</option>
                                 @foreach($brands as $brand)
-                                    <option value="{{ $brand->id }}" {{ $product->brand_id == $brand->id ? 'selected' : '' }}>
+                                    <option value="{{ $brand->id }}"
+                                        @selected(old('brand_id', $product->brand_id) == $brand->id)>
                                         {{ $brand->name }}
                                     </option>
                                 @endforeach
@@ -169,11 +197,20 @@
                         <h6 class="mb-3 fw-bold">Product Image</h6>
                         @if($product->image)
                             <div class="mb-2">
-                                <img src="{{ (Str::contains($product->image, 'images/') ? asset($product->image) : asset('' . $product->image)) }}"
+                                <img src="{{ image_url($product->image) }}"
                                     alt="{{ $product->name }}" class="img-fluid rounded shadow-sm">
                             </div>
                         @endif
-                        <input type="file" name="image" class="form-control">
+                        {{-- accept= filters the picker so the wrong format is caught before the
+                             upload starts. Explicit list rather than image/*, which lets iPhone
+                             HEIC through only to be rejected server-side. --}}
+                        <input type="file" name="image"
+                            class="form-control @error('image') is-invalid @enderror"
+                            accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+                        @error('image')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">JPG, PNG, GIF, WebP or AVIF &middot; max 8MB</div>
                     </div>
                 </div>
 
@@ -187,7 +224,7 @@
         </div>
     </form>
 
-    <form id="delete-form" action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
+    <form id="delete-form" action="{{ route('admin.products.destroy', $product) }}" method="POST"
         style="display: none;">
         @csrf
         @method('DELETE')

@@ -138,3 +138,14 @@ git push                       # Push the revert
 - **SSL**: Managed by Hostinger (Let's Encrypt auto-renewal)
 - **Document Root**: Must point to `/public` folder of the Laravel app
 - **Composer**: Available on Hostinger via SSH
+- **Upload limits — `public/.user.ini`**: Hostinger runs PHP-FPM/CGI and honours this file.
+  It sets `upload_max_filesize=16M` / `post_max_size=24M`, which the image upload rules
+  (`max:8192`) depend on being higher than they are. **This file must be deployed** — it is not
+  gitignored. Changes take up to 5 minutes to apply (`user_ini.cache_ttl`) or need a PHP-FPM
+  restart from the control panel. Verify after deploy with a temporary `phpinfo()` route, then
+  remove it. If the ceiling silently reverts to the 2M default, uploads over 8MB will fail with
+  a 419 Page Expired instead of a validation message.
+- **`composer dump-autoload` after pulling** any change to `composer.json`'s `autoload.files`
+  — `app/helpers.php` (which provides `image_url()`/`image_path()`, used by ~28 views) is loaded
+  through it. Without the dump, every page rendering an image throws
+  `Call to undefined function image_url()`.

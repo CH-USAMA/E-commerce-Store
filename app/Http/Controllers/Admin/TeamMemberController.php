@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ValidatesImageUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class TeamMemberController extends Controller
 {
+    use ValidatesImageUploads;
+
     public function index()
     {
         $members = \App\Models\TeamMember::latest()->paginate(10);
@@ -24,11 +27,11 @@ class TeamMemberController extends Controller
             'name' => 'required|string|max:255',
             'role' => 'required|string|max:255',
             'bio' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
-        ]);
+            'image' => $this->imageRules(),
+        ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('team', 'public');
+            $validated['image'] = $this->storeImage($request, 'image', 'team');
         }
 
         \App\Models\TeamMember::create($validated);
@@ -50,14 +53,16 @@ class TeamMemberController extends Controller
             'name' => 'required|string|max:255',
             'role' => 'required|string|max:255',
             'bio' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
-        ]);
+            'image' => $this->imageRules(),
+        ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
-            if ($member->image) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($member->image);
+            $oldImage = $member->image;
+            $validated['image'] = $this->storeImage($request, 'image', 'team');
+
+            if ($oldImage) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImage);
             }
-            $validated['image'] = $request->file('image')->store('team', 'public');
         }
 
         $member->update($validated);

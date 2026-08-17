@@ -165,11 +165,7 @@
                                                 <div class="flex items-center gap-4">
                                                     <div
                                                         class="w-14 h-14 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0 group-hover:border-gold-400/30 transition-all duration-500">
-                                                        @php
-                                                            $image = $item->product->image ?? '';
-                                                            $imageSrc = $image ? (Str::contains($image, 'images/') ? asset($image) : asset('' . $image)) : asset('images/placeholder.webp');
-                                                        @endphp
-                                                        <img src="{{ $imageSrc }}"
+                                                        <img src="{{ image_url($item->product->image ?? null) }}"
                                                             class="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700">
                                                     </div>
                                                     <span

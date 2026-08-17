@@ -57,13 +57,7 @@
                                             <!-- Product Info -->
                                             <div class="md:col-span-6 flex items-center gap-4 sm:gap-6">
                                                 <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0 bg-dark shadow-lg">
-                                                    @php
-                                                        $imgSrc = 'images/placeholder.webp';
-                                                        if ($product->image && file_exists(public_path($product->image))) {
-                                                            $imgSrc = implode('/', array_map('rawurlencode', explode('/', $product->image)));
-                                                        }
-                                                    @endphp
-                                                    <img src="{{ asset($imgSrc) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                                    <img src="{{ image_url($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                                                 </div>
                                                 <div class="min-w-0">
                                                     <p class="text-[8px] font-black text-gold-400 uppercase tracking-widest mb-1 opacity-60">#{{ str_pad($product->id, 5, '0', STR_PAD_LEFT) }}</p>

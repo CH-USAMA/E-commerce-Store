@@ -16,29 +16,52 @@
                         @method('PUT')
                         <div class="mb-3">
                             <label for="title" class="form-label">Title</label>
-                            <input type="text" name="title" id="title" class="form-control" value="{{ $banner->title }}"
-                                required>
+                            <input type="text" name="title" id="title"
+                                class="form-control @error('title') is-invalid @enderror"
+                                value="{{ old('title', $banner->title) }}" required>
+                            @error('title')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label for="subtitle" class="form-label">Subtitle</label>
-                            <input type="text" name="subtitle" id="subtitle" class="form-control"
-                                value="{{ $banner->subtitle }}">
+                            <input type="text" name="subtitle" id="subtitle"
+                                class="form-control @error('subtitle') is-invalid @enderror"
+                                value="{{ old('subtitle', $banner->subtitle) }}">
+                            @error('subtitle')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
-                            <textarea name="description" id="description" class="form-control"
-                                rows="3">{{ $banner->description }}</textarea>
+                            <textarea name="description" id="description"
+                                class="form-control @error('description') is-invalid @enderror"
+                                rows="3">{{ old('description', $banner->description) }}</textarea>
+                            @error('description')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label d-block">Current Image</label>
-                            <img src="{{ (Str::contains($banner->image, 'images/') ? asset($banner->image) : asset('' . $banner->image)) }}"
+                            <img src="{{ image_url($banner->image) }}"
                                 alt="{{ $banner->title }}" class="img-thumbnail mb-2" width="200">
-                            <input type="file" name="image" id="image" class="form-control">
+                            <input type="file" name="image" id="image"
+                                class="form-control @error('image') is-invalid @enderror"
+                                accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+                            @error('image')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                             <small class="text-muted">Leave empty to keep current image.</small>
+                            <div class="form-text">JPG, PNG, GIF, WebP or AVIF &middot; max 8MB</div>
                         </div>
                         <div class="mb-3">
                             <label for="link" class="form-label">Link (Optional)</label>
-                            <input type="text" name="link" id="link" class="form-control" value="{{ $banner->link }}">
+                            <input type="text" name="link" id="link"
+                                class="form-control @error('link') is-invalid @enderror"
+                                value="{{ old('link', $banner->link) }}">
+                            @error('link')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('admin.banners.index') }}" class="btn btn-outline-secondary">Back</a>

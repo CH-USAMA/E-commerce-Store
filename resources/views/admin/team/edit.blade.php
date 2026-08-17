@@ -24,26 +24,21 @@
                             <textarea name="bio" class="form-control" rows="5">{{ $member->bio }}</textarea>
                         </div>
                         <div class="mb-3 text-center">
-                            @php
-                                $imageSrc = $member->image;
-                                if ($imageSrc && !Str::startsWith($imageSrc, ['http', 'https'])) {
-                                    if (Str::contains($imageSrc, 'images/')) {
-                                        $imageSrc = asset($imageSrc);
-                                    } else {
-                                        $imageSrc = asset('' . $imageSrc);
-                                    }
-                                } elseif (!$imageSrc) {
-                                    $imageSrc = asset('images/placeholder-team.webp');
-                                }
-                            @endphp
                             @if($member->image)
                                 <div class="mb-2">
-                                    <img src="{{ $imageSrc }}" alt="{{ $member->name }}" width="120" height="120"
+                                    <img src="{{ image_url($member->image, 'images/placeholder-team.webp') }}"
+                                        alt="{{ $member->name }}" width="120" height="120"
                                         class="rounded-circle shadow-sm object-fit-cover border border-2 border-warning">
                                 </div>
                             @endif
                             <label class="form-label d-block text-start">Change Profile Photo (Optional)</label>
-                            <input type="file" name="image" class="form-control">
+                            <input type="file" name="image"
+                                class="form-control @error('image') is-invalid @enderror"
+                                accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+                            @error('image')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text text-start">JPG, PNG, GIF, WebP or AVIF &middot; max 8MB</div>
                         </div>
                         <div class="mt-4 gap-2 d-flex justify-content-between">
                             <button type="button" class="btn btn-outline-danger"

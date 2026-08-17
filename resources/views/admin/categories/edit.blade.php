@@ -7,7 +7,7 @@
         <div class="col-md-6">
             <div class="border-0 shadow-sm card">
                 <div class="p-4 card-body">
-                    <form action="{{ route('admin.categories.update', $category->id) }}" method="POST"
+                    <form action="{{ route('admin.categories.update', $category) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -25,12 +25,18 @@
                             <label class="form-label">Category Image</label>
                             @if($category->image)
                                 <div class="mb-2">
-                                    <img src="{{ (Str::contains($category->image, 'images/') ? asset($category->image) : asset('storage/' . $category->image)) }}"
+                                    <img src="{{ image_url($category->image) }}"
                                         alt="{{ $category->name }}" class="img-fluid rounded shadow-sm"
                                         style="max-height: 100px;">
                                 </div>
                             @endif
-                            <input type="file" name="image" class="form-control">
+                            <input type="file" name="image"
+                                class="form-control @error('image') is-invalid @enderror"
+                                accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+                            @error('image')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">JPG, PNG, GIF, WebP or AVIF &middot; max 8MB</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Parent Category</label>
@@ -52,7 +58,7 @@
                             </div>
                         </div>
                     </form>
-                    <form id="delete-form" action="{{ route('admin.categories.destroy', $category->id) }}" method="POST"
+                    <form id="delete-form" action="{{ route('admin.categories.destroy', $category) }}" method="POST"
                         style="display: none;">
                         @csrf
                         @method('DELETE')

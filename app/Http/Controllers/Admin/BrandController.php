@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ValidatesImageUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class BrandController extends Controller
 {
+    use ValidatesImageUploads;
+
     public function index()
     {
         $brands = \App\Models\Brand::paginate(20);
@@ -23,11 +26,11 @@ class BrandController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:brands,slug',
-            'logo' => 'nullable|image|max:2048',
-        ]);
+            'logo' => $this->imageRules(),
+        ], $this->imageMessages('logo'));
 
         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('brands', 'public');
+            $validated['logo'] = $this->storeImage($request, 'logo', 'brands');
         }
 
         \App\Models\Brand::create($validated);
@@ -45,11 +48,16 @@ class BrandController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:brands,slug,' . $brand->id,
-            'logo' => 'nullable|image|max:2048',
-        ]);
+            'logo' => $this->imageRules(),
+        ], $this->imageMessages('logo'));
 
         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('brands', 'public');
+            $oldLogo = $brand->logo;
+            $validated['logo'] = $this->storeImage($request, 'logo', 'brands');
+
+            if ($oldLogo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldLogo);
+            }
         }
 
         $brand->update($validated);

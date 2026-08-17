@@ -198,13 +198,7 @@
                             <div class="w-20 h-20 rounded-3xl overflow-hidden border border-white/10 flex-shrink-0 group-hover:border-gold-400/40 transition-all duration-700 shadow-2xl relative">
                                 <div class="absolute inset-0 bg-gold-400/5 group-hover:bg-transparent transition-colors"></div>
                                 @if($item->product)
-                                    @php
-                                        $imgOrderSrc = 'images/placeholder.webp';
-                                        if ($item->product->image && file_exists(public_path($item->product->image))) {
-                                            $imgOrderSrc = implode('/', array_map('rawurlencode', explode('/', $item->product->image)));
-                                        }
-                                    @endphp
-                                    <img src="{{ asset($imgOrderSrc) }}" class="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000">
+                                    <img src="{{ image_url($item->product->image) }}" class="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center bg-white/5 text-dark-muted"><i class="fas fa-box-archive text-2xl"></i></div>
                                 @endif

@@ -65,7 +65,7 @@
     <!-- Page Header -->
     <div class="relative py-24 overflow-hidden bg-dark">
         <div class="absolute inset-0 opacity-10">
-            <img src="{{ $store->image ? (Str::contains($store->image, 'images/') ? asset($store->image) : asset('' . $store->image)) : asset('images/logo_yellow2.png') }}" 
+            <img src="{{ image_url($store->image, 'images/logo_yellow2.png') }}" 
                  class="w-full h-full object-cover blur-sm scale-110" alt="Background">
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -167,7 +167,7 @@
                 <div class="space-y-12">
                     <div class="group relative aspect-[4/3] rounded-[3rem] overflow-hidden border-4 border-gold-400/20 shadow-2xl cursor-pointer"
                          @click="open()">
-                        <img src="{{ $store->image ? (Str::contains($store->image, 'images/') ? asset($store->image) : asset('' . $store->image)) : asset('images/logo_yellow2.png') }}" 
+                        <img src="{{ image_url($store->image, 'images/logo_yellow2.png') }}" 
                              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="{{ $store->name }}">
                         
                         @if($store->video_url)

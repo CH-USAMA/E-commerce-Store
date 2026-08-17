@@ -27,10 +27,16 @@
                             </select>
                         </div>
                         <div class="mb-3 text-center">
-                            <img src="{{ (Str::contains($item->image, 'images/') ? asset($item->image) : asset('' . $item->image)) }}"
+                            <img src="{{ image_url($item->image) }}"
                                 class="img-fluid rounded shadow-sm mb-3" style="max-height: 300px;">
                             <label class="form-label d-block text-start">Replace Image (Optional)</label>
-                            <input type="file" name="image" class="form-control">
+                            <input type="file" name="image"
+                                class="form-control @error('image') is-invalid @enderror"
+                                accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+                            @error('image')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text text-start">JPG, PNG, GIF, WebP or AVIF &middot; max 8MB</div>
                         </div>
                         <div class="mt-4 gap-2 d-flex justify-content-end">
                             <a href="{{ route('admin.gallery.index') }}" class="btn btn-outline-secondary">Cancel</a>

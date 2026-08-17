@@ -11,19 +11,9 @@
 
     {{-- Image --}}
     <div class="relative aspect-square overflow-hidden bg-dark-card">
-        @php
-            // The file name might contain special characters like '+'. Browser interprets '+' as space.
-            // We need to encode the path segments correctly for the src attribute.
-            $imageSrc = 'images/placeholder.webp';
-            if ($product->image && file_exists(public_path($product->image))) {
-                // Split by '/' and encode each segment, then join back
-                $segments = explode('/', $product->image);
-                $encodedSegments = array_map('rawurlencode', $segments);
-                $imagePath = implode('/', $encodedSegments);
-                $imageSrc = $imagePath;
-            }
-        @endphp
-        <img src="{{ asset($imageSrc) }}"
+        {{-- image_url() handles the per-segment encoding ('+' would otherwise be read as a
+             space) and the placeholder fallback. --}}
+        <img src="{{ image_url($product->image) }}"
             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             alt="{{ $product->name }}">
 

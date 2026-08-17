@@ -27,7 +27,7 @@
                         @forelse($banners as $banner)
                             <tr>
                                 <td class="ps-4">
-                                    <img src="{{ (Str::contains($banner->image, 'uploads/') || Str::contains($banner->image, 'images/')) ? asset($banner->image) : asset($banner->image) }}"
+                                    <img src="{{ image_url($banner->image) }}"
                                          alt="{{ $banner->title }}"
                                          style="width: 80px; height: 42px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-default);">
                                 </td>

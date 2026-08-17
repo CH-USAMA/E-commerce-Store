@@ -38,15 +38,7 @@
                         @forelse($posts as $post)
                             <tr>
                                 <td class="ps-4">
-                                    @php
-                                        $imagePath = $post->feature_image;
-                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https'])) {
-                                            $imagePath = Str::contains($imagePath, 'images/') ? asset($imagePath) : asset($imagePath);
-                                        } elseif (!$imagePath) {
-                                            $imagePath = asset('images/placeholder.webp');
-                                        }
-                                    @endphp
-                                    <img src="{{ $imagePath }}" alt="{{ $post->title }}"
+                                    <img src="{{ image_url($post->feature_image) }}" alt="{{ $post->title }}"
                                          style="width: 52px; height: 36px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-default);">
                                 </td>
                                 <td>

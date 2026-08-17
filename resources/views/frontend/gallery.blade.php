@@ -42,12 +42,7 @@
             @if($galleryItems->count() > 0)
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach($galleryItems as $item)
-                        @php
-                            $imageSrc = $item->image;
-                            if ($imageSrc && !Str::startsWith($imageSrc, ['http', 'https'])) {
-                                $imageSrc = Str::contains($imageSrc, 'images/') ? asset($imageSrc) : asset('' . $imageSrc);
-                            }
-                        @endphp
+                        @php($imageSrc = image_url($item->image))
                         <div class="group relative card-dark p-2 rounded-3xl border-white/5 hover:border-gold-400/30 transition-all duration-500 overflow-hidden cursor-pointer shadow-2xl"
                             @click="open('{{ $imageSrc }}', '{{ $item->title ?? 'Jabulani Group' }}')">
 

@@ -7,7 +7,7 @@
         <div class="col-md-8">
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
-                    <form action="{{ route('admin.stores.update', $store->id) }}" method="POST"
+                    <form action="{{ route('admin.stores.update', $store) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -25,11 +25,19 @@
                             <label class="form-label">Store Image</label>
                             @if($store->image)
                                 <div class="mb-2">
-                                    <img src="{{ (Str::contains($store->image, 'images/') ? asset($store->image) : asset('' . $store->image)) }}"
+                                    <img src="{{ image_url($store->image) }}"
                                         alt="Store" class="rounded shadow-sm" style="height: 100px;">
                                 </div>
                             @endif
-                            <input type="file" name="image" class="form-control" accept="image/*">
+                            {{-- Explicit list rather than image/*, which lets iPhone HEIC through
+                                 only to be rejected server-side. --}}
+                            <input type="file" name="image"
+                                class="form-control @error('image') is-invalid @enderror"
+                                accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+                            @error('image')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">JPG, PNG, GIF, WebP or AVIF &middot; max 8MB</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Full Address</label>
@@ -84,7 +92,7 @@
                             </div>
                         </div>
                     </form>
-                    <form id="delete-form" action="{{ route('admin.stores.destroy', $store->id) }}" method="POST"
+                    <form id="delete-form" action="{{ route('admin.stores.destroy', $store) }}" method="POST"
                         style="display: none;">
                         @csrf
                         @method('DELETE')

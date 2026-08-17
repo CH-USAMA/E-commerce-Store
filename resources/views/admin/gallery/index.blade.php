@@ -26,7 +26,7 @@
             @foreach($items as $item)
                 <div class="col">
                     <div class="card h-100" style="overflow: hidden;">
-                        <img src="{{ Str::startsWith($item->image, ['http', 'https']) ? $item->image : (Str::contains($item->image, 'images/') ? asset($item->image) : asset($item->image)) }}"
+                        <img src="{{ image_url($item->image) }}"
                              alt="{{ $item->title }}"
                              style="width: 100%; height: 160px; object-fit: cover; border-bottom: 1px solid var(--border-default);">
                         <div class="card-body" style="padding: 0.75rem !important;">

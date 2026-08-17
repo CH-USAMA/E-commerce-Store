@@ -71,17 +71,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 @foreach($teamMembers as $member)
-                    @php
-                        $imageSrc = $member->image;
-                        if ($imageSrc && !Str::startsWith($imageSrc, ['http', 'https'])) {
-                            if (!Str::startsWith($imageSrc, 'images/')) {
-                                $imageSrc = 'images/' . ltrim($imageSrc, '/');
-                            }
-                            $imageSrc = asset($imageSrc);
-                        } else {
-                            $imageSrc = $imageSrc ?: asset('images/logo_yellow2.png');
-                        }
-                    @endphp
+                    @php($imageSrc = image_url($member->image, 'images/logo_yellow2.png'))
                     <div class="group">
                         <div class="card-dark p-2 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-gold-400/50 hover:-translate-y-2 shadow-2xl relative">
                             <div class="h-96 overflow-hidden rounded-[2.2rem] relative">

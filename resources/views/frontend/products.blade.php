@@ -126,18 +126,10 @@
                     @if($products->count())
                         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                             @foreach($products as $product)
-                                @php
-                                    $imgPath = $product->image;
-                                    if ($imgPath && !Str::startsWith($imgPath, ['http', 'https', '/'])) {
-                                        $imgPath = asset(implode('/', array_map('rawurlencode', explode('/', $imgPath))));
-                                    } elseif (!$imgPath) {
-                                        $imgPath = asset('images/placeholder.webp');
-                                    }
-                                @endphp
                                 <div class="product-card group relative bg-[#0d0d0d] rounded-[2rem] overflow-hidden border border-white/5 hover:border-gold-400/30 transition-all duration-500 hover:shadow-2xl hover:shadow-gold-400/5">
                                     {{-- Image --}}
                                     <div class="relative aspect-square overflow-hidden bg-[#111]">
-                                        <img src="{{ $imgPath }}" alt="{{ $product->name }}"
+                                        <img src="{{ image_url($product->image) }}" alt="{{ $product->name }}"
                                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
                                         @if($product->is_featured)
                                             <div class="absolute top-4 left-4">

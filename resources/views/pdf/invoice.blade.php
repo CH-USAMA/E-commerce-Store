@@ -146,8 +146,12 @@
                         </p>
                     </td>
                     <td class="company-info">
-                        @if(!empty($settings['invoice_logo']) && file_exists(public_path('storage/' . $settings['invoice_logo'])))
-                            <img src="data:image/{{ pathinfo($settings['invoice_logo'], PATHINFO_EXTENSION) }};base64,{{ base64_encode(file_get_contents(public_path('storage/' . $settings['invoice_logo']))) }}"
+                        {{-- image_path(), not image_url(): DomPDF cannot reliably fetch an http
+                             src, and the old public_path('storage/...') guess no longer matches
+                             where uploads land. --}}
+                        @php($logoPath = !empty($settings['invoice_logo']) ? image_path($settings['invoice_logo'], null) : null)
+                        @if($logoPath)
+                            <img src="data:image/{{ pathinfo($logoPath, PATHINFO_EXTENSION) }};base64,{{ base64_encode(file_get_contents($logoPath)) }}"
                                  style="max-height: 50px; margin-bottom: 10px;" alt="Logo">
                         @endif
                         <div class="company-name">{{ $settings['invoice_company_name'] ?? 'Jabulani Group' }}</div>

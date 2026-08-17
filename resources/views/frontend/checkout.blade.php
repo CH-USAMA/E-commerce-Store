@@ -479,13 +479,7 @@
                                 @foreach($products as $product)
                                     <div class="flex items-center gap-5 group/item">
                                         <div class="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 border border-white/10 group-hover/item:border-gold-400/40 transition-all shadow-xl">
-                                            @php
-                                                $imgCheckSrc = 'images/placeholder.webp';
-                                                if ($product->image && file_exists(public_path($product->image))) {
-                                                    $imgCheckSrc = implode('/', array_map('rawurlencode', explode('/', $product->image)));
-                                                }
-                                            @endphp
-                                            <img src="{{ asset($imgCheckSrc) }}" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" alt="product" loading="lazy">
+                                            <img src="{{ image_url($product->image) }}" class="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" alt="product" loading="lazy">
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-black text-white italic uppercase tracking-tight group-hover/item:text-gold-400 transition-colors" title="{{ $product->name }}">{{ $product->name }}</p>

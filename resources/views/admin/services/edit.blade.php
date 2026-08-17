@@ -33,13 +33,19 @@
                         <div class="mb-3 text-center">
                             @if($service->image)
                                 <div class="mb-2">
-                                    <img src="{{ (Str::contains($service->image, 'images/') ? asset($service->image) : asset('' . $service->image)) }}"
+                                    <img src="{{ image_url($service->image) }}"
                                         alt="{{ $service->title }}" class="img-fluid rounded shadow-sm"
                                         style="max-height: 200px;">
                                 </div>
                             @endif
                             <label class="form-label d-block text-start">Change Image (Optional)</label>
-                            <input type="file" name="image" class="form-control">
+                            <input type="file" name="image"
+                                class="form-control @error('image') is-invalid @enderror"
+                                accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+                            @error('image')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text text-start">JPG, PNG, GIF, WebP or AVIF &middot; max 8MB</div>
                         </div>
                         <div class="mt-4 gap-2 d-flex justify-content-between">
                             <button type="button" class="btn btn-outline-danger"

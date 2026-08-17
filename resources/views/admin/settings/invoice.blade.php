@@ -74,7 +74,7 @@
                 <div class="card-body text-center">
                     <div class="mb-3">
                         @if(!empty($settings['invoice_logo']))
-                            <img src="{{ asset('storage/' . $settings['invoice_logo']) }}"
+                            <img src="{{ image_url($settings['invoice_logo']) }}"
                                  alt="Invoice Logo" class="img-fluid rounded mb-2" style="max-height: 100px; background: var(--carbon-800); padding: 10px;">
                         @else
                             <div class="p-4 rounded mb-2" style="background: var(--carbon-800); border: 1px dashed var(--border-default);">
@@ -84,9 +84,14 @@
                         @endif
                     </div>
                     <label class="form-label d-block text-start">Upload Invoice Logo</label>
-                    <input type="file" name="invoice_logo" class="form-control mb-2">
+                    <input type="file" name="invoice_logo"
+                           class="form-control mb-2 @error('invoice_logo') is-invalid @enderror"
+                           accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+                    @error('invoice_logo')
+                        <div class="invalid-feedback d-block text-start">{{ $message }}</div>
+                    @enderror
                     <div style="font-size: 0.68rem; color: var(--text-muted);" class="text-start">
-                        Recommended size: 300x100px. Max 1MB (PNG, JPG).
+                        Recommended size: 300x100px. Max 1MB (JPG, PNG, GIF, WebP, AVIF).
                     </div>
                 </div>
             </div>

@@ -31,14 +31,7 @@
                         @forelse($members as $member)
                             <tr>
                                 <td class="ps-4">
-                                    @php
-                                        $imagePath = $member->image;
-                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https', 'images/'])) {
-                                            $imagePath = 'images/' . $imagePath;
-                                        }
-                                        $finalUrl = $imagePath ? asset($imagePath) : asset('images/placeholder.webp');
-                                    @endphp
-                                    <img src="{{ $finalUrl }}" alt="{{ $member->name }}"
+                                    <img src="{{ image_url($member->image) }}" alt="{{ $member->name }}"
                                          style="width: 36px; height: 36px; object-fit: cover; border-radius: 50%; border: 1px solid var(--border-default);">
                                 </td>
                                 <td class="fw-semibold" style="font-size: 0.83rem;">{{ $member->name }}</td>

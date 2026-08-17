@@ -26,7 +26,7 @@
                     class="absolute inset-0 z-10 w-full h-full" style="display: none;">
 
                     {{-- Background Image & Subtle Shadows --}}
-                    <img src="{{ asset($banner->image) }}" alt="Jabulani Hero"
+                    <img src="{{ image_url($banner->image) }}" alt="Jabulani Hero"
                         class="absolute inset-0 w-full h-full object-cover object-center" loading="eager" />
 
                     {{-- Top & Bottom Subtle Overlays for Readability --}}
@@ -153,13 +153,7 @@
                         <a href="{{ route('products', ['category' => $category->slug]) }}"
                             class="group relative aspect-[4/5] rounded-[2rem] overflow-hidden bg-dark-card border border-white/5 hover:border-gold-400/40 transition-all duration-500">
                             {{-- Image --}}
-                            @php
-                                $catImgSrc = 'images/placeholder.webp';
-                                if ($category->image && file_exists(public_path($category->image))) {
-                                    $catImgSrc = implode('/', array_map('rawurlencode', explode('/', $category->image)));
-                                }
-                            @endphp
-                            <img src="{{ asset($catImgSrc) }}"
+                            <img src="{{ image_url($category->image) }}"
                                 class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-700 opacity-80 group-hover:opacity-100"
                                 alt="{{ $category->name }}">
 

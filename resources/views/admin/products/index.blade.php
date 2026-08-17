@@ -65,14 +65,9 @@
                         @forelse($products as $product)
                             <tr>
                                 <td class="ps-4">
-                                    @php
-                                        $imagePath = $product->image;
-                                        if ($imagePath && !Str::startsWith($imagePath, ['http', 'https', 'images/'])) {
-                                            $imagePath = 'images/' . $imagePath;
-                                        }
-                                        $finalUrl = $imagePath ? asset($imagePath) : asset('images/placeholder.webp');
-                                    @endphp
-                                    <img src="{{ $finalUrl }}" alt="{{ $product->name }}"
+                                    {{-- Previously prefixed every non-legacy path with 'images/',
+                                         turning an uploaded 'products/x.webp' into a 404. --}}
+                                    <img src="{{ image_url($product->image) }}" alt="{{ $product->name }}"
                                          style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-default);">
                                 </td>
                                 <td>
@@ -93,11 +88,11 @@
                                            class="btn btn-outline-secondary btn-sm" title="View on site">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
-                                        <a href="{{ route('admin.products.edit', $product->id) }}"
+                                        <a href="{{ route('admin.products.edit', $product) }}"
                                            class="btn btn-outline-primary btn-sm" title="Edit">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST"
+                                        <form action="{{ route('admin.products.destroy', $product) }}" method="POST"
                                               class="d-inline"
                                               onsubmit="return confirm('Delete {{ addslashes($product->name) }}?')">
                                             @csrf @method('DELETE')

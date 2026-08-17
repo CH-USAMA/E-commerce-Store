@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ValidatesImageUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class GalleryItemController extends Controller
 {
+    use ValidatesImageUploads;
+
     public function index()
     {
         $items = \App\Models\GalleryItem::latest()->paginate(20);
@@ -22,12 +25,12 @@ class GalleryItemController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'image' => 'required|image|max:5120',
+            'image' => $this->imageRules(required: true),
             'category' => 'required|string|max:255', // e.g., Projects, Products, Store
-        ]);
+        ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('gallery', 'public');
+            $validated['image'] = $this->storeImage($request, 'image', 'gallery');
         }
 
         \App\Models\GalleryItem::create($validated);
@@ -46,15 +49,18 @@ class GalleryItemController extends Controller
         $item = $gallery;
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'image' => 'nullable|image|max:5120',
+            'image' => $this->imageRules(),
             'category' => 'required|string|max:255',
-        ]);
+        ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
-            if ($item->image) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($item->image);
+            $oldImage = $item->image;
+            $validated['image'] = $this->storeImage($request, 'image', 'gallery');
+
+            // Prune the replaced file only once the new one is safely written.
+            if ($oldImage) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImage);
             }
-            $validated['image'] = $request->file('image')->store('gallery', 'public');
         }
 
         $item->update($validated);

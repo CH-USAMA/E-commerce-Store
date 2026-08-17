@@ -291,7 +291,13 @@ class CartController extends Controller
             'order_type' => 'required|in:pickup,delivery',
             'lat' => 'nullable|numeric',
             'lng' => 'nullable|numeric',
-            'payment_screenshot' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            // Customers commonly send a WebP screenshot or an AVIF/HEIC phone photo.
+            // Keep PDF for bank-generated proof of payment.
+            'payment_screenshot' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp,avif,pdf|max:8192',
+        ], [
+            'payment_screenshot.mimes' => 'Please upload your proof of payment as a JPG, PNG, GIF, WebP, AVIF image or a PDF.',
+            'payment_screenshot.max' => 'Proof of payment must be 8MB or smaller.',
+            'payment_screenshot.uploaded' => 'The file was too large for the server to accept. Please use a file under 8MB.',
         ]);
 
         $cart = session()->get('cart', []);

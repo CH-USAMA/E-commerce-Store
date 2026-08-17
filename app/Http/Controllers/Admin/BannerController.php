@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ValidatesImageUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class BannerController extends Controller
 {
+    use ValidatesImageUploads;
+
+    /** Existing rows already point at uploads/banners/, so new files join them. */
+    private const IMAGE_DIR = 'uploads/banners';
+
     public function index()
     {
         $banners = \App\Models\Banner::all();
@@ -22,15 +29,13 @@ class BannerController extends Controller
     {
         $request->validate([
             'title' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+            'image' => $this->imageRules(required: true),
+        ], $this->imageMessages());
 
         $data = $request->all();
 
         if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('uploads/banners'), $imageName);
-            $data['image'] = 'uploads/banners/' . $imageName;
+            $data['image'] = $this->storeImage($request, 'image', self::IMAGE_DIR);
         }
 
         \App\Models\Banner::create($data);
@@ -47,15 +52,19 @@ class BannerController extends Controller
     {
         $request->validate([
             'title' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+            'image' => $this->imageRules(),
+        ], $this->imageMessages());
 
         $data = $request->all();
 
         if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('uploads/banners'), $imageName);
-            $data['image'] = 'uploads/banners/' . $imageName;
+            $oldImage = $banner->image;
+            $data['image'] = $this->storeImage($request, 'image', self::IMAGE_DIR);
+
+            // Only prune the replaced file once the new one is safely written.
+            if ($oldImage) {
+                Storage::disk('public')->delete($oldImage);
+            }
         }
 
         $banner->update($data);
@@ -65,8 +74,8 @@ class BannerController extends Controller
 
     public function destroy(\App\Models\Banner $banner)
     {
-        if ($banner->image && file_exists(public_path($banner->image))) {
-            unlink(public_path($banner->image));
+        if ($banner->image) {
+            Storage::disk('public')->delete($banner->image);
         }
         $banner->delete();
         return redirect()->route('admin.banners.index')->with('success', 'Banner deleted successfully.');

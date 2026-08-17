@@ -7,7 +7,7 @@
         <div class="col-md-6">
             <div class="border-0 shadow-sm card">
                 <div class="p-4 card-body">
-                    <form action="{{ route('admin.brands.update', $brand->id) }}" method="POST"
+                    <form action="{{ route('admin.brands.update', $brand) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -24,12 +24,18 @@
                         <div class="mb-3 text-center">
                             @if($brand->logo)
                                 <div class="mb-2">
-                                    <img src="{{ asset('' . $brand->logo) }}" alt="{{ $brand->name }}" width="100"
+                                    <img src="{{ image_url($brand->logo) }}" alt="{{ $brand->name }}" width="100"
                                         class="rounded shadow-sm">
                                 </div>
                             @endif
                             <label class="form-label d-block text-start">Change Logo (Optional)</label>
-                            <input type="file" name="logo" class="form-control">
+                            <input type="file" name="logo"
+                                class="form-control @error('logo') is-invalid @enderror"
+                                accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+                            @error('logo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text text-start">JPG, PNG, GIF, WebP or AVIF &middot; max 8MB</div>
                         </div>
                         <div class="mt-4 gap-2 d-flex justify-content-between">
                             <button type="button" class="btn btn-outline-danger"
@@ -40,7 +46,7 @@
                             </div>
                         </div>
                     </form>
-                    <form id="delete-form" action="{{ route('admin.brands.destroy', $brand->id) }}" method="POST"
+                    <form id="delete-form" action="{{ route('admin.brands.destroy', $brand) }}" method="POST"
                         style="display: none;">
                         @csrf
                         @method('DELETE')

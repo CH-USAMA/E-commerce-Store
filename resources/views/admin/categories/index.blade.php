@@ -32,7 +32,7 @@
                             <tr>
                                 <td class="ps-4">
                                     @if($category->image)
-                                        <img src="{{ Str::contains($category->image, 'images/') ? asset($category->image) : asset('storage/' . $category->image) }}"
+                                        <img src="{{ image_url($category->image) }}"
                                              alt="{{ $category->name }}"
                                              style="width: 36px; height: 36px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-default);">
                                     @else
@@ -52,7 +52,7 @@
                                 <td><code>{{ $category->slug }}</code></td>
                                 <td style="font-size: 0.82rem; color: var(--text-secondary);">{{ $category->parent->name ?? '—' }}</td>
                                 <td class="pe-4 text-end">
-                                    <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-outline-primary btn-sm">
+                                    <a href="{{ route('admin.categories.edit', $category) }}" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-pencil-alt"></i>
                                     </a>
                                 </td>

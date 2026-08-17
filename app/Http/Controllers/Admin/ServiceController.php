@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ValidatesImageUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
+    use ValidatesImageUploads;
+
     public function index()
     {
         $services = \App\Models\Service::latest()->paginate(10);
@@ -25,11 +28,11 @@ class ServiceController extends Controller
             'slug' => 'required|string|unique:services,slug',
             'description' => 'required|string',
             'icon' => 'nullable|string|max:255',
-            'image' => 'nullable|image|max:2048',
-        ]);
+            'image' => $this->imageRules(),
+        ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('services', 'public');
+            $validated['image'] = $this->storeImage($request, 'image', 'services');
         }
 
         \App\Models\Service::create($validated);
@@ -49,14 +52,16 @@ class ServiceController extends Controller
             'slug' => 'required|string|unique:services,slug,' . $service->id,
             'description' => 'required|string',
             'icon' => 'nullable|string|max:255',
-            'image' => 'nullable|image|max:2048',
-        ]);
+            'image' => $this->imageRules(),
+        ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
-            if ($service->image) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($service->image);
+            $oldImage = $service->image;
+            $validated['image'] = $this->storeImage($request, 'image', 'services');
+
+            if ($oldImage) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImage);
             }
-            $validated['image'] = $request->file('image')->store('services', 'public');
         }
 
         $service->update($validated);

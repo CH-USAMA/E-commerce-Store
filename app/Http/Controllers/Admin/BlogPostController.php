@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ValidatesImageUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class BlogPostController extends Controller
 {
+    use ValidatesImageUploads;
+
     public function index()
     {
         $posts = \App\Models\BlogPost::with('category', 'author')->latest()->paginate(15);
@@ -26,15 +29,15 @@ class BlogPostController extends Controller
             'slug' => 'required|string|unique:blog_posts,slug',
             'blog_category_id' => 'required|exists:blog_categories,id',
             'content' => 'required|string',
-            'feature_image' => 'nullable|image|max:2048',
+            'feature_image' => $this->imageRules(),
             'is_published' => 'boolean',
-        ]);
+        ], $this->imageMessages('feature_image'));
 
         $validated['author_id'] = auth()->id();
         $validated['is_published'] = $request->has('is_published');
 
         if ($request->hasFile('feature_image')) {
-            $validated['feature_image'] = $request->file('feature_image')->store('blog', 'public');
+            $validated['feature_image'] = $this->storeImage($request, 'feature_image', 'blog');
         }
 
         \App\Models\BlogPost::create($validated);
@@ -58,17 +61,19 @@ class BlogPostController extends Controller
             'slug' => 'required|string|unique:blog_posts,slug,' . $post->id,
             'blog_category_id' => 'required|exists:blog_categories,id',
             'content' => 'required|string',
-            'feature_image' => 'nullable|image|max:2048',
+            'feature_image' => $this->imageRules(),
             'is_published' => 'boolean',
-        ]);
+        ], $this->imageMessages('feature_image'));
 
         $validated['is_published'] = $request->has('is_published');
 
         if ($request->hasFile('feature_image')) {
-            if ($post->feature_image) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($post->feature_image);
+            $oldImage = $post->feature_image;
+            $validated['feature_image'] = $this->storeImage($request, 'feature_image', 'blog');
+
+            if ($oldImage) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImage);
             }
-            $validated['feature_image'] = $request->file('feature_image')->store('blog', 'public');
         }
 
         $post->update($validated);

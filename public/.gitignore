@@ -1,2 +1,8 @@
 *
 !.gitignore
+
+# The blanket '*' above keeps user-uploaded images out of the repo, but it also
+# silently swallows new config/assets — that is how public/css/design-system.css
+# ended up 404ing in production. Anything that must actually deploy needs an
+# explicit exception here.
+!.user.ini

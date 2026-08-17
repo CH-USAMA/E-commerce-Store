@@ -273,6 +273,22 @@
                 </div>
             @endif
 
+            {{-- Validation errors. Without this, a rejected upload redirected back to a
+                 blank form with no message at all, which read as the page hanging. --}}
+            @if($errors->any())
+                <div class="alert alert-danger d-flex align-items-start gap-2 mb-4 py-2">
+                    <i class="fas fa-exclamation-triangle mt-1" style="color: var(--error-color);"></i>
+                    <div>
+                        <div class="fw-semibold mb-1">Please fix the following:</div>
+                        <ul class="mb-0 ps-3">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
+
             @yield('content')
         </div>
     </div>
@@ -283,6 +299,69 @@
     <script>
         $(document).ready(function () {
             $('.select2').select2({ placeholder: "Select options", allowClear: true, width: '100%' });
+        });
+    </script>
+
+    <script>
+        // Lock the submit button while a form is in flight.
+        //
+        // Sessions use the `file` driver, and PHP holds an EXCLUSIVE lock on the
+        // session file for a whole request. A second submit therefore blocks on
+        // flock() doing no work of its own and sits pending indefinitely — and
+        // time spent waiting in a syscall does not count toward max_execution_time,
+        // so nothing breaks the deadlock. Uploads are the slow case that provokes
+        // the impatient second click, so preventing it is the actual fix.
+        // Bubble phase deliberately: the delete forms carry an inline
+        // onsubmit="return confirm(...)" which runs at the target first. Cancelling
+        // that confirm marks the event defaultPrevented, and we must not lock a
+        // button for a submit that never happens.
+        document.addEventListener('submit', function (event) {
+            var form = event.target;
+
+            if (event.defaultPrevented) {
+                return;
+            }
+
+            if (form.dataset.submitting === 'true') {
+                event.preventDefault();
+                return;
+            }
+
+            // Respect the browser's own required/accept checks (relevant when a
+            // form opts out of them with novalidate).
+            if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+                return;
+            }
+
+            form.dataset.submitting = 'true';
+
+            form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function (button) {
+                var hasUpload = form.querySelector('input[type="file"]') !== null;
+
+                button.dataset.originalHtml = button.innerHTML;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>'
+                    + (hasUpload ? 'Uploading…' : 'Saving…');
+
+                // Disabling before submit would drop the button's own name/value from
+                // the payload, so defer it until the request is already on the wire.
+                setTimeout(function () { button.disabled = true; }, 0);
+            });
+        });
+
+        // A cached page restored via the back button must not stay locked.
+        window.addEventListener('pageshow', function (event) {
+            if (!event.persisted) return;
+
+            document.querySelectorAll('form[data-submitting="true"]').forEach(function (form) {
+                form.dataset.submitting = 'false';
+
+                form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function (button) {
+                    button.disabled = false;
+                    if (button.dataset.originalHtml) {
+                        button.innerHTML = button.dataset.originalHtml;
+                    }
+                });
+            });
         });
     </script>
     @stack('js')

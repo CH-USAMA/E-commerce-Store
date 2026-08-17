@@ -48,11 +48,17 @@
                             <label class="form-label">Feature Image</label>
                             @if($post->feature_image)
                                 <div class="mb-2">
-                                    <img src="{{ (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('' . $post->feature_image)) }}"
+                                    <img src="{{ image_url($post->feature_image) }}"
                                         class="img-fluid rounded shadow-sm">
                                 </div>
                             @endif
-                            <input type="file" name="feature_image" class="form-control">
+                            <input type="file" name="feature_image"
+                                class="form-control @error('feature_image') is-invalid @enderror"
+                                accept=".jpg,.jpeg,.png,.gif,.webp,.avif">
+                            @error('feature_image')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">JPG, PNG, GIF, WebP or AVIF &middot; max 8MB</div>
                         </div>
                         <div class="grid d-grid gap-2">
                             <button type="submit" class="btn btn-jabulani">Update Post</button>

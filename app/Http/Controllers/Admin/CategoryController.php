@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ValidatesImageUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    use ValidatesImageUploads;
+
     public function index()
     {
         $categories = \App\Models\Category::with('parent')->paginate(20);
@@ -25,11 +28,11 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:categories,slug',
             'parent_id' => 'nullable|exists:categories,id',
-            'image' => 'nullable|image|max:2048',
-        ]);
+            'image' => $this->imageRules(),
+        ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('categories', 'public');
+            $validated['image'] = $this->storeImage($request, 'image', 'categories');
         }
 
         \App\Models\Category::create($validated);
@@ -49,14 +52,16 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:categories,slug,' . $category->id,
             'parent_id' => 'nullable|exists:categories,id',
-            'image' => 'nullable|image|max:2048',
-        ]);
+            'image' => $this->imageRules(),
+        ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
-            if ($category->image) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($category->image);
+            $oldImage = $category->image;
+            $validated['image'] = $this->storeImage($request, 'image', 'categories');
+
+            if ($oldImage) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImage);
             }
-            $validated['image'] = $request->file('image')->store('categories', 'public');
         }
 
         $category->update($validated);

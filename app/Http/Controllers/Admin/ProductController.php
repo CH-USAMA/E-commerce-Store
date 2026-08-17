@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ValidatesImageUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    use ValidatesImageUploads;
+
     public function index()
     {
         $products = \App\Models\Product::with('category', 'subcategory', 'brand')->paginate(20);
@@ -36,13 +39,13 @@ class ProductController extends Controller
             'is_featured' => 'boolean',
             'is_top_selling' => 'boolean',
             'is_new_arrival' => 'boolean',
-            'image' => 'nullable|image|max:2048',
+            'image' => $this->imageRules(),
             'stocks' => 'nullable|array',
             'stocks.*' => 'numeric',
-        ]);
+        ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $validated['image'] = $this->storeImage($request, 'image', 'products');
         }
 
         $validated['is_featured'] = $request->has('is_featured');
@@ -94,17 +97,26 @@ class ProductController extends Controller
             'is_featured' => 'boolean',
             'is_top_selling' => 'boolean',
             'is_new_arrival' => 'boolean',
-            'image' => 'nullable|image|max:2048',
+            'image' => $this->imageRules(),
+            // The edit form posts nested rows — stocks[<storeId>][quantity] etc. — unlike
+            // the create form's flat stocks[<storeId>]. A `stocks.*' => 'numeric'` rule
+            // here rejected every save as soon as one store existed.
             'stocks' => 'nullable|array',
-            'stocks.*' => 'numeric',
-        ]);
+            'stocks.*' => 'array',
+            'stocks.*.quantity' => 'nullable|numeric|min:0',
+            'stocks.*.incoming' => 'nullable|numeric|min:0',
+            'stocks.*.reserved' => 'nullable|numeric|min:0',
+            'stocks.*.damaged' => 'nullable|numeric|min:0',
+        ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($product->image) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image);
+            $oldImage = $product->image;
+            $validated['image'] = $this->storeImage($request, 'image', 'products');
+
+            // Prune the replaced file only once the new one is safely written.
+            if ($oldImage) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImage);
             }
-            $validated['image'] = $request->file('image')->store('products', 'public');
         }
 
         $validated['is_featured'] = $request->has('is_featured');

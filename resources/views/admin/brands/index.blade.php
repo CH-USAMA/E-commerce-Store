@@ -31,7 +31,7 @@
                             <tr>
                                 <td class="ps-4">
                                     @if($brand->logo)
-                                        <img src="{{ asset($brand->logo) }}" alt="{{ $brand->name }}"
+                                        <img src="{{ image_url($brand->logo) }}" alt="{{ $brand->name }}"
                                              style="width: 36px; height: 36px; object-fit: contain; border-radius: var(--radius-sm); background: rgba(255,255,255,0.05); padding: 3px; border: 1px solid var(--border-default);">
                                     @else
                                         <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: rgba(255,140,0,0.1); border: 1px solid rgba(255,140,0,0.2); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.75rem; color: var(--orange-400);">
@@ -42,7 +42,7 @@
                                 <td class="fw-semibold" style="font-size: 0.83rem;">{{ $brand->name }}</td>
                                 <td><code>{{ $brand->slug }}</code></td>
                                 <td class="pe-4 text-end">
-                                    <a href="{{ route('admin.brands.edit', $brand->id) }}" class="btn btn-outline-primary btn-sm">
+                                    <a href="{{ route('admin.brands.edit', $brand) }}" class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-pencil-alt"></i>
                                     </a>
                                 </td>

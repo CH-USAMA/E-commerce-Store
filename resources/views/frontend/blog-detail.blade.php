@@ -12,7 +12,7 @@
     <!-- Post Header -->
     <div class="relative py-24 md:py-32 overflow-hidden bg-dark">
         <div class="absolute inset-0 opacity-20">
-            <img src="{{ $post->feature_image ? (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('' . $post->feature_image)) : asset('images/placeholder.webp') }}"
+            <img src="{{ image_url($post->feature_image) }}"
                 class="w-full h-full object-cover blur-sm scale-110" alt="Background">
         </div>
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -47,7 +47,7 @@
 
             <!-- Featured Image -->
             <div class="mb-20 -mt-40 relative z-20">
-                <img src="{{ $post->feature_image ? (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('' . $post->feature_image)) : asset('images/placeholder.webp') }}"
+                <img src="{{ image_url($post->feature_image) }}"
                     class="w-full rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.5)] border border-white/5"
                     alt="{{ $post->title }}">
             </div>

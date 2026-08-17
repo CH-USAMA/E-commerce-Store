@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ValidatesImageUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -10,6 +11,11 @@ use Illuminate\Support\Facades\Storage;
 
 class SystemController extends Controller
 {
+    use ValidatesImageUploads;
+
+    /** The invoice logo is embedded in a PDF, so it stays deliberately small. */
+    private const LOGO_MAX_KB = 1024;
+
     public function sendTestEmail(Request $request)
     {
         try {
@@ -68,9 +74,9 @@ class SystemController extends Controller
             'invoice_company_email'   => 'nullable|email|max:255',
             'invoice_registration_number' => 'nullable|string|max:100',
             'invoice_footer_text'     => 'nullable|string',
-            'invoice_logo'            => 'nullable|image|max:1024',
+            'invoice_logo'            => $this->imageRules(maxKb: self::LOGO_MAX_KB),
             'eft_accounts'            => 'nullable|array',
-        ]);
+        ], $this->imageMessages('invoice_logo', self::LOGO_MAX_KB));
 
         $settings = $request->only([
             'invoice_company_name',
@@ -95,10 +101,12 @@ class SystemController extends Controller
         // Handle Logo
         if ($request->hasFile('invoice_logo')) {
             $oldLogo = \App\Models\Setting::where('key', 'invoice_logo')->first()?->value;
+            $settings['invoice_logo'] = $this->storeImage($request, 'invoice_logo', 'settings');
+
+            // Prune the replaced file only once the new one is safely written.
             if ($oldLogo) {
                 Storage::disk('public')->delete($oldLogo);
             }
-            $settings['invoice_logo'] = $request->file('invoice_logo')->store('settings', 'public');
         }
 
         foreach ($settings as $key => $value) {

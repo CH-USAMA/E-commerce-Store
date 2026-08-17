@@ -4,8 +4,8 @@
 @section('meta_description', Str::limit(strip_tags($product->description ?? 'Buy ' . $product->name . ' from Jabulani Group. Quality hardware and building materials in South Africa.'), 160))
 @section('meta_keywords', $product->name . ', building materials, hardware, South Africa, ' . optional($product->category)->name . ', ' . optional($product->brand)->name . ', buy online')
 @section('og_type', 'product')
-@if($product->image && file_exists(public_path($product->image)))
-    @section('og_image', asset($product->image))
+@if($product->image && image_path($product->image, null))
+    @section('og_image', image_url($product->image))
 @endif
 
 @push('seo')
@@ -18,8 +18,8 @@
     @if($product->sku)
     "sku": "{{ $product->sku }}",
     @endif
-    @if($product->image && file_exists(public_path($product->image)))
-    "image": "{{ asset($product->image) }}",
+    @if($product->image && image_path($product->image, null))
+    "image": "{{ image_url($product->image) }}",
     @endif
     "brand": {
         "@@type": "Brand",
@@ -66,15 +66,7 @@
                     <div
                         class="relative card-dark p-1.5 rounded-[2.5rem] border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent shadow-2xl overflow-hidden">
                         <div class="relative aspect-square overflow-hidden rounded-[2.2rem] bg-[#0d0d0d]">
-                            @php
-                                $imgSingSrc = 'images/placeholder.webp';
-                                if ($product->image && file_exists(public_path($product->image))) {
-                                    $segments = explode('/', $product->image);
-                                    $encodedSegments = array_map('rawurlencode', $segments);
-                                    $imgSingSrc = implode('/', $encodedSegments);
-                                }
-                            @endphp
-                            <img src="{{ asset($imgSingSrc) }}" alt="{{ $product->name }}"
+                            <img src="{{ image_url($product->image) }}" alt="{{ $product->name }}"
                                 class="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110">
 
                             <div class="absolute top-6 left-6 flex flex-col gap-2">

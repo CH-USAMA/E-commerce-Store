@@ -32,7 +32,7 @@
                         <article
                             class="group relative card-dark p-2 rounded-[2.5rem] border-white/5 hover:border-gold-400/30 transition-all duration-500 shadow-2xl">
                             <div class="relative h-72 overflow-hidden rounded-[2.2rem]">
-                                <img src="{{ $post->feature_image ? (Str::contains($post->feature_image, 'images/') ? asset($post->feature_image) : asset('' . $post->feature_image)) : asset('images/placeholder.webp') }}"
+                                <img src="{{ image_url($post->feature_image) }}"
                                     class="w-full h-full object-cover grayscale-0 transition-transform duration-700 group-hover:scale-110"
                                     alt="{{ $post->title }}">
 

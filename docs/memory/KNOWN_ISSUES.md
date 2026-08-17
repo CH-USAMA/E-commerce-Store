@@ -51,6 +51,59 @@
 
 ## Resolved Issues (Historical)
 
+### [2026-08-17] Image Uploads: Extension Errors, Silent Failures, Hanging Requests
+Six overlapping defects that together made banner/product image uploads look random.
+
+1. **Laravel 12's `image` rule no longer implies SVG.** It resolves to
+   `jpg,jpeg,png,gif,bmp,webp`; SVG now needs an explicit `image:allow_svg`
+   (`vendor/laravel/framework/.../ValidatesAttributes.php::validateImage`). `BannerController`
+   used `image|mimes:jpeg,png,jpg,gif,svg`, and since both rules must pass the real allow-list
+   was only `jpg,jpeg,png,gif` — WebP failed on `mimes` while the message advertised SVG, and
+   SVG failed on `image`. Every other module used bare `image`, which *does* allow WebP, hence
+   "sometimes works". **Fix**: `App\Http\Controllers\Concerns\ValidatesImageUploads` trait now
+   supplies one rule (`mimes:jpg,jpeg,png,gif,webp,avif`) to all 11 upload controllers. SVG is
+   excluded on purpose — it can carry embedded JavaScript.
+2. **Validation errors were never displayed.** `layouts/admin.blade.php` had no `$errors` block
+   (only 2 of 35 admin views rendered errors), and the product/banner forms used zero `old()`.
+   A rejected upload bounced back to a blank form with no message, which read as a hang.
+   **Fix**: global `$errors` alert in the admin layout + `old()`/`@error` on the image forms.
+3. **PHP aborted large uploads before Laravel ran.** `upload_max_filesize=2M`,
+   `post_max_size=8M`. Over the post limit PHP discards all of `$_POST`, dropping the CSRF
+   token → 419 Page Expired. **Fix**: `public/.user.ini` raises the ceiling to 16M/24M, and
+   Laravel's `max:8192` now sits below it so oversize files get a readable message.
+   Gallery previously promised `max:5120` while PHP capped at 2M — unsatisfiable.
+4. **Requests that hung forever in the Network tab.** `SESSION_DRIVER=file`; PHP holds an
+   exclusive `flock()` on the session file for a whole request, so an impatient second submit
+   blocked on the lock doing no work. Time waiting in a syscall does not count toward
+   `max_execution_time`, so nothing broke the deadlock. **Fix**: submit-button locking in
+   `layouts/admin.blade.php` prevents the second request being issued at all.
+5. **`'throw' => false` on the `public` disk hid write failures.** A failed `store()` returned
+   `false`, so the record saved with an empty image and still reported success.
+   **Fix**: `ValidatesImageUploads::storeImage()` checks the return value and aborts.
+6. **`ProductController@update` could never save with a store present.** It validated
+   `stocks.*' => 'numeric'`, but the edit form posts nested `stocks[<id>][quantity]`, so
+   `stocks.<id>` is an array. **Fix**: nested `stocks.*.quantity` etc. rules.
+
+Also fixed along the way: banners named files `time().ext` (two uploads in the same second
+overwrote each other — now uuid); replaced images were not pruned on update; `pdf/invoice.blade.php`
+looked for the logo under `public/storage/`, which is not where uploads land.
+
+### [2026-08-17] Admin Edit/Update/Delete 404 for Products, Categories & Brands
+`Product`, `Category`, `Brand` and `Store` all override `getRouteKeyName()` to return `'slug'`,
+but the admin views passed `$model->id` to `route()`. That generated `/admin/products/1/edit`,
+which implicit binding resolved as `Product::where('slug', '1')` → **404**.
+
+Confirmed broken before the fix: the Edit button 404'd on products, categories and brands
+(stores' index already passed the model). The product edit form's `update` and `destroy` actions
+were also pointed at 404 URLs, so **the product edit form could not save at all** — which is the
+same class of bug already recorded for orders on 2026-04-01, just never fixed for these four.
+
+**Fix**: pass the model, not `->id` — `route('admin.products.edit', $product)`. 12 call sites
+across `admin/{products,categories,brands,stores}/{index,edit}.blade.php`.
+
+**Rule**: for any model overriding `getRouteKeyName()`, always pass the model instance to
+`route()`. Passing `->id` compiles fine and fails only at runtime, as a 404.
+
 ### [2026-04-01] Admin Order URLs Using Integer IDs After UUID Migration
 - `route('admin.orders.show', $order->id)` was used instead of `route('admin.orders.show', $order)`
 - Fixed in: `admin/orders/show.blade.php`, `branch/orders/show.blade.php`
@@ -80,3 +133,18 @@
 5. **Order status values**: The valid set is `awaiting_payment,pending,processing,shipped,delivered,cancelled`. Adding a new status requires updating: `OrderController@update` validation, checkout blade status badges, and ideally the `TESTING_CHECKLIST.md`.
 6. **Cart stored as JSON**: `users.cart_data` is a JSON column. Product IDs are the keys. Always integer product IDs (not UUIDs) for cart — UUIDs are for URLs only.
 7. **FULLTEXT search**: Requires MySQL (not SQLite). Local `database.sqlite` cannot run FULLTEXT queries — always test search on MySQL.
+8. **Rendering a stored image path**: always use the `image_url()` helper (`app/helpers.php`), never
+   `asset($model->image)` or a hand-rolled `file_exists`/`Str::contains` check. Three storage
+   schemes are live at once — `images/*` (legacy seed), `uploads/banners/*`, and `<folder>/*` from
+   the `public` disk — and `image_url()` is the only thing that resolves all three plus the
+   placeholder fallback and `+`-in-filename encoding. For DomPDF use `image_path()` instead; it
+   returns a filesystem path, which is what DomPDF needs.
+9. **The `public` disk root is overridden** to `public_path('')` in `config/filesystems.php`, NOT
+   Laravel's default `storage_path('app/public')`. So `->store('products','public')` writes to
+   `public/products/`, and `asset('storage/'.$path)` is wrong. The `public/storage` symlink is
+   vestigial. The disk also sets `'throw' => false`, so always check whether a write returned `false`.
+10. **New image validation**: use the `ValidatesImageUploads` trait rather than writing rules by
+   hand, and never combine `image` with `mimes` — as of Laravel 12 their allow-lists differ over
+   SVG and you get a rule whose error message contradicts itself.
+11. **Laravel `max:` on a file must stay below PHP's `upload_max_filesize`** (`public/.user.ini`),
+   or PHP kills the request before Laravel can produce a readable error.

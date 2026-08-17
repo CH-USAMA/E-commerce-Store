@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ValidatesImageUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class StoreController extends Controller
 {
+    use ValidatesImageUploads;
+
     public function index()
     {
         $stores = \App\Models\Store::with('managers')->paginate(10);
@@ -24,7 +27,7 @@ class StoreController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:stores,slug',
-            'image' => 'nullable|image|max:2048',
+            'image' => $this->imageRules(),
             'address' => 'required|string',
             'province' => 'required|string',
             'lat' => 'nullable|numeric',
@@ -32,14 +35,12 @@ class StoreController extends Controller
             'contact_details' => 'nullable|string',
             'manager_ids' => 'nullable|array',
             'manager_ids.*' => 'exists:users,id',
-        ]);
+        ], $this->imageMessages());
+
+        $data = $validated;
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('stores', 'public');
-            $data = $validated;
-            $data['image'] = $path;
-        } else {
-            $data = $validated;
+            $data['image'] = $this->storeImage($request, 'image', 'stores');
         }
 
         $store = \App\Models\Store::create($data);
@@ -62,7 +63,7 @@ class StoreController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:stores,slug,' . $store->id,
-            'image' => 'nullable|image|max:2048',
+            'image' => $this->imageRules(),
             'address' => 'required|string',
             'province' => 'required|string',
             'lat' => 'nullable|numeric',
@@ -70,14 +71,17 @@ class StoreController extends Controller
             'contact_details' => 'nullable|string',
             'manager_ids' => 'nullable|array',
             'manager_ids.*' => 'exists:users,id',
-        ]);
+        ], $this->imageMessages());
+
+        $data = $validated;
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('stores', 'public');
-            $data = $validated;
-            $data['image'] = $path;
-        } else {
-            $data = $validated;
+            $oldImage = $store->image;
+            $data['image'] = $this->storeImage($request, 'image', 'stores');
+
+            if ($oldImage) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImage);
+            }
         }
 
         $store->update($data);
