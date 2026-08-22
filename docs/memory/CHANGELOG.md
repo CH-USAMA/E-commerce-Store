@@ -5,6 +5,40 @@
 
 ---
 
+## [2026-08-22] — Adopted Live's Mobile Hero Rework Into Git
+
+**Type**: Housekeeping (production drift)
+**Files Changed**: `resources/views/home.blade.php`, 8 deleted `public/images/*.webp`
+
+The live checkout was carrying **uncommitted** changes that existed in no repository and had
+survived at least two deploys. Discovered while deploying the category-ordering feature.
+
+- `home.blade.php` — the hero content block becomes `justify-between` on small screens and
+  `sm:justify-center` above, splitting bullets / heading / CTAs into explicit top and bottom
+  blocks so the hero stops overflowing on portrait phones. Copied down from live with `scp`;
+  the resulting diff was byte identical (same md5) to the server's own `git diff`.
+- The 8 `public/images/*.webp` deletions were confirmed safe before being recorded: no hits
+  in `app/`, `resources/`, `routes/` or public assets, and no rows in `categories.image`,
+  `banners.image`/`image_mobile`, `products.image` or `stores.image` referenced them on the
+  production database. (An initial `LIKE '%PVA%'`-style scan looked like 11 hits; all were
+  `images/products/*.png` uploads, unrelated files.)
+
+### Procedure worth repeating
+
+Live's working copy was verified with `git hash-object resources/views/home.blade.php`
+against the committed blob (`068fd93…`) **before** running `git checkout -- .` there. Matching
+hashes are what make discarding the working tree provably lossless; without that check the
+clean-up is a guess. Backups were taken first regardless
+(`~/deploy-backups/home.blade.php.pre-category-order` + `uncommitted.pre-category-order.patch`)
+and rollback branches `backup-pre-category-order` / `backup-pre-hero-adopt` were set.
+
+Live's tracked tree is now clean for the first time in at least two deploys. The habit that
+produced the drift has not changed, so check `git status` on live before every git operation.
+
+**Deploy**: no migration, no new routes. Blade changed → `view:clear`.
+
+---
+
 ## [2026-08-22] — Category Display Order (per-parent sort_order + reorder arrows)
 
 **Type**: Feature (Admin)
