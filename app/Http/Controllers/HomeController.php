@@ -11,7 +11,7 @@ class HomeController extends Controller
         $banners = \Illuminate\Support\Facades\Cache::remember('banners', 3600, fn() => \App\Models\Banner::ordered()->get());
         $stores = \Illuminate\Support\Facades\Cache::remember('stores_all', 3600, fn() => \App\Models\Store::all());
         $brands = \Illuminate\Support\Facades\Cache::remember('brands', 3600, fn() => \App\Models\Brand::all());
-        $categories = \Illuminate\Support\Facades\Cache::remember('categories_top', 3600, fn() => \App\Models\Category::topLevel()->with('children')->get());
+        $categories = \Illuminate\Support\Facades\Cache::remember('categories_top', 3600, fn() => \App\Models\Category::topLevel()->ordered()->with('children')->get());
         // Fetch products by new flags, with fallbacks for unflagged databases.
         // ->active() keeps deactivated products off the storefront (see Product::scopeActive).
         $featuredProducts = \App\Models\Product::active()->with('category', 'subcategory')->where('is_featured', true)->take(12)->get();
@@ -98,7 +98,7 @@ class HomeController extends Controller
     public function products(Request $request)
     {
         // Top-level categories with their sub-categories
-        $topCategories = \App\Models\Category::topLevel()->with('children')->get();
+        $topCategories = \App\Models\Category::topLevel()->ordered()->with('children')->get();
 
         $selectedCategory = $request->get('category');
         $selectedSubcategory = $request->get('subcategory');

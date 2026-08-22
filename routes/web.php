@@ -127,6 +127,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard')->middleware('permission:view_analytics');
     Route::resource('stores', \App\Http\Controllers\Admin\StoreController::class);
     Route::middleware(['permission:manage_products'])->group(function () {
+        // Declared BEFORE the resource so 'categories/{category}/move/{direction}'
+        // is not shadowed by the resource's own {category} wildcards.
+        Route::post('categories/{category}/move/{direction}', [\App\Http\Controllers\Admin\CategoryController::class, 'move'])
+            ->whereIn('direction', ['up', 'down'])
+            ->name('categories.move');
         Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
         Route::resource('brands', \App\Http\Controllers\Admin\BrandController::class);
         Route::get('products/export', [\App\Http\Controllers\Admin\ProductController::class, 'export'])->name('products.export');

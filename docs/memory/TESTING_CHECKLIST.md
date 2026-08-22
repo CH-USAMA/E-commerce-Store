@@ -254,6 +254,25 @@ banner stayed invisible for up to 60 minutes. Live had 5 rows rendering 4 slides
 - [ ] Setting Display Order by hand on the edit form takes effect
 - [ ] Two banners sharing a Display Order still render in a stable order (`id` breaks the tie)
 
+### Category ordering
+- [ ] `admin/categories` lists parents with their sub-categories nested, numbered `1`, `1.1`, `2`, …
+- [ ] The list is **not** paginated — every category is on one page, so both arrows always
+      have a visible neighbour
+- [ ] Up arrow moves a category one position earlier; down arrow one later
+- [ ] Up is disabled on the first row of a sibling group, down on the last — **including for
+      sub-categories**, so the first child of a parent refuses "up" even though other
+      categories sort before it globally
+- [ ] Moving a sub-category never reorders the top level, and vice versa
+- [ ] Reordering shows on the homepage "Shop By Category" grid immediately (`categories_top`
+      invalidated by the swap)
+- [ ] The `/products` sidebar shows the same order — parents **and** their sub-categories
+- [ ] The category dropdowns on the admin product create/edit forms use the same order
+- [ ] Creating a category with **Display Order blank** puts it **last in its own group**, not first
+- [ ] Setting Display Order by hand on the edit form takes effect
+- [ ] Editing a category and changing its **parent** with Display Order blank lands it at the
+      end of the new parent's list, not at whatever position it held under the old one
+- [ ] Two categories sharing a Display Order still render in a stable order (`id` breaks the tie)
+
 ---
 
 ## 7c. Recently Viewed & Order Again

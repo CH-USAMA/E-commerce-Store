@@ -5,6 +5,65 @@
 
 ---
 
+## [2026-08-22] — Category Display Order (per-parent sort_order + reorder arrows)
+
+**Type**: Feature (Admin)
+**Files Changed**: migration `add_sort_order_to_categories_table` (new),
+`admin/categories/partials/move.blade.php` (new), `Category.php`,
+`Admin/CategoryController.php`, `HomeController.php`, `Admin/ProductController.php`,
+`routes/web.php`, `admin/categories/{index,create,edit}.blade.php`, `DATABASE_SCHEMA.md`,
+`ADMIN_PANEL.md`, `FEATURE_MAP.md`, `TESTING_CHECKLIST.md`
+
+Categories rendered in primary-key order in all four places they appear, so the sequence
+could only be changed by deleting and re-creating rows. This is the banner-ordering pattern
+from 2026-08-17 applied to categories, with one structural difference: categories are a tree,
+so the order is per parent.
+
+- **`categories.sort_order`** — unsigned int, default 0, composite index
+  `(parent_id, sort_order)` because every ordering query filters by parent first.
+  **Backfilled to `id`** on migration so the live order was preserved exactly, both at the
+  top level and inside each parent group; without it every row would default to 0 and the
+  category grid could silently reshuffle on deploy.
+- **`Category::ordered()`** — `sort_order` then `id`. Applied at every call site that faces a
+  shopper or an admin: the homepage grid (`categories_top`), the `/products` sidebar, and the
+  product form dropdowns. **`Category::children()` carries `ordered()` on the relation**, so
+  every `with('children')` is ordered without the call site having to remember.
+- **Per-parent scope.** `move()` confines its neighbour search to rows sharing the row's
+  `parent_id`, so a child can never trade places with an unrelated branch and the bounds are
+  those of its own sibling group.
+- **The admin list is now a tree and is no longer paginated.** An arrow is meaningless when
+  its neighbour sits on another page — the move would look like it did nothing until you
+  flipped pages. Parents show with their children nested, numbered `1`, `1.1`, `1.2`, `2`, …
+  The arrow control is one shared partial so parent and child rows cannot drift apart.
+- **Display Order** field on both forms. Blank on create means *last in its sibling group*
+  (`Category::nextSortOrder($parentId)`), not position 0. Blank on update keeps the current
+  position — unless the parent changed, in which case the row lands at the end of its new
+  group, since a position inherited from the group it just left means nothing there.
+- The `categories.move` route is registered **before** `Route::resource('categories', …)`,
+  matching the banners precedent.
+
+### Verified
+
+Ran against a throwaway SQLite database (local MySQL was down), 17 checks, all passing:
+backfill left `sort_order == id` for every row and preserved both the top-level and
+per-parent order; moving a category up stepped it one position at a time; the first row
+refused "up" and the last refused "down" without changing anything; the first child of a
+parent refused "up" even though another parent's children sort before it globally; child
+moves left the top level untouched and vice versa; a tied pair still swapped rather than
+no-oping; `nextSortOrder()` returned the end of the correct sibling group and `1` for a
+parent with no children yet; and a save cleared `categories_top`. `php artisan view:cache`
+compiles all four Blade files, and `route:list` shows `admin.categories.move` registered.
+
+Not exercised: the browser UI itself, and the migration against MySQL — the composite index
+and the `orderBy`-on-`update` backfill both need a real `php artisan migrate` on a MySQL
+database. The pre-existing `ExampleTest` still fails locally because it hits `/`, which needs
+MySQL; unrelated to this change.
+
+**Deploy**: requires `php artisan migrate`. New route → **`php artisan route:clear` is
+mandatory** (see MEMORY.md Rule 2). Blade changed → `view:clear`.
+
+---
+
 ## [2026-08-17] — Recently Viewed, "Order Again", and a Working Product Status
 
 **Type**: Feature (Storefront + User Portal) & Bug Fix

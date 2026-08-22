@@ -97,6 +97,7 @@
 | Invoice PDF | `GET /admin/orders/{order}/invoice` | `Admin\OrderController@invoice` | Order, Setting | auth,role:admin |
 | Products (CRUD+Import/Export) | `/admin/products/**` | `Admin\ProductController` | Product, Category, Brand, ProductStoreStock | auth,role:admin |
 | Categories (CRUD) | `/admin/categories/**` | `Admin\CategoryController` | Category | auth,role:admin |
+| Category reorder | `POST /admin/categories/{category}/move/{up\|down}` | `Admin\CategoryController@move` | Category | auth,role:admin,permission:manage_products |
 | Brands (CRUD) | `/admin/brands/**` | `Admin\BrandController` | Brand | auth,role:admin |
 | Stores (CRUD) | `/admin/stores/**` | `Admin\StoreController` | Store, User | auth,role:admin |
 | Users (CRUD) | `/admin/users/**` | `Admin\UserController` | User | auth,role:admin |

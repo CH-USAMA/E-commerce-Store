@@ -18,7 +18,7 @@ class ProductController extends Controller
 
     public function create()
     {
-        $categories = \App\Models\Category::topLevel()->with('children')->get();
+        $categories = \App\Models\Category::topLevel()->ordered()->with('children')->get();
         $brands = \App\Models\Brand::all();
         $stores = \App\Models\Store::all();
         return view('admin.products.create', compact('categories', 'brands', 'stores'));
@@ -73,7 +73,7 @@ class ProductController extends Controller
 
     public function edit(\App\Models\Product $product)
     {
-        $categories = \App\Models\Category::topLevel()->with('children')->get();
+        $categories = \App\Models\Category::topLevel()->ordered()->with('children')->get();
         $brands = \App\Models\Brand::all();
         $stores = \App\Models\Store::with([
             'stocks' => function ($q) use ($product) {

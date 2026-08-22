@@ -1,6 +1,6 @@
 # Project Memory — Jabulani Store
 
-> **Last Updated**: 2026-08-17 (Image Uploads, Banner Ordering, APP_DEBUG, Payment-Flow Review)
+> **Last Updated**: 2026-08-22 (Category Display Order — see `ADMIN_PANEL.md § 1b`)
 > **Commerce Status**: ⚠️ **Inquiry mode** — `hide_pricing = '1'`, no payment gateway
 > configured, enquiries route to WhatsApp. See Rule 10 before re-enabling pricing.
 > **Live URL**: https://store.jabulanigroupofcompanies.co.za

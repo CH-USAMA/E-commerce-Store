@@ -125,6 +125,15 @@
 | `slug` | varchar unique | |
 | `parent_id` | bigint FK null | Self-join for subcategories |
 | `image` | varchar null | |
+| `sort_order` | unsigned int, default 0 | *added 2026-08-22.* Lowest shows first. Composite index `(parent_id, sort_order)`. Backfilled to `id` on migration so the pre-existing on-screen order was preserved |
+
+Order comes from `Category::ordered()` (`sort_order` then `id` — `id` is the tie-breaker so
+the sequence is deterministic even when two rows share a `sort_order`). The order is scoped
+**per parent**: top-level categories are ordered among themselves and each parent's children
+are ordered within that parent, which is why the index leads on `parent_id`. New categories
+default to the end of their sibling group via `Category::nextSortOrder($parentId)`.
+`Category::children()` applies `ordered()` on the relation, so every `with('children')` gets
+the admin's sequence without the call site having to ask. See `ADMIN_PANEL.md § 1b`.
 
 ### `brands`
 | Column | Type | Notes |

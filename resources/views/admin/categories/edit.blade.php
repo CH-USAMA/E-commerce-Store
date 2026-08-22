@@ -49,6 +49,20 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label for="sort_order" class="form-label">Display Order</label>
+                            <input type="number" name="sort_order" id="sort_order" min="0"
+                                class="form-control @error('sort_order') is-invalid @enderror"
+                                value="{{ old('sort_order', $category->sort_order) }}">
+                            @error('sort_order')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">
+                                Lowest number shows first, within this category's own level.
+                                Clear it and move the category to a different parent to send it to
+                                the end of the new list.
+                            </div>
+                        </div>
                         <div class="mt-4 gap-2 d-flex justify-content-between">
                             <button type="button" class="btn btn-outline-danger"
                                 onclick="if(confirm('Are you sure? This will delete the category.')) document.getElementById('delete-form').submit();">Delete</button>

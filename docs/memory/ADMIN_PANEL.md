@@ -117,6 +117,45 @@ renumbering the whole list, and nudges by ±1 if the pair happens to be tied. Bo
 
 ---
 
+## 1b. Category Display Order
+
+*Added 2026-08-22.* Categories previously rendered in primary-key order everywhere, so the
+sequence could only be changed by deleting and re-creating rows. `categories.sort_order` now
+drives it via `Category::ordered()`, applied at every call site that faces a shopper or an
+admin: `HomeController::index` (the homepage "Shop By Category" grid, cached as
+`categories_top`), `HomeController::products` (the /products sidebar), and
+`Admin\ProductController@create/edit` (the product form dropdowns). `Category::children()`
+carries `ordered()` on the relation itself, so `with('children')` is ordered for free — do
+not re-sort children at the call site.
+
+**The order is per parent.** Top-level categories are ordered among themselves; each
+parent's sub-categories are ordered within that parent. A child can never sort against an
+unrelated branch, so `move()` confines its neighbour search to rows sharing the row's
+`parent_id`. This matters for the /products sidebar, which renders both levels.
+
+**The admin list is a tree and is deliberately NOT paginated.** An up/down arrow is
+meaningless when its neighbour sits on another page — the move would look like it did
+nothing until you flipped pages. `admin/categories` shows each parent with its children
+nested underneath, numbered `1`, `1.1`, `1.2`, `2`, … The arrows
+(`POST admin/categories/{category}/move/{up|down}`) are disabled at the bounds of the row's
+**own** sibling group, so the first child of a parent refuses "up" even though other
+categories sort before it globally. The arrow control is one partial,
+`admin/categories/partials/move.blade.php`, shared by both row types so they cannot drift.
+
+Both forms expose a numeric **Display Order** field. Blank on create means *last in its
+sibling group* (`Category::nextSortOrder($parentId)`), not position 0. Blank on update keeps
+the current position — unless the parent changed, in which case the row lands at the end of
+its new group, because a position inherited from the group it just left means nothing.
+
+The move action swaps the two rows' `sort_order` values inside a transaction rather than
+renumbering the whole list, and nudges by ±1 if the pair happens to be tied. Both saves fire
+`saved`, so the `categories_top` cache is invalidated automatically.
+
+> The `categories.move` route is declared **before** `Route::resource('categories', …)` in
+> `routes/web.php`, matching the banners precedent.
+
+---
+
 ## 2. Complete Admin Route Table
 
 | Method | URI | Controller@Method | Route Name |
@@ -135,6 +174,7 @@ renumbering the whole list, and nudges by ±1 if the pair happens to be tied. Bo
 | POST | `/admin/products/import` | `Admin\ProductController@import` | `admin.products.import` |
 | GET/POST/PUT/DELETE | `/admin/stores/**` | `Admin\StoreController` (resource) | `admin.stores.*` |
 | GET/POST/PUT/DELETE | `/admin/categories/**` | `Admin\CategoryController` | `admin.categories.*` |
+| POST | `/admin/categories/{category}/move/{up\|down}` | `Admin\CategoryController@move` | `admin.categories.move` |
 | GET/POST/PUT/DELETE | `/admin/brands/**` | `Admin\BrandController` | `admin.brands.*` |
 | GET/POST/PUT/DELETE | `/admin/users/**` | `Admin\UserController` | `admin.users.*` |
 | GET/POST/PUT/DELETE | `/admin/banners/**` | `Admin\BannerController` | `admin.banners.*` |
