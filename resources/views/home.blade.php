@@ -56,47 +56,69 @@
                     </div>
 
                     {{-- Content --}}
-                    <div class="relative z-20 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-                        <div class="max-w-xl md:max-w-4xl pt-40">
-                            {{-- Bullet Points --}}
-                            <div class="flex flex-wrap items-center gap-1 md:gap-2 mb-8 animate-fade-in-up" style="animation-delay: 0.1s;">
-                                @foreach(['Hardware stores', 'Crush & Quarry', 'Building material'] as $bullet)
-                                    <div
-                                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-white/10 backdrop-blur-md hover:bg-black/60 transition-colors">
-                                        <span
-                                            class="w-1.5 h-1.5 rounded-full bg-gold-400 shadow-[0_0_10px_rgba(var(--brand-primary-rgb),0.8)]"></span>
-                                        <span class="text-[10px] font-black uppercase tracking-widest text-white/90">
-                                            {{ $bullet }}
-                                        </span>
-                                    </div>
-                                @endforeach
-                            </div>
+                   <div class="relative z-20 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-between sm:justify-center">
 
-                            <h1
-                                class="text-4xl lg:text-6xl font-black text-white leading-[1.1] mb-8 tracking-tighter uppercase italic drop-shadow-2xl">
-                                {!! str_replace('Jabulani Group of Companies', '<span class="gradient-text">Jabulani Group</span> <br><span class="text-4xl md:text-6xl text-white/90">of Companies</span>', $banner->title) !!}
-                            </h1>
+    {{-- TOP: Bullet Points --}}
+    <div class="max-w-xl md:max-w-4xl pt-24 sm:mb-4 sm:pt-40">
+        <div class="flex flex-wrap items-center gap-1 md:gap-2 animate-fade-in-up"
+            style="animation-delay: 0.1s;">
+            @foreach(['Hardware stores', 'Crush & Quarry', 'Building material'] as $bullet)
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-white/10 backdrop-blur-md hover:bg-black/60 transition-colors">
+                    <span
+                        class="w-1.5 h-1.5 rounded-full bg-gold-400 shadow-[0_0_10px_rgba(var(--brand-primary-rgb),0.8)]">
+                    </span>
 
-                            <p class="text-xl text-gray-200 mb-10 max-w-2xl font-medium leading-relaxed drop-shadow-md">
-                                {{ $banner->description }}
-                            </p>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-white/90">
+                        {{ $bullet }}
+                    </span>
+                </div>
+            @endforeach
+        </div>
+    </div>
 
-                            <div class="flex flex-wrap items-center gap-6">
-                                <a href="{{ route('products') }}"
-                                    class="group relative px-5 py-2 bg-gold-400 overflow-hidden rounded-full transition-all duration-300 hover:shadow-[0_0_30px_rgba(var(--brand-primary-rgb),0.4)] hover:-translate-y-1">
-                                    <span
-                                        class="relative z-10 text-dark font-black uppercase tracking-widest text-xs flex items-center gap-2">
-                                        Shop Now <i
-                                            class="fas fa-shopping-bag text-xs transition-transform group-hover:scale-125"></i>
-                                    </span>
-                                </a>
-                                <a href="{{ route('contact') }}"
-                                    class="px-5 py-2 border-2 border-white/20 rounded-full text-white font-black uppercase tracking-widest text-xs hover:bg-white hover:text-black hover:border-white transition-all duration-300 backdrop-blur-sm">
-                                    Get Quote
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+
+    {{-- BOTTOM: Main Content --}}
+    <div class="max-w-xl md:max-w-4xl pb-24 sm:pb-0">
+
+        <h1
+            class="text-4xl lg:text-6xl font-black text-white leading-[1.1] mb-4 sm:mb-8 tracking-tighter uppercase italic drop-shadow-2xl">
+            {!! str_replace(
+                'Jabulani Group of Companies',
+                '<span class="gradient-text">Jabulani Group</span> <br>
+                 <span class="text-4xl md:text-6xl text-white/90">of Companies</span>',
+                $banner->title
+            ) !!}
+        </h1>
+
+        <p
+            class="text-xl text-gray-200 mb-4 sm:mb-10 max-w-2xl font-medium leading-relaxed drop-shadow-md">
+            {{ $banner->description }}
+        </p>
+
+        <div class="flex flex-wrap items-center gap-6">
+
+            <a href="{{ route('products') }}"
+                class="group relative px-5 py-2 bg-gold-400 overflow-hidden rounded-full transition-all duration-300 hover:shadow-[0_0_30px_rgba(var(--brand-primary-rgb),0.4)] hover:-translate-y-1">
+
+                <span
+                    class="relative z-10 text-dark font-black uppercase tracking-widest text-xs flex items-center gap-2">
+                    Shop Now
+                    <i class="fas fa-shopping-bag text-xs transition-transform group-hover:scale-125"></i>
+                </span>
+
+            </a>
+
+            <a href="{{ route('contact') }}"
+                class="px-5 py-2 border-2 border-white/20 rounded-full text-white font-black uppercase tracking-widest text-xs hover:bg-white hover:text-black hover:border-white transition-all duration-300 backdrop-blur-sm">
+                Get Quote
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
                 </div>
             @endforeach
 
