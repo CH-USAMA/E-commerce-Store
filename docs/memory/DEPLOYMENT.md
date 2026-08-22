@@ -166,6 +166,29 @@ Password auth and publickey are both accepted. Add keys under
 **hPanel → Websites → Advanced → SSH Access**. If SSH is unavailable, hPanel's
 **Advanced → GIT** page can pull without a shell.
 
+### Live's working tree is often dirty — check it FIRST
+
+A collaborator edits files directly on the production server (confirmed by the owner
+2026-08-22). **Before any git operation on live**, including the very first fetch:
+
+```bash
+ssh -p 65002 u175002435@82.25.96.26   'cd ~/domains/jabulanigroupofcompanies.co.za/public_html/store && git status --porcelain'
+```
+
+Untracked `.env.backup-*` is normal. A ` M` or ` D` line is undeclared production drift that
+exists in no repository — one `git checkout`, `reset --hard`, `stash` or `clean` destroys it,
+and `git merge` refuses outright if the incoming commit touches a dirty path.
+
+Full handling procedure — back up, then either merge past it or adopt it into git with a
+`git hash-object` equality proof before cleaning the tree — is **`MEMORY.md` Rule 11**. Read
+it before touching a dirty live tree; the hash check is the step that makes the clean-up
+provably lossless rather than a guess.
+
+Worked example: 2026-08-22, a `home.blade.php` hero rework plus 8 image deletions that had
+survived two deploys uncommitted (`CHANGELOG.md`, commit `4553dd1`).
+
+---
+
 ### Live git remote differs from the dev remote
 
 Measured 2026-08-17 — these are **two different GitHub repositories**:

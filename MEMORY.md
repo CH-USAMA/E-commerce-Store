@@ -22,7 +22,7 @@
 | [ADMIN_PANEL.md](docs/memory/ADMIN_PANEL.md) | Full route table, settings registry |
 | [USER_PORTAL.md](docs/memory/USER_PORTAL.md) | Auth user journey, notifications, addresses |
 | [SECURITY.md](docs/memory/SECURITY.md) | RBAC, middleware, UUID rules, known risks |
-| [DEPLOYMENT.md](docs/memory/DEPLOYMENT.md) | Git push → Hostinger pull protocol |
+| [DEPLOYMENT.md](docs/memory/DEPLOYMENT.md) | Git push → Hostinger pull protocol; **check live for drift first — Rule 11** |
 | [TESTING_CHECKLIST.md](docs/memory/TESTING_CHECKLIST.md) | Per-feature smoke tests |
 | [KNOWN_ISSUES.md](docs/memory/KNOWN_ISSUES.md) | Bugs, workarounds, gotchas |
 | [FEATURE_MAP.md](docs/memory/FEATURE_MAP.md) | Feature → route → controller → model lookup |
@@ -190,6 +190,50 @@ Note `/order-success` and `/track-order` are deliberately **unguarded** so exist
 keep working, so the Stripe bypass is already partly live against pre-existing
 `pending` + `payfast` orders.
 
+
+### Rule 11 — Check Live For Drift BEFORE You Start (as of 2026-08-22)
+
+**A collaborator edits files directly on the production server.** Confirmed by the owner on
+2026-08-22. Treat live as a checkout that may hold work existing in no repository, and check
+it at the *start* of any task that will touch git — not when a merge finally refuses.
+
+```bash
+ssh -p 65002 u175002435@82.25.96.26   'cd ~/domains/jabulanigroupofcompanies.co.za/public_html/store && git status --porcelain && git log -3 --oneline'
+```
+
+Untracked `.env.backup-*` files are normal and should stay untracked. Anything else —
+a ` M` or ` D` line — is undeclared production drift. Do not run `git checkout`, `git reset`,
+`git stash` or `git clean` on live until it is dealt with.
+
+**Dealing with it, losslessly:**
+
+1. **Back up first, always**: `git diff > ~/deploy-backups/<name>.patch` plus a real file copy.
+   Set a rollback branch: `git branch -f backup-pre-<change> HEAD`.
+2. **If your incoming commit does not touch those paths**, `git merge --ff-only` straight
+   through — git leaves unrelated dirty files alone. Verify the paths do not overlap first.
+3. **If it does touch them, or you simply want the drift captured**, adopt it into git:
+   `scp` the file down, commit it on `master`, push, then on live prove the working copy
+   matches what you committed **before** cleaning:
+
+   ```bash
+   # local
+   git rev-parse HEAD:resources/views/home.blade.php
+   # live — these two hashes MUST be identical
+   git hash-object resources/views/home.blade.php
+   ```
+
+   Matching hashes are what make `git checkout -- .` provably lossless. Without that check it
+   is a guess, and a wrong guess is unrecoverable. Then clean the tree and fast-forward.
+
+Deleting files the drift removed? Prove they are unreferenced first — grep `app/`,
+`resources/`, `routes/` **and** query the production database (`categories.image`,
+`banners.image`/`image_mobile`, `products.image`, `stores.image`). Use exact paths, not
+`LIKE '%name%'`: a loose scan for the 2026-08-22 image deletions returned 11 false hits that
+were all unrelated `images/products/*.png` uploads.
+
+History: on 2026-08-22 live was carrying a `home.blade.php` mobile hero rework (+62/−40) and
+8 `public/images/*.webp` deletions that had survived **two** deploys uncommitted. Adopted as
+`4553dd1`. See `CHANGELOG.md` for the full procedure.
 
 ---
 
