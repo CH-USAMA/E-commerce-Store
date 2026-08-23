@@ -170,6 +170,30 @@ the admin's sequence without the call site having to ask. See `ADMIN_PANEL.md §
 | `invoice_footer_text` | string | Footer on PDF |
 | `invoice_logo` | path string | `settings/{uuid}.{ext}` in **`public/settings/`** (not `storage/app/public/`). Max 1MB. The PDF embeds it via `image_path()`, not a URL — DomPDF cannot fetch http. See `ARCHITECTURE.md § 7` |
 
+### `specials`
+
+*Added 2026-08-24.* Seasonal branch flyers on `/specials`, previously a hardcoded PHP array
+inside `frontend/specials.blade.php`.
+
+| Column | Type | Notes |
+|:---|:---|:---|
+| `id` | PK | route key (specials are **not** slug/uuid-bound, like banners) |
+| `title` | string | card heading, e.g. "Mt Frere Specials" |
+| `subtitle` | string, nullable | small line under the title, e.g. "Available at Branch Only" |
+| `image` | string, **nullable** | compressed WebP grid thumbnail, generated from `image_full` by `App\Support\ImageThumbnailer`. Nullable so a failed encode degrades to showing the full flyer rather than losing the row |
+| `image_full` | string, required | full-resolution flyer opened in the lightbox |
+| `is_active` | boolean, default true | hides from the storefront without deleting |
+| `sort_order` | unsigned int, default 0, **indexed** | lowest shows first |
+
+Order comes from `Special::ordered()` (`sort_order` then `id`). New rows default to the end
+via `Special::nextSortOrder()`. `Special::active()` is what the storefront reads.
+
+Two accessors carry the fallback logic: `grid_image` (thumbnail, falling back to `image_full`)
+and `lightbox_image` (always `image_full`). Views should use those, never the raw columns.
+
+The migration seeds the three cards that were hardcoded, pointing at their existing
+`public/images/*` paths, so the page renders identically the moment it runs.
+
 ### `banners`
 
 | Column | Type | Notes |

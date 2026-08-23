@@ -5,6 +5,74 @@
 
 ---
 
+## [2026-08-24] — Admin-Managed Seasonal Specials, Auto-Compression & Agency Credit
+
+**Type**: Feature (Admin + Storefront) & Bug Fix
+**Reported as**: "in special section we have some images of montfre or like this can we add an
+option in admin panel to change or modify those images as well same as banner or categories"
+**Files Changed**: migration `create_specials_table` (new), `app/Support/ImageThumbnailer.php`
+(new), `Special.php` (new), `Admin/SpecialController.php` (new),
+`admin/specials/{index,create,edit}.blade.php` (new), `partials/agency-credit.blade.php` (new),
+`HomeController.php`, `routes/web.php`, `layouts/admin.blade.php`, `layouts/frontend.blade.php`,
+`layouts/user.blade.php`, `frontend/specials.blade.php`, `frontend/orders/track.blade.php`,
+`ARCHITECTURE.md`, `DATABASE_SCHEMA.md`, `ADMIN_PANEL.md`, `FEATURE_MAP.md`,
+`TESTING_CHECKLIST.md`
+
+The three branch flyers on `/specials` were a hardcoded PHP array inside the Blade template,
+so swapping one meant a code edit and a deploy. They are now database rows with full CRUD,
+ordering, and an active toggle — the banners pattern, plus automatic image compression.
+
+- **`specials` table**, seeded with the three existing cards pointing at their current
+  `public/images/*` paths, so the page rendered identically the moment the migration ran.
+- **One upload, two images.** The admin uploads only the full flyer; `ImageThumbnailer`
+  derives the compressed WebP grid copy. The flyers are ~2245×1587 PNGs of 4–5MB rendered
+  into a 512px-tall card, so viewing the page pulled **~15MB**. Measured on the real files:
+  4.99MB → 290KB, 4.39MB → 259KB — about a **94% reduction**, ~1.3s per image.
+- **GD, not `intervention/image`.** Both machines have GD with WebP (live also has Imagick),
+  so a package would have added a composer dependency — and a `composer install` on every
+  deploy — for four native calls. `image` is nullable and every failure path returns null, so
+  a missing thumbnail costs a fallback to the full flyer and a note in the success message,
+  never the admin's upload.
+- **`deleteIfOwned()`** only removes files under `uploads/`. The seeded rows point at legacy
+  `public/images/*` assets that are tracked in git and shared across pages — the specials hero
+  and `/track-order` used the same file. An unguarded delete would have broken other pages.
+- **Page header image** is a `Setting` (`specials_hero_image`) with its own cache key
+  `specials_hero`, forgotten explicitly by `updateHero()` — no `Special` row changes, so
+  `FlushesContentCache` would never fire for it.
+- **Agency credit** — "Developed by Jabulani Tech Solutions" linking to
+  `agency.jabulanigroupofcompanies.co.za`, in the storefront and customer-portal footers as
+  one shared partial. `layouts/legacy.blade.php` also has a footer but is extended by **zero**
+  views, so it was left alone.
+
+### Bug fixed in passing
+
+`images/qumbu_special_compressed.webp` **did not exist**. It was the header background on both
+`/specials` and `/track-order`, so every load of either page made a failed request — invisible
+at 10% opacity, which is how it survived. Both now go through `image_url()`, which falls back
+to the placeholder rather than 404ing.
+
+### Verified
+
+`ImageThumbnailer` tested standalone against the real flyers: correct WebP output, capped at
+1400px, refuses to upscale a small image, returns null for a missing source. Then a temporary
+feature test, **6 passed / 49 assertions**: admin index lists the seeded rows and the header
+card; an upload stores the flyer byte-for-byte unchanged and generates a WebP thumbnail more
+than 5× smaller; `is_active` toggling adds and removes a special from `/specials`; arrows
+reorder and restore, and the first row refuses "up"; a hero upload replaces the setting, busts
+`specials_hero`, and **leaves the legacy asset it replaced on disk**; deleting a seeded special
+removes the row but not `public/images/tsolo_special.*`. Local database and files restored
+afterwards; the test was temporary (it depends on local data) and was removed.
+
+Not exercised: the browser UI itself, and behaviour under the **local** 2MB
+`upload_max_filesize` — a 5MB flyer cannot be uploaded through a local browser at all
+(MEMORY.md Rule 5); production allows 1536M. The feature test bypasses PHP's upload limit, so
+it proves the code path, not the local PHP config.
+
+**Deploy**: requires `php artisan migrate`. New routes → **`php artisan route:clear` is
+mandatory**. Blade changed → `view:clear`. No composer changes.
+
+---
+
 ## [2026-08-22] — Adopted Live's Mobile Hero Rework Into Git
 
 **Type**: Housekeeping (production drift)

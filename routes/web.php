@@ -151,6 +151,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
             ->whereIn('direction', ['up', 'down'])
             ->name('banners.move');
         Route::resource('banners', \App\Http\Controllers\Admin\BannerController::class);
+
+        // Page header image for /specials — a setting, so it sits outside the resource.
+        Route::post('specials/hero', [\App\Http\Controllers\Admin\SpecialController::class, 'updateHero'])
+            ->name('specials.hero');
+        // Declared BEFORE the resource so 'specials/{special}/move/{direction}' is not
+        // shadowed by the resource's own {special} wildcards.
+        Route::post('specials/{special}/move/{direction}', [\App\Http\Controllers\Admin\SpecialController::class, 'move'])
+            ->whereIn('direction', ['up', 'down'])
+            ->name('specials.move');
+        Route::resource('specials', \App\Http\Controllers\Admin\SpecialController::class);
     });
 
     Route::middleware(['permission:manage_orders'])->group(function () {

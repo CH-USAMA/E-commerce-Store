@@ -211,6 +211,7 @@
                 <p class="text-[10px] font-black uppercase tracking-widest text-dark-muted">
                     &copy; {{ date('Y') }} Jabulani Group (PTY) Ltd. <span class="mx-2 text-white/10">|</span> Secure Partner Portal
                 </p>
+                @include('partials.agency-credit', ['class' => 'text-[10px] font-black uppercase tracking-widest text-dark-muted mt-2'])
             </footer>
         </main>
     </div>

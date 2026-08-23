@@ -14,6 +14,7 @@
 | Product detail | `GET /product/{slug}` | `HomeController@productDetail` | Product | web |
 | Blog listing | `GET /blog` | `HomeController@blog` | BlogPost, BlogCategory | web |
 | Blog detail | `GET /blog/{slug}` | `HomeController@blogDetail` | BlogPost | web |
+| Seasonal specials | `GET /specials` | `HomeController@specials` | Special, Setting | web |
 | Store listing | `GET /stores` | `HomeController@stores` | Store | web |
 | Store detail | `GET /store/{store}` | `HomeController@storeDetail` | Store | web |
 | Search | `GET /search?q=` | `HomeController@search` | Product | web |
@@ -103,6 +104,9 @@
 | Users (CRUD) | `/admin/users/**` | `Admin\UserController` | User | auth,role:admin |
 | Banners (CRUD) | `/admin/banners/**` | `Admin\BannerController` | Banner | auth,role:admin |
 | Services (CRUD) | `/admin/services/**` | `Admin\ServiceController` | Service | auth,role:admin |
+| Specials (CRUD) | `/admin/specials/**` | `Admin\SpecialController` | Special | auth,role:admin,permission:manage_content |
+| Special reorder | `POST /admin/specials/{special}/move/{up\|down}` | `Admin\SpecialController@move` | Special | auth,role:admin,permission:manage_content |
+| Specials page header | `POST /admin/specials/hero` | `Admin\SpecialController@updateHero` | Setting | auth,role:admin,permission:manage_content |
 | Blog (CRUD) | `/admin/blog/**` | `Admin\BlogPostController` | BlogPost, BlogCategory | auth,role:admin |
 | Gallery (CRUD) | `/admin/gallery/**` | `Admin\GalleryItemController` | GalleryItem | auth,role:admin |
 | Team (CRUD) | `/admin/team/**` | `Admin\TeamMemberController` | TeamMember | auth,role:admin |

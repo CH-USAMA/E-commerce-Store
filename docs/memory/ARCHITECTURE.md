@@ -114,6 +114,8 @@ key depends on the row.
 | `team_all` | `TeamMember` | `HomeController::team` |
 | `gallery_all` | `GalleryItem` | `HomeController::gallery` |
 | `blog_post_{slug}` | `BlogPost` | `HomeController::blogDetail` |
+| `specials` | `Special` | `HomeController::specials` |
+| `specials_hero` | *(none — a `Setting`)* | `HomeController::specials`. No model owns it, so `FlushesContentCache` cannot fire; `Admin\SpecialController::updateHero` forgets it explicitly |
 
 `BlogPost` also clears the **previous** slug's key via `getOriginal('slug')` — otherwise a
 renamed post keeps serving its pre-edit copy on the old URL.

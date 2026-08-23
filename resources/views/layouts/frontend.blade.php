@@ -796,6 +796,7 @@
             class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
             <p class="text-xs text-dark-muted tracking-wide">&copy; {{ date('Y') }} JABULANI GROUP OF COMPANIES. ALL
                 RIGHTS RESERVED.</p>
+            @include('partials.agency-credit')
         </div>
     </footer>
 

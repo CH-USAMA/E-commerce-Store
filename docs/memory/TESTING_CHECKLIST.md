@@ -273,6 +273,28 @@ banner stayed invisible for up to 60 minutes. Live had 5 rows rendering 4 slides
       end of the new parent's list, not at whatever position it held under the old one
 - [ ] Two categories sharing a Display Order still render in a stable order (`id` breaks the tie)
 
+### Seasonal specials
+- [ ] `admin/specials` lists the flyers in the same order `/specials` shows them
+- [ ] Uploading a flyer creates BOTH images: the full file stored untouched, plus a
+      generated WebP thumbnail at most 1400px on its longest edge and several times smaller
+- [ ] The list marks each row "compressed" or "full size"; "full size" means the thumbnail
+      could not be generated and the grid is serving the flyer (check `storage/logs/`)
+- [ ] Clicking a card opens the **full** flyer in the lightbox, not the thumbnail
+- [ ] Unchecking "Show on the website" removes it from `/specials` but keeps the row
+- [ ] Up/down arrows reorder; disabled at the first and last row
+- [ ] Creating with **Display Order blank** puts it last, not first
+- [ ] Replacing a flyer regenerates the thumbnail and deletes the old **uploaded** files
+- [ ] Deleting a seeded special does **not** delete `public/images/*` — those are tracked
+      git assets shared with other pages (`deleteIfOwned` guards this)
+- [ ] Replacing the **Page Header Image** changes `/specials` immediately (own cache key)
+- [ ] `/specials` and `/track-order` make no failed image request (the old
+      `qumbu_special_compressed.webp` 404)
+
+### Footer credit
+- [ ] "Developed by Jabulani Tech Solutions" appears in the storefront footer and the
+      customer portal footer, linking to `https://agency.jabulanigroupofcompanies.co.za/`
+- [ ] The link opens in a new tab and carries `rel="noopener noreferrer"`
+
 ---
 
 ## 7c. Recently Viewed & Order Again

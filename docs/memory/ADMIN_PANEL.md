@@ -156,6 +156,52 @@ renumbering the whole list, and nudges by ±1 if the pair happens to be tied. Bo
 
 ---
 
+## 1c. Seasonal Specials
+
+*Added 2026-08-24.* The three branch flyers on `/specials` were a hardcoded PHP array inside
+`frontend/specials.blade.php` — changing one meant editing Blade and redeploying. They are now
+rows in `specials`, managed at **Admin > Website > Specials** (`permission:manage_content`).
+
+**One upload, two images.** The admin uploads only the full-resolution flyer. `image_full` is
+stored as-is for the lightbox, and `App\Support\ImageThumbnailer` derives the compressed WebP
+`image` for the grid. The motivating numbers: the flyers are ~2245×1587 PNGs of 4–5MB each,
+rendered into a card 512px tall — a visitor opening the page pulled ~15MB. Generated
+thumbnails come in around 290KB, a ~94% reduction.
+
+> `ImageThumbnailer` uses PHP's bundled **GD**, not `intervention/image`. GD with WebP is
+> present locally and on production (live also has Imagick), so a package would have added a
+> composer dependency — and a `composer install` step on every deploy — for four native calls.
+> It caps the longest edge at 1400px, never upscales, preserves alpha, and returns `null` on
+> any failure rather than throwing. `image` is nullable precisely so that null is survivable:
+> the grid falls back to the full flyer and the admin is told so in the success message.
+
+**Ordering** works exactly like banners — `Special::ordered()`, up/down arrows
+(`POST admin/specials/{special}/move/{up|down}`) disabled at the boundaries, and a numeric
+**Display Order** field where blank on create means last (`Special::nextSortOrder()`).
+
+**`is_active`** hides a special from the storefront without deleting it, for a season that is
+expected back. The storefront reads `Special::active()->ordered()`.
+
+**Page header image** is a *setting* (`specials_hero_image`), not a column — it belongs to the
+page, not to any one special. It is uploaded from the top of the specials list rather than
+System Settings so it is found where it is used. It has its own cache key, `specials_hero`,
+which `updateHero()` forgets explicitly: no `Special` row changed, so `FlushesContentCache`
+would not fire.
+
+> **Deletion is guarded.** `deleteIfOwned()` removes a stored file only when its path starts
+> with `uploads/`. The three seeded rows point at legacy `public/images/*` files that are
+> tracked in git and shared with other pages — the specials hero and the order-tracking page
+> referenced the same file. Deleting those would break more than the record being edited.
+
+### Fixed in passing
+
+`images/qumbu_special_compressed.webp` did not exist. It was the header background on **both**
+`/specials` and `/track-order`, so every load of either page made a failed request. At 10%
+opacity it was invisible enough to survive unnoticed. Both now resolve through `image_url()`,
+which falls back to the placeholder instead of 404ing.
+
+---
+
 ## 2. Complete Admin Route Table
 
 | Method | URI | Controller@Method | Route Name |
@@ -178,6 +224,9 @@ renumbering the whole list, and nudges by ±1 if the pair happens to be tied. Bo
 | GET/POST/PUT/DELETE | `/admin/brands/**` | `Admin\BrandController` | `admin.brands.*` |
 | GET/POST/PUT/DELETE | `/admin/users/**` | `Admin\UserController` | `admin.users.*` |
 | GET/POST/PUT/DELETE | `/admin/banners/**` | `Admin\BannerController` | `admin.banners.*` |
+| GET/POST/PUT/DELETE | `/admin/specials/**` | `Admin\SpecialController` | `admin.specials.*` |
+| POST | `/admin/specials/{special}/move/{up\|down}` | `Admin\SpecialController@move` | `admin.specials.move` |
+| POST | `/admin/specials/hero` | `Admin\SpecialController@updateHero` | `admin.specials.hero` |
 | GET/POST/PUT/DELETE | `/admin/services/**` | `Admin\ServiceController` | `admin.services.*` |
 | GET/POST/PUT/DELETE | `/admin/blog/**` | `Admin\BlogPostController` | `admin.blog.*` |
 | GET/POST/PUT/DELETE | `/admin/blog-categories/**` | `Admin\BlogCategoryController` | `admin.blog-categories.*` |
@@ -226,6 +275,7 @@ All stored in `settings` DB table. Managed via `Admin > Settings`.
 | `paystack_public_key` | string | Payments page | Paystack public key |
 | `paystack_secret_key` | string | Payments page | Paystack secret key |
 | `preferred_online_gateway` | `stripe` or `paystack` | Payments page | Active online provider |
+| `specials_hero_image` | file path | **Specials page** (not System Settings) | Header background on `/specials`. Own cache key `specials_hero`, forgotten by `SpecialController::updateHero` |
 | `theme_primary_color` | string (hex) | Theme page | Main brand color (e.g. #FF8C00) |
 | `theme_background_color`| string (hex) | Theme page | Site-wide background color |
 | `theme_surface_color` | string (hex) | Theme page | Card and surface background color |

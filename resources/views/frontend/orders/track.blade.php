@@ -6,7 +6,10 @@
     <!-- Page Header -->
     <div class="relative py-24 overflow-hidden bg-dark">
         <div class="absolute inset-0 opacity-10">
-            <img src="{{ asset('images/qumbu_special_compressed.webp') }}" class="w-full h-full object-cover"
+            {{-- image_url() falls back to the placeholder rather than 404ing; the
+                 previous asset('images/qumbu_special_compressed.webp') pointed at a
+                 file that does not exist and failed on every page load. --}}
+            <img src="{{ image_url('images/qumbu_special.webp') }}" class="w-full h-full object-cover"
                 alt="Tracking Hero">
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">

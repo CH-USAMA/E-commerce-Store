@@ -7,7 +7,7 @@
     <!-- Page Header -->
     <div class="relative py-24 overflow-hidden bg-dark">
         <div class="absolute inset-0 opacity-10">
-            <img src="{{ asset('images/qumbu_special_compressed.webp') }}" class="w-full h-full object-cover"
+            <img src="{{ image_url($heroImage) }}" class="w-full h-full object-cover"
                 alt="Specials Hero">
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -43,22 +43,16 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
-                @php
-                    $specials = [
-                        ['title' => 'Mt Frere Specials', 'img' => asset('images/mtfrere_special.webp'), 'full' => asset('images/mtfrere_special.png')],
-                        ['title' => 'Qumbu Specials', 'img' => asset('images/qumbu_special.webp'), 'full' => asset('images/qumbu_special.png')],
-                        ['title' => 'Tsolo Specials', 'img' => asset('images/tsolo_special_compressed.webp'), 'full' => asset('images/tsolo_special.png')]
-                    ];
-                @endphp
-
-                @foreach($specials as $special)
+                {{-- Managed from Admin > Website > Specials. The grid renders the
+                     compressed thumbnail; the lightbox opens the full flyer. --}}
+                @forelse($specials as $special)
                     <div class="group relative card-dark p-2 rounded-[2.5rem] border-white/5 hover:border-gold-400/30 transition-all duration-500 overflow-hidden cursor-pointer shadow-2xl"
-                        @click="open('{{ $special['full'] }}', '{{ $special['title'] }}')">
+                        @click="open('{{ image_url($special->lightbox_image) }}', @js($special->title))">
 
                         <div class="relative h-[32rem] overflow-hidden rounded-[2.2rem]">
-                            <img src="{{ $special['img'] }}"
+                            <img src="{{ image_url($special->grid_image) }}" loading="lazy"
                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                alt="{{ $special['title'] }}">
+                                alt="{{ $special->title }}">
 
                             <!-- Overlay -->
                             <div
@@ -81,12 +75,19 @@
 
                         <div class="px-8 py-8">
                             <h3 class="text-xl font-bold text-white group-hover:text-gold-400 transition-colors">
-                                {{ $special['title'] }}</h3>
-                            <p class="text-dark-muted text-[10px] font-black uppercase tracking-widest mt-2">Available at Branch
-                                Only</p>
+                                {{ $special->title }}</h3>
+                            @if($special->subtitle)
+                                <p class="text-dark-muted text-[10px] font-black uppercase tracking-widest mt-2">
+                                    {{ $special->subtitle }}</p>
+                            @endif
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="col-span-full py-20 text-center">
+                        <i class="fas fa-tags fa-2x text-gold-400/20 mb-4"></i>
+                        <p class="text-dark-muted">No specials are running right now &mdash; check back soon.</p>
+                    </div>
+                @endforelse
 
             </div>
         </div>

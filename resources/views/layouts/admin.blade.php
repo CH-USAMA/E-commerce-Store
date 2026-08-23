@@ -127,6 +127,10 @@
                class="ap-nav-link {{ request()->is('admin/banners*') ? 'active' : '' }}">
                 <i class="fas fa-image"></i> Banners
             </a>
+            <a href="{{ route('admin.specials.index') }}"
+               class="ap-nav-link {{ request()->is('admin/specials*') ? 'active' : '' }}">
+                <i class="fas fa-tags"></i> Specials
+            </a>
             <a href="{{ route('admin.services.index') }}"
                class="ap-nav-link {{ request()->is('admin/services*') ? 'active' : '' }}">
                 <i class="fas fa-concierge-bell"></i> Services

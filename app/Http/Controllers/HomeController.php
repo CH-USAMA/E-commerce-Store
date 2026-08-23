@@ -82,7 +82,21 @@ class HomeController extends Controller
 
     public function specials()
     {
-        return view('frontend.specials');
+        // Cached like the other public content. Special::saved/deleted invalidate
+        // 'specials' via FlushesContentCache; the header image has its own key
+        // because nothing about a Special row changes it, and
+        // SpecialController::updateHero forgets that one.
+        $specials = \Illuminate\Support\Facades\Cache::remember(
+            'specials', 3600,
+            fn () => \App\Models\Special::active()->ordered()->get()
+        );
+
+        $heroImage = \Illuminate\Support\Facades\Cache::remember(
+            'specials_hero', 3600,
+            fn () => \App\Models\Setting::where('key', 'specials_hero_image')->value('value')
+        );
+
+        return view('frontend.specials', compact('specials', 'heroImage'));
     }
 
     public function storeDetail(\App\Models\Store $store)
