@@ -149,13 +149,18 @@
                                         <h3 class="font-bold text-white text-sm leading-snug mb-3 line-clamp-2 group-hover:text-gold-400 transition">
                                             <a href="{{ route('product.detail', $product->slug) }}">{{ $product->name }}</a>
                                         </h3>
-                                        <div class="flex items-center justify-between">
+                                        {{-- flex-wrap + whitespace-nowrap: at three columns the card is
+                                             only ~225px wide, so "Contact for Price" and "View Details"
+                                             used to break mid-phrase onto two ragged lines each. Now each
+                                             label stays on one line and the pair drops to a second row
+                                             only when they genuinely cannot sit side by side. --}}
+                                        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
                                             @if(($settings['hide_pricing'] ?? '0') != '1')
-                                                <span class="text-gold-400 font-black text-xl">@if($product->hasPriceRange())<span class="text-xs font-bold uppercase tracking-widest opacity-70">From </span>@endif R {{ number_format($product->display_price, 2) }}</span>
+                                                <span class="text-gold-400 font-black text-xl whitespace-nowrap">@if($product->hasPriceRange())<span class="text-xs font-bold uppercase tracking-widest opacity-70">From </span>@endif R {{ number_format($product->display_price, 2) }}</span>
                                             @else
-                                                <span class="text-gold-400 font-black text-xs uppercase tracking-widest">Contact for Price</span>
+                                                <span class="text-gold-400 font-black text-xs uppercase tracking-widest whitespace-nowrap">Contact for Price</span>
                                             @endif
-                                            <a href="{{ route('product.detail', $product->slug) }}" class="text-dark-muted hover:text-gold-400 transition text-xs font-bold">
+                                            <a href="{{ route('product.detail', $product->slug) }}" class="text-dark-muted hover:text-gold-400 transition text-xs font-bold whitespace-nowrap">
                                                 View Details <i class="fas fa-arrow-right ml-1"></i>
                                             </a>
                                         </div>

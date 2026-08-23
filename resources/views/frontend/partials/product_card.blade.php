@@ -34,10 +34,12 @@
         <h3 class="text-white font-bold text-lg mb-4 line-clamp-1 group-hover:text-gold-400 transition">
             <a href="{{ route('product.detail', $product->slug) }}">{{ $product->name }}</a>
         </h3>
-        <div class="flex items-center justify-between pt-4 border-t border-white/5">
-            <span class="text-[10px] font-black text-white/30 uppercase tracking-widest">In Stock</span>
+        {{-- Same wrapping guard as the /products grid: keep each label on one line
+             and let the pair drop to a second row instead of breaking mid-phrase. --}}
+        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pt-4 border-t border-white/5">
+            <span class="text-[10px] font-black text-white/30 uppercase tracking-widest whitespace-nowrap">In Stock</span>
             <a href="{{ route('product.detail', $product->slug) }}"
-                class="text-[10px] font-black uppercase tracking-widest text-white hover:text-gold-400 transition">
+                class="text-[10px] font-black uppercase tracking-widest text-white hover:text-gold-400 transition whitespace-nowrap">
                 View Details
             </a>
         </div>
