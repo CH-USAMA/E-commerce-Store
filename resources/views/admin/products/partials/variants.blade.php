@@ -49,7 +49,7 @@
         <label for="has_variants" class="form-check-label fw-bold" style="font-size: 0.8rem;">
             This product comes in different sizes
         </label>
-        <div class="form-text" style="font-size: 0.7rem;">
+        <div class="form-text" style="font-size: 0.74rem; line-height: 1.5;">
             For things sold by length or size &mdash; a lintel in 1.2m, 1.5m, 4.6m, 4.8m.
             Customers pick the size on the product page and see that size&rsquo;s price,
             instead of you creating a separate product for each one.
@@ -64,45 +64,48 @@
             </button>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-sm align-middle mb-0">
+        <div class="table-responsive" style="padding: 0.25rem 0;">
+            <table class="table table-sm align-middle mb-0" style="min-width: 520px;">
                 <thead>
                     <tr>
-                        <th style="width: 28px;"></th>
-                        <th>Size <span class="text-danger">*</span></th>
-                        <th style="width: 130px;">Price (R) <span class="text-danger">*</span></th>
-                        <th style="width: 140px;">Code <span class="text-muted fw-normal">(optional)</span></th>
-                        <th style="width: 70px;">Shown</th>
-                        <th style="width: 44px;"></th>
+                        <th style="width: 30px;"></th>
+                        {{-- Size gets the flexible column: the label is what is being typed
+                             and "1.2m" in a 60px box was unreadable while editing. --}}
+                        <th style="min-width: 150px;">Size <span class="text-danger">*</span></th>
+                        <th style="width: 120px;">Price (R) <span class="text-danger">*</span></th>
+                        <th style="width: 130px;">Code <span class="text-muted fw-normal">(optional)</span></th>
+                        <th style="width: 62px;" class="text-center">Shown</th>
+                        <th style="width: 40px;"></th>
                     </tr>
                 </thead>
                 <tbody>
                     <template x-for="(row, i) in rows" :key="i">
                         <tr>
-                            <td class="text-muted" style="font-size: 0.7rem;" x-text="i + 1"></td>
-                            <td>
+                            <td class="text-muted py-2" style="font-size: 0.72rem;" x-text="i + 1"></td>
+                            <td class="py-2">
                                 <input type="hidden" :name="`variants[${i}][id]`" :value="row.id">
                                 <input type="text" class="form-control form-control-sm"
+                                       style="min-width: 130px; font-weight: 600; letter-spacing: 0.02em;"
                                        :name="`variants[${i}][label]`" x-model="row.label"
                                        placeholder="e.g. 1.2m">
                             </td>
-                            <td>
+                            <td class="py-2">
                                 <input type="number" step="0.01" min="0" class="form-control form-control-sm"
                                        :name="`variants[${i}][price]`" x-model="row.price"
                                        placeholder="0.00">
                             </td>
-                            <td>
+                            <td class="py-2">
                                 <input type="text" class="form-control form-control-sm"
                                        :name="`variants[${i}][sku]`" x-model="row.sku"
                                        placeholder="&mdash;">
                             </td>
-                            <td class="text-center">
+                            <td class="text-center py-2">
                                 {{-- Unchecked posts nothing, which the controller reads as false. --}}
                                 <input type="checkbox" class="form-check-input"
                                        :name="`variants[${i}][is_active]`" value="1"
                                        x-model="row.is_active">
                             </td>
-                            <td class="text-end">
+                            <td class="text-end py-2">
                                 <button type="button" class="btn btn-outline-danger btn-sm py-0 px-1"
                                         title="Remove this size" @click="remove(i)">
                                     <i class="fas fa-times" style="font-size: 0.65rem;"></i>
@@ -119,7 +122,7 @@
             </table>
         </div>
 
-        <div class="form-text mt-2" style="font-size: 0.7rem;">
+        <div class="form-text mt-2" style="font-size: 0.74rem; line-height: 1.5;">
             Sizes appear on the site in the order listed here &mdash; drag is not needed,
             just enter them in the order you want. That order matters: sizes sort badly
             alphabetically (50MM would come after 150MM).

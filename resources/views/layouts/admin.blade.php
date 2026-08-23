@@ -62,6 +62,29 @@
     </style>
     @endif
 
+    {{-- Readability fixes that must apply whether or not a custom theme is configured.
+         The block above is wrapped in @if(isset($settings['theme_primary_color'])), so
+         anything placed inside it silently disappears on an unthemed install — which is
+         exactly what happened the first time these rules were added. --}}
+    <style>
+        /* Bootstrap's .form-text is #6c757d, which on this near-black surface reads as
+           barely-there grey — the hint under a field was effectively invisible. Lifted to
+           the theme's secondary text so guidance can actually be read.
+           Lives here rather than in public/css/design-system.css because that file is
+           swallowed by the blanket '*' in public/.gitignore and would never deploy. */
+        .admin-portal .form-text {
+            color: var(--text-secondary) !important;
+            opacity: 1;
+        }
+        .admin-portal .form-check-label {
+            color: var(--text-primary);
+        }
+        /* Column headers inside a form (e.g. the size rows) sat at muted grey too. */
+        .admin-portal .table > thead th {
+            color: var(--text-secondary);
+        }
+    </style>
+
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @stack('css')
 </head>
