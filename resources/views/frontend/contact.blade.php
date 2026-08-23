@@ -7,7 +7,12 @@
     <!-- Page Header -->
     <div class="relative pt-10 pb-24 overflow-hidden bg-dark">
         <div class="absolute inset-0 opacity-10">
-            <img src="{{ asset('images/JB_About_Hero.webp') }}" class="w-full h-full object-cover" alt="Contact Background">
+            {{-- images/JB_About_Hero.webp did not exist, so this 404'd on every load of
+                 /contact. At 10% opacity it was invisible enough to go unnoticed. Reuses
+                 the fleet shot the About page already uses, through image_url() so a
+                 missing file degrades to the placeholder rather than a failed request. --}}
+            <img src="{{ image_url('images/JABULANI_Fleet.webp') }}" class="w-full h-full object-cover"
+                alt="Contact Background" loading="lazy">
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
             <h1 class="text-4xl lg:text-6xl font-black mb-4">Get in <span class="gradient-text">Touch</span></h1>

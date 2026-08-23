@@ -1,0 +1,823 @@
+/**
+ * Jabulani Admin — Carbon Pro Design System
+ * Theme: Deep Midnight + Jabulani Orange
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap');
+
+/* =========================================================
+   1. DESIGN TOKENS
+   ========================================================= */
+:root {
+    /* Brand */
+    --orange-50:  hsl(33, 100%, 96%);
+    --orange-100: hsl(33, 100%, 90%);
+    --orange-200: hsl(33, 100%, 78%);
+    --orange-300: hsl(33, 100%, 65%);
+    --orange-400: hsl(33, 96%, 55%);
+    --orange-500: hsl(33, 100%, 50%); /* #FF8C00 */
+    --orange-600: hsl(33, 100%, 42%);
+    --orange-700: hsl(33, 100%, 34%);
+    --orange-800: hsl(33, 100%, 24%);
+    --orange-900: hsl(33, 100%, 14%);
+
+    /* Grays - warm carbon */
+    --carbon-50:  hsl(220, 10%, 97%);
+    --carbon-100: hsl(220, 10%, 92%);
+    --carbon-200: hsl(220, 10%, 80%);
+    --carbon-300: hsl(220, 10%, 64%);
+    --carbon-400: hsl(220, 10%, 48%);
+    --carbon-500: hsl(220, 10%, 36%);
+    --carbon-600: hsl(220, 10%, 24%);
+    --carbon-700: hsl(220, 12%, 16%);
+    --carbon-800: hsl(220, 14%, 12%);
+    --carbon-900: hsl(220, 16%, 8%);
+    --carbon-950: hsl(220, 20%, 5%); /* near-black bg */
+
+    /* Semantic */
+    --success-color: hsl(145, 63%, 42%);
+    --error-color:   hsl(0, 72%, 51%);
+    --warning-color: hsl(38, 92%, 50%);
+    --info-color:    hsl(201, 90%, 57%);
+
+    /* Surfaces */
+    --surface-page:    var(--carbon-950);
+    --surface-card:    hsl(220, 16%, 9%);
+    --surface-card-hover: hsl(220, 16%, 11%);
+    --surface-input:   hsl(220, 16%, 8%);
+    --surface-overlay: rgba(255, 255, 255, 0.03);
+
+    /* Borders */
+    --border-default: rgba(255, 255, 255, 0.07);
+    --border-accent:  rgba(255, 140, 0, 0.35);
+    --border-focus:   var(--orange-500);
+
+    /* Text */
+    --text-primary:   hsl(220, 10%, 92%);
+    --text-secondary: hsl(220, 10%, 55%);
+    --text-muted:     hsl(220, 10%, 38%);
+    --text-inverse:   #000;
+
+    /* Shadows */
+    --shadow-sm:   0 1px 3px rgba(0,0,0,0.4);
+    --shadow-md:   0 4px 12px rgba(0,0,0,0.4);
+    --shadow-lg:   0 12px 32px rgba(0,0,0,0.5);
+    --shadow-glow: 0 0 20px rgba(255, 140, 0, 0.15);
+
+    /* Layout */
+    --sidebar-width: 240px;
+    --topbar-height: 60px;
+    --radius-sm:  6px;
+    --radius-md:  10px;
+    --radius-lg:  14px;
+    --radius-xl:  20px;
+
+    /* Typography */
+    --font-ui:   'Inter', system-ui, -apple-system, sans-serif;
+    --font-code: 'Fira Code', 'Cascadia Code', monospace;
+}
+
+/* =========================================================
+   2. GLOBAL RESETS & BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+
+body.admin-portal {
+    background-color: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================================================
+   3. TYPOGRAPHY OVERRIDES (admin scope)
+   ========================================================= */
+.admin-portal h1,
+.admin-portal h2,
+.admin-portal h3,
+.admin-portal h4,
+.admin-portal h5,
+.admin-portal h6 {
+    font-family: var(--font-ui);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.admin-portal .gradient-title {
+    background: linear-gradient(135deg, #FF8C00 0%, #FFB347 50%, #fff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.admin-portal .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.admin-portal .text-dark { color: var(--text-primary) !important; }
+.admin-portal .text-white { color: #fff !important; }
+.admin-portal .text-orange { color: var(--orange-400) !important; }
+
+/* =========================================================
+   4. LAYOUT — SIDEBAR
+   ========================================================= */
+.admin-portal .ap-sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0; left: 0;
+    background: var(--carbon-900);
+    border-right: 1px solid var(--border-default);
+    display: flex;
+    flex-direction: column;
+    z-index: 1040;
+    overflow: hidden;
+}
+
+.admin-portal .ap-sidebar-brand {
+    padding: 1.25rem 1.25rem 1rem;
+    border-bottom: 1px solid var(--border-default);
+    flex-shrink: 0;
+}
+
+.admin-portal .ap-sidebar-brand .brand-name {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+}
+
+.admin-portal .ap-sidebar-brand .brand-sub {
+    font-size: 0.65rem;
+    color: var(--orange-400);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    margin-top: 2px;
+    display: block;
+}
+
+.admin-portal .ap-sidebar-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem 0;
+}
+
+.admin-portal .ap-sidebar-scroll::-webkit-scrollbar { width: 3px; }
+.admin-portal .ap-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.admin-portal .ap-sidebar-scroll::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 10px;
+}
+.admin-portal .ap-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--orange-500);
+}
+
+.admin-portal .ap-nav-group-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    color: var(--text-muted);
+    padding: 0.75rem 1.25rem 0.35rem;
+}
+
+.admin-portal .ap-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.5rem 1rem;
+    margin: 1px 0.5rem;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 0.83rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+.admin-portal .ap-nav-link i {
+    width: 16px;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.admin-portal .ap-nav-link:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-portal .ap-nav-link.active {
+    color: #fff;
+    background: linear-gradient(90deg, rgba(255, 140, 0, 0.2), rgba(255, 140, 0, 0.08));
+    border-left: 3px solid var(--orange-500);
+    padding-left: calc(1rem - 3px);
+    font-weight: 600;
+}
+
+.admin-portal .ap-nav-link.active i { opacity: 1; color: var(--orange-400); }
+
+.admin-portal .ap-sidebar-footer {
+    padding: 0.75rem 0.5rem;
+    border-top: 1px solid var(--border-default);
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   5. LAYOUT — MAIN CONTENT & TOPBAR
+   ========================================================= */
+.admin-portal .ap-main {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-portal .ap-topbar {
+    height: var(--topbar-height);
+    background: rgba(9, 10, 14, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-default);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    gap: 1rem;
+}
+
+.admin-portal .ap-topbar-title {
+    font-size: 1rem;
+    font-weight: 700;
+    flex: 1;
+}
+
+.admin-portal .ap-content {
+    flex: 1;
+    padding: 1.5rem;
+}
+
+/* =========================================================
+   6. CARDS — Carbon Pro Style
+   ========================================================= */
+.admin-portal .card {
+    background: var(--surface-card) !important;
+    border: 1px solid var(--border-default) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-sm) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-portal .card:hover {
+    border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+.admin-portal .card-header {
+    background: transparent !important;
+    border-bottom: 1px solid var(--border-default) !important;
+    padding: 0.875rem 1.25rem !important;
+    color: var(--text-primary) !important;
+}
+
+.admin-portal .card-header h5,
+.admin-portal .card-header h6,
+.admin-portal .card-header .fw-bold {
+    color: var(--text-primary) !important;
+}
+
+.admin-portal .card-body {
+    padding: 1.25rem !important;
+}
+
+.admin-portal .card-footer {
+    background: transparent !important;
+    border-top: 1px solid var(--border-default) !important;
+    padding: 0.875rem 1.25rem !important;
+}
+
+/* Stat card variant */
+.admin-portal .ap-stat-card {
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--surface-card);
+    border: 1px solid var(--border-default);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-portal .ap-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(255, 140, 0, 0.2);
+}
+
+.admin-portal .ap-stat-card .stat-icon {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.admin-portal .ap-stat-card .stat-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #fff;
+    line-height: 1;
+}
+
+.admin-portal .ap-stat-card .stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.admin-portal .ap-stat-card .stat-change {
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+/* =========================================================
+   7. TABLES — Compact Mode
+   ========================================================= */
+.admin-portal .table {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(255,255,255,0.015);
+    --bs-table-hover-bg: rgba(255, 140, 0, 0.04);
+    --bs-table-color: var(--text-primary);
+    --bs-table-border-color: var(--border-default);
+    color: var(--text-primary);
+    margin-bottom: 0;
+}
+
+.admin-portal .table thead th {
+    background: rgba(255, 255, 255, 0.025) !important;
+    color: var(--text-muted) !important;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.6rem 0.875rem !important;
+    border-bottom: 1px solid var(--border-default) !important;
+    white-space: nowrap;
+}
+
+.admin-portal .table td {
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255,255,255,0.035) !important;
+    /* COMPACT MODE */
+    padding: 0.55rem 0.875rem !important;
+    font-size: 0.83rem;
+}
+
+.admin-portal .table tbody tr:last-child td { border-bottom: none !important; }
+
+.admin-portal .table tbody tr:hover { background-color: rgba(255, 140, 0, 0.04) !important; }
+
+.admin-portal .bg-light { background-color: rgba(255,255,255,0.03) !important; }
+.admin-portal .bg-white { background-color: var(--surface-card) !important; }
+
+/* =========================================================
+   8. FORM CONTROLS
+   ========================================================= */
+.admin-portal .form-control,
+.admin-portal .form-select,
+.admin-portal .input-group-text {
+    background-color: var(--surface-input) !important;
+    border: 1px solid var(--border-default) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-sm) !important;
+    font-size: 0.83rem;
+    padding: 0.45rem 0.75rem !important;
+}
+
+.admin-portal .form-control::placeholder { color: var(--text-muted) !important; }
+
+.admin-portal .form-control:focus,
+.admin-portal .form-select:focus {
+    border-color: var(--orange-500) !important;
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.15) !important;
+    background-color: var(--surface-input) !important;
+    color: var(--text-primary) !important;
+    outline: none !important;
+}
+
+.admin-portal .form-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted) !important;
+    margin-bottom: 0.35rem;
+}
+
+.admin-portal .form-check-input {
+    background-color: var(--carbon-700);
+    border-color: var(--border-default);
+}
+
+.admin-portal .form-check-input:checked {
+    background-color: var(--orange-500);
+    border-color: var(--orange-500);
+}
+
+.admin-portal .form-check-label { color: var(--text-primary); font-size: 0.83rem; }
+
+.admin-portal .input-group-text {
+    color: var(--text-secondary) !important;
+}
+
+/* =========================================================
+   9. BUTTONS
+   ========================================================= */
+.admin-portal .btn-jabulani,
+.admin-portal .btn-premium-gold {
+    background: var(--orange-500);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.45rem 1rem;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+}
+
+.admin-portal .btn-jabulani:hover,
+.admin-portal .btn-premium-gold:hover {
+    background: var(--orange-400);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.35);
+}
+
+.admin-portal .btn-outline-primary {
+    border-color: rgba(255, 140, 0, 0.4) !important;
+    color: var(--orange-400) !important;
+    background: transparent !important;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm) !important;
+}
+
+.admin-portal .btn-outline-primary:hover {
+    background: rgba(255, 140, 0, 0.1) !important;
+    border-color: var(--orange-400) !important;
+    color: var(--orange-300) !important;
+}
+
+.admin-portal .btn-outline-secondary {
+    border-color: var(--border-default) !important;
+    color: var(--text-secondary) !important;
+    background: transparent !important;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm) !important;
+}
+
+.admin-portal .btn-outline-secondary:hover {
+    background: rgba(255,255,255,0.05) !important;
+    color: var(--text-primary) !important;
+}
+
+.admin-portal .btn-outline-danger {
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: hsl(0, 72%, 65%) !important;
+    background: transparent !important;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm) !important;
+}
+
+.admin-portal .btn-outline-danger:hover {
+    background: rgba(220, 53, 69, 0.1) !important;
+    border-color: rgba(220, 53, 69, 0.7) !important;
+}
+
+.admin-portal .btn-outline-success {
+    border-color: rgba(25, 135, 84, 0.4) !important;
+    color: hsl(145, 63%, 55%) !important;
+    background: transparent !important;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm) !important;
+}
+
+.admin-portal .btn-outline-success:hover {
+    background: rgba(25, 135, 84, 0.1) !important;
+}
+
+.admin-portal .btn-outline-dark {
+    border-color: var(--border-default) !important;
+    color: var(--text-secondary) !important;
+    background: transparent !important;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: var(--radius-sm) !important;
+}
+
+.admin-portal .btn-outline-dark:hover {
+    background: rgba(255,255,255,0.05) !important;
+    color: var(--text-primary) !important;
+}
+
+.admin-portal .btn-sm {
+    padding: 0.3rem 0.6rem !important;
+    font-size: 0.75rem !important;
+}
+
+.admin-portal .btn-success {
+    background: hsl(145, 63%, 38%) !important;
+    border-color: hsl(145, 63%, 38%) !important;
+    color: #fff !important;
+    font-size: 0.8rem;
+    border-radius: var(--radius-sm) !important;
+}
+
+/* Ghost / link style */
+.admin-portal .btn-link {
+    color: var(--orange-400) !important;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.admin-portal .btn-link:hover { color: var(--orange-300) !important; }
+
+/* =========================================================
+   10. BADGES
+   ========================================================= */
+.admin-portal .badge {
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.3em 0.65em;
+    border-radius: 4px;
+}
+
+/* Status badges */
+.admin-portal .badge.bg-success, .admin-portal .badge.text-bg-success { background: rgba(25, 135, 84, 0.2) !important; color: hsl(145, 63%, 60%) !important; }
+.admin-portal .badge.bg-warning, .admin-portal .badge.text-bg-warning { background: rgba(255, 193, 7, 0.2) !important; color: hsl(38, 100%, 65%) !important; }
+.admin-portal .badge.bg-danger,  .admin-portal .badge.text-bg-danger  { background: rgba(220, 53, 69, 0.2) !important; color: hsl(0, 72%, 65%) !important; }
+.admin-portal .badge.bg-info,    .admin-portal .badge.text-bg-info    { background: rgba(13, 202, 240, 0.15) !important; color: hsl(195, 80%, 65%) !important; }
+.admin-portal .badge.bg-primary, .admin-portal .badge.text-bg-primary { background: rgba(255, 140, 0, 0.18) !important; color: var(--orange-300) !important; }
+.admin-portal .badge.bg-secondary,  .admin-portal .badge.text-bg-secondary { background: rgba(255,255,255,0.1) !important; color: var(--carbon-200) !important; }
+.admin-portal .badge.bg-dark,    .admin-portal .badge.text-bg-dark    { background: rgba(255,255,255,0.1) !important; color: var(--carbon-200) !important; }
+
+/* Custom orange badge */
+.admin-portal .badge-orange {
+    background: rgba(255, 140, 0, 0.18) !important;
+    color: var(--orange-300) !important;
+    border: 1px solid rgba(255, 140, 0, 0.3);
+}
+
+/* =========================================================
+   11. ALERTS
+   ========================================================= */
+.admin-portal .alert {
+    background: var(--carbon-800) !important;
+    border: 1px solid var(--border-default) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-md) !important;
+    font-size: 0.83rem;
+}
+
+.admin-portal .alert-success { border-left: 3px solid var(--success-color) !important; }
+.admin-portal .alert-danger  { border-left: 3px solid var(--error-color) !important; }
+.admin-portal .alert-warning { border-left: 3px solid var(--warning-color) !important; }
+.admin-portal .alert-info    { border-left: 3px solid var(--info-color) !important; }
+
+/* =========================================================
+   12. MODALS
+   ========================================================= */
+.admin-portal .modal-content {
+    background: var(--carbon-800) !important;
+    border: 1px solid var(--border-default) !important;
+    border-radius: var(--radius-lg) !important;
+    color: var(--text-primary) !important;
+}
+
+.admin-portal .modal-header {
+    border-bottom: 1px solid var(--border-default) !important;
+    padding: 1rem 1.25rem !important;
+}
+
+.admin-portal .modal-footer {
+    border-top: 1px solid var(--border-default) !important;
+    padding: 1rem 1.25rem !important;
+}
+
+.admin-portal .modal-title { color: var(--text-primary) !important; font-size: 0.95rem; }
+
+.admin-portal .btn-close {
+    filter: invert(1) opacity(0.5) !important;
+}
+.admin-portal .btn-close:hover { filter: invert(1) opacity(1) !important; }
+
+/* =========================================================
+   13. DROPDOWNS
+   ========================================================= */
+.admin-portal .dropdown-menu {
+    background: var(--carbon-800) !important;
+    border: 1px solid var(--border-default) !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--shadow-lg) !important;
+    padding: 0.35rem !important;
+    font-size: 0.83rem;
+}
+
+.admin-portal .dropdown-item {
+    color: var(--text-secondary) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.45rem 0.75rem !important;
+    transition: all 0.15s ease;
+}
+
+.admin-portal .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-primary) !important;
+}
+
+.admin-portal .dropdown-divider { border-color: var(--border-default) !important; }
+
+/* =========================================================
+   14. PAGINATION
+   ========================================================= */
+.admin-portal .pagination .page-link {
+    background: transparent !important;
+    border: 1px solid var(--border-default) !important;
+    color: var(--text-secondary) !important;
+    font-size: 0.78rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: var(--radius-sm) !important;
+    transition: all 0.15s ease;
+}
+
+.admin-portal .pagination .page-link:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: var(--text-primary) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+}
+
+.admin-portal .pagination .page-item.active .page-link {
+    background: var(--orange-500) !important;
+    border-color: var(--orange-500) !important;
+    color: #fff !important;
+    font-weight: 700;
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.2);
+}
+
+.admin-portal .pagination .page-item.disabled .page-link {
+    opacity: 0.3 !important;
+}
+
+/* =========================================================
+   15. MISC UTILITIES
+   ========================================================= */
+.admin-portal .border-default { border-color: var(--border-default) !important; }
+.admin-portal .border { border-color: var(--border-default) !important; }
+.admin-portal .border-bottom { border-color: var(--border-default) !important; }
+.admin-portal .border-top { border-color: var(--border-default) !important; }
+
+.admin-portal code {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--orange-300);
+    padding: 0.15em 0.45em;
+    border-radius: 4px;
+    font-family: var(--font-code);
+    font-size: 0.82em;
+}
+
+.admin-portal .vr { background-color: var(--border-default) !important; }
+
+/* =========================================================
+   16. GLOBAL SCROLLBAR
+   ========================================================= */
+.admin-portal ::-webkit-scrollbar { width: 5px; height: 5px; }
+.admin-portal ::-webkit-scrollbar-track { background: transparent; }
+.admin-portal ::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 10px;
+}
+.admin-portal ::-webkit-scrollbar-thumb:hover { background: var(--orange-700); }
+
+/* =========================================================
+   17. TOPBAR NOTIFICATION DOT
+   ========================================================= */
+.admin-portal .notif-dot {
+    width: 7px; height: 7px;
+    background: var(--orange-500);
+    border-radius: 50%;
+    position: absolute;
+    top: 1px; right: 1px;
+    box-shadow: 0 0 6px var(--orange-500);
+}
+
+/* =========================================================
+   18. SELECT2 DARK OVERRIDES
+   ========================================================= */
+.admin-portal .select2-container--default .select2-selection--multiple,
+.admin-portal .select2-container--default .select2-selection--single {
+    background-color: var(--surface-input) !important;
+    border: 1px solid var(--border-default) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-sm) !important;
+    min-height: 34px;
+}
+
+.admin-portal .select2-container--default .select2-results__option {
+    background: var(--carbon-800);
+    color: var(--text-secondary);
+    font-size: 0.83rem;
+}
+
+.admin-portal .select2-container--default .select2-results__option--highlighted {
+    background: rgba(255, 140, 0, 0.15) !important;
+    color: var(--orange-300) !important;
+}
+
+.admin-portal .select2-dropdown {
+    background: var(--carbon-800) !important;
+    border: 1px solid var(--border-default) !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.admin-portal .select2-container--default .select2-selection__rendered {
+    color: var(--text-primary) !important;
+    padding: 2px 8px !important;
+    line-height: 30px !important;
+}
+
+.admin-portal .select2-container--default .select2-selection__arrow {
+    top: 3px !important;
+}
+
+/* =========================================================
+   19. UTILITY — GLASS PANEL
+   ========================================================= */
+.admin-portal .glass-panel {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-default);
+}
+
+/* =========================================================
+   20. FRONTEND SITE STYLES
+   (Preserved below here, scoped outside admin-portal)
+   ========================================================= */
+
+/* Brand gold scale (for frontend) */
+:root {
+    --brand-500: hsl(45, 90%, 50%);
+    --brand-600: hsl(45, 95%, 45%);
+    --brand-700: hsl(45, 100%, 35%);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.gradient-text-gold {
+    background: linear-gradient(135deg, hsl(45, 100%, 70%), hsl(45, 90%, 50%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}

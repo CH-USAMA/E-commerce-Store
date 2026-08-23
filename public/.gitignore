@@ -6,3 +6,10 @@
 # ended up 404ing in production. Anything that must actually deploy needs an
 # explicit exception here.
 !.user.ini
+
+# The admin portal's stylesheet. It is application code, not an upload, and the
+# blanket '*' above had left it untracked -- present on both machines by luck, and
+# one edit away from silently never deploying. That is the failure this file's own
+# comment warns about, so the asset it names is now excepted explicitly.
+!css/
+!css/design-system.css
