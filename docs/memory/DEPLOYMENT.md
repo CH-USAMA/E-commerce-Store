@@ -22,23 +22,76 @@
 
 ## 2. Deployment Workflow
 
+> **Assume you are not alone.** The owner runs several Claude sessions at once, and a
+> collaborator edits files directly on the server (Rule 11). Both the working tree and live
+> can move *while you work*. Every step below is written to survive that: it stages by name,
+> shows the real payload before sending it, and refuses rather than half-applies.
+
 ### Every Session — Standard Code Push
+
 ```bash
-# 1. On local machine — commit and push
-git add .
-git commit -m "feat: [description of change]"
-git push origin main
+# ── 0. State check, BOTH sides. Run again immediately before step 3 — not just here.
+git log --oneline -3                          # local: dev repo, branch master
+git status --porcelain                        # expect ONLY files you touched
+ssh -p 65002 u175002435@82.25.96.26 \
+  'cd ~/domains/jabulanigroupofcompanies.co.za/public_html/store && \
+   git log --oneline -3 && git status --porcelain'
 
-# 2. On Hostinger (via SSH or Hostinger File Manager terminal)
-cd /path/to/jabulani-store
-git pull origin main
+# ── 1. Stage BY NAME. Never `git add .` — the tree routinely holds another session's
+#      half-finished feature, and `.` ships it to production.
+git add public/.htaccess tests/Feature/SomeTest.php
+git status --porcelain --untracked-files=no   # confirm exactly what is staged
+git commit -m "fix: [what changed]"
 
-# 3. Run post-deploy commands on Hostinger
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
+# ── 2. Know the payload BEFORE sending it. The deploy is every commit between live and
+#      you — not just yours.
+git fetch live main
+git log  --oneline live/main..HEAD            # commits that will go live
+git diff --stat live/main..HEAD               # files that will change
+git diff --name-only live/main..HEAD | grep database/migrations   # empty = no migrations
+#    Anything in there you did not intend? STOP and ask the owner. Do not "just deploy it".
+
+# ── 3. Re-run step 0. Then push and fast-forward live.
+git push origin master
+ssh -p 65002 u175002435@82.25.96.26 \
+  'cd ~/domains/jabulanigroupofcompanies.co.za/public_html/store && \
+   git branch -f backup-pre-<change> HEAD && \
+   git fetch https://github.com/CH-USAMA/E-commerce-Store.git master && \
+   git merge --ff-only FETCH_HEAD'
+
+# ── 4. Post-deploy, on live. Cheap and idempotent — always run all four.
+php artisan route:clear && php artisan view:clear
+php artisan config:clear && php artisan cache:clear
+php artisan migrate --force       # ONLY if step 2 found migrations
+git push origin main              # keep the canonical live repo in sync
+
+# ── 5. Verify over HTTP (§6). A clean merge is not a working page.
 ```
+
+`scripts/deploy-preflight.sh` runs steps 0 and 2 in one read-only command and prints the
+payload. Run it before every deploy; it changes nothing.
+
+### Why each guard exists
+
+| Guard | The failure it prevents |
+|:---|:---|
+| Stage by name, never `git add .` | On 2026-08-24 the tree held an unfinished product-variants feature plus 3 unrun migrations while a one-line `.htaccess` fix was being deployed. `git add .` would have shipped all of it to production. |
+| Payload diff before pushing | The same day, a second session committed *between* two commits of the first. The fast-forward would have carried a payload nobody had reviewed. |
+| Re-check both sides before merging | Live moves on its own — the collaborator deploys too. State from ten minutes ago is not state now. |
+| `--ff-only` | Fast-forwards cleanly or refuses. Never half-applies a merge on production. |
+| `backup-pre-<change>` | One-command rollback: `git reset --hard backup-pre-<change>`. |
+
+### Deploying while another session is mid-task
+
+Two sessions pushing to `master` is fine — the second rebases or fast-forwards. What is *not*
+fine is deploying commits you have not looked at. If step 2 shows commits that are not yours:
+
+1. Do not deploy. Say what you found and whose work it looks like.
+2. If the owner wants it live too, treat it as its own deploy: read the diff, check for
+   migrations, run them with `--force`, and verify the affected pages afterwards.
+3. If they do not, wait — `--ff-only` cannot ship your commit without its ancestors.
+   Do **not** cherry-pick onto live to route around it: that diverges live's history and
+   every later `--ff-only` fails.
 
 ### When Migrations Are Included
 ```bash

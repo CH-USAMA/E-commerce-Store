@@ -59,6 +59,8 @@ into conflict resolution on production.
 # locally: bring production's branch in, resolve, TEST
 git remote add live ssh://u175002435@82.25.96.26:65002/home/u175002435/domains/jabulanigroupofcompanies.co.za/public_html/store
 git fetch live main && git merge live/main
+./scripts/deploy-preflight.sh          # read-only: both sides' state + the real payload
+git add <named files>                  # never `git add .` — see Rule 12
 php artisan test && git push origin master
 
 # on live
@@ -234,6 +236,28 @@ were all unrelated `images/products/*.png` uploads.
 History: on 2026-08-22 live was carrying a `home.blade.php` mobile hero rework (+62/−40) and
 8 `public/images/*.webp` deletions that had survived **two** deploys uncommitted. Adopted as
 `4553dd1`. See `CHANGELOG.md` for the full procedure.
+
+### Rule 12 — Assume Another Session Is Working Too (as of 2026-08-24)
+
+The owner runs **several Claude sessions at once** and commits and deploys from any of them.
+Local `master` and live both move *while you work*. This is normal, not an anomaly — design
+every git step to survive it.
+
+- **Stage by name. Never `git add .`.** On 2026-08-24 the working tree held an unfinished
+  product-variants feature plus three unrun migrations while a one-line `.htaccess` fix was
+  being deployed. `git add .` would have put all of it on production.
+- **Re-read both sides immediately before merging**, not only at the start of the task. That
+  same day a second session's commit landed *between* two commits of the first, silently
+  changing what the pending fast-forward would ship.
+- **Inspect the payload, not your intention.** `git log --oneline live/main..HEAD` *is* the
+  deploy. If it holds commits you did not write, stop and ask before shipping them — and if
+  it holds migrations, they need `php artisan migrate --force` after the merge.
+- `./scripts/deploy-preflight.sh` does all of the above read-only, in one command. Run it
+  before every deploy.
+
+Never cherry-pick your commit onto live to get past someone else's work: that diverges live's
+history and every later `--ff-only` fails. Either wait, or deploy their work deliberately —
+having read its diff.
 
 ---
 
