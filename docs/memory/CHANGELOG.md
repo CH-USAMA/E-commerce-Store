@@ -5,6 +5,53 @@
 
 ---
 
+## [2026-08-24] — Converted the Two Size-Workaround Products (placeholder prices)
+
+**Type**: Data migration
+**Files Changed**: migration `convert_size_workaround_products_to_variants` (new)
+
+Applies the new size feature to the two products that were working around its absence.
+
+- **Paint Brush** — the three separate products merge into one with 50MM / 100MM / 150MM
+  sizes. The lowest-mm row survives (renamed "Paint Brush", slug `paint-brush` when free);
+  the other two are **deactivated, not deleted**, so nothing is unrecoverable. Each size
+  inherits the SKU of the product it came from.
+- **Lintels** — "Lintels from 1M to 6M" becomes "Lintels" with 1M…6M sizes, the range read
+  out of the name it was smuggled into.
+
+### ⚠️ Prices are placeholders, derived per row — never hardcoded
+
+Local and production hold **different** numbers for these same products, and production's
+were visibly wrong: Paint Brush 50MM at **R437.80** against 150MM at **R86.00** — the smallest
+brush costing five times the largest, which is the complaint that put the store into inquiry
+mode in the first place. Hardcoding either environment's figures would have pushed known-bad
+data into the other. So the migration derives:
+
+- **Brushes** reuse their own three prices, re-matched in **ascending size order**. No figure
+  is invented; the inversion is simply corrected.
+- **Lintels** treat the existing price as a **per-metre rate**, so 3M costs 3×. A transparent
+  rule that can be eyeballed and overwritten.
+
+`hide_pricing = 1`, so no customer sees these. **They must be replaced with real figures
+before pricing is re-enabled** — add that to the Rule 10 checklist.
+
+Idempotent (a product that already has sizes is skipped) and reversible: `down()` restores the
+workaround names, deletes the sizes and reactivates the deactivated rows.
+
+Local carries **two** rows named "Lintels from 1M to 6M" where production has one; both are
+converted independently. That duplicate is pre-existing local seed data, not introduced here.
+
+### Verified
+
+Ran locally: brushes merged with prices ascending by size (R92.20 / R104.10 / R455.30) and
+SKUs carried across; both lintels expanded to six lengths with per-metre scaling; the merged
+product renders "Select Size" with all three, `display_price` is the cheapest (R92.20),
+`hasPriceRange()` true, and the deactivated duplicates no longer appear in search.
+
+**Deploy**: requires `php artisan migrate`.
+
+---
+
 ## [2026-08-24] — Product Sizes (variants) End to End
 
 **Type**: Feature (Admin + Storefront + Cart/Orders)
