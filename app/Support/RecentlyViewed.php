@@ -63,7 +63,7 @@ class RecentlyViewed
         }
 
         $products = Product::active()
-            ->with('category', 'subcategory')
+            ->with('category', 'subcategory', 'activeVariants')
             ->whereIn('id', $ids)
             ->get()
             ->keyBy('id');

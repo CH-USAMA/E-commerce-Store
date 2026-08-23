@@ -5,6 +5,81 @@
 
 ---
 
+## [2026-08-24] — Product Sizes (variants) End to End
+
+**Type**: Feature (Admin + Storefront + Cart/Orders)
+**Reported as**: "I have few products that has different sizes ... should i add each variation
+of size for each product manually or we can have something like user can select product and
+than size ... for example we have lintel and some dummy sizes like 1,2 1,5 4,6 4,8"
+**Files Changed**: migrations `create_product_variants_table`,
+`add_has_variants_to_products_table`, `add_variant_to_order_items_table` (new),
+`app/Support/Cart.php` (new), `ProductVariant.php` (new),
+`admin/products/partials/variants.blade.php` (new), `Product.php`, `OrderItem.php`,
+`CartController.php`, `HomeController.php`, `Admin/ProductController.php`,
+`User/OrderController.php`, `RecentlyViewed.php`, `admin/products/{create,edit}.blade.php`,
+`frontend/{product-single,products,cart,checkout}.blade.php`,
+`frontend/partials/{product_card,price_or_contact}.blade.php`,
+`frontend/orders/track.blade.php`, `admin/orders/show.blade.php`,
+`user/orders/show.blade.php`, `branch/orders/show.blade.php`, `pdf/invoice.blade.php`,
+`emails/order-confirmed.blade.php`, plus `ARCHITECTURE`, `DATABASE_SCHEMA`, `PRODUCT_FLOW`,
+`ORDER_FLOW`, `FEATURE_MAP`, `TESTING_CHECKLIST`
+
+Both existing workarounds were in the live catalog and both failed: **"Lintels from 1M to 6M"**
+was one product with the range in its name (no price could be shown, nothing could be picked),
+and **"Paint Brush 50MM / 100MM / 150MM"** were three products that sort 100, 150, 50
+alphabetically. With 292 products, one lintel in six lengths meant six cards in the grid and
+six descriptions to keep in sync.
+
+- **`product_variants`** — label, price, optional code, active flag, explicit order. Unique
+  `(product_id, label)`; `(product_id, sort_order)` index.
+- **Deliberately not stock-bearing.** `product_store_stocks` held 60 rows across 292 products
+  and **every one was zero**, so per-store stock is not maintained. Variant-level stock would
+  have meant threading `variant_id` through the stock table, CSV importer and WMS screens to
+  serve nothing.
+- **`Product::offersVariants()`** requires the flag AND a live size, so a fully-deactivated
+  range degrades to a simple product instead of rendering an empty picker. `display_price` is
+  the cheapest size; `hasPriceRange()` decides whether to print "From".
+- **Cart keys became composite** — `"12"` or `"12:5"`. `Cart::parse()` reads both, so carts
+  that already existed (live sessions, and `users.cart_data`, which survives logout) keep
+  working with no data migration and no lost baskets.
+- **`Cart::lines()` is the single resolver** for the cart page, checkout summary, order writer
+  and nearest-store rule. Four copies would have been four chances to price a sized line off
+  `products.price`.
+- **Price tampering is blocked**: a variant must belong to the product and be active, and a
+  product that offers sizes cannot be added without one.
+- **Orders snapshot the size** (`variant_id` nullOnDelete + `variant_label`), same reasoning as
+  `order_items.price` being a copy. Every order view renders `$item->display_name`.
+- **Unticking "has sizes" parks the sizes**, it does not delete them — a seasonal range comes
+  back intact.
+
+### Bug fixed in passing
+
+The product search `orWhere('sku', ...)` was **not grouped**, so it OR-ed past the `active()`
+and category filters — a SKU match could return an inactive or out-of-category product. Now
+wrapped in a `where(fn ...)` group along with the new size-label clause.
+
+### Verified
+
+Temporary feature test, **15 passed / 56 assertions**: legacy integer cart keys still parse;
+a sized line prices off the variant (R480, not R100); `display_price` is the cheapest size;
+deactivating every size degrades to a simple product; adding without a size is refused;
+**attaching another product's variant is refused** (the price-tampering path); two sizes are
+two separate lines; a withdrawn size is dropped from the cart rather than repriced; the picker
+renders; search finds by size **and still respects the active filter**; an order keeps its
+label and price after the variant is deleted, with the FK nulled rather than the item removed;
+the admin sync keeps row identity, reorders, rejects duplicate labels gracefully and parks
+sizes on untick.
+
+Cart/checkout paths were exercised with `hide_pricing` temporarily 0; **inquiry mode was
+restored to 1 afterwards and verified**.
+
+Not exercised: the browser UI (Alpine picker, admin repeater) and a real payment. The CSV
+importer still has no size columns — bulk-loading sizes is a follow-up, not silently handled.
+
+**Deploy**: requires `php artisan migrate`. No new routes, but Blade changed → `view:clear`.
+
+---
+
 ## [2026-08-24] — Admin-Managed Seasonal Specials, Auto-Compression & Agency Credit
 
 **Type**: Feature (Admin + Storefront) & Bug Fix

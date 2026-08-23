@@ -75,13 +75,24 @@ class OrderController extends Controller
             abort(403);
         }
 
-        $order->load('items.product');
+        $order->load('items.product', 'items.variant');
 
         // Products can be deleted or deactivated between orders; skip those rather than
         // failing the whole action, and tell the customer what was dropped.
-        $available = $order->items->filter(
-            fn ($item) => $item->product && $item->product->status === 'active'
-        );
+        $available = $order->items->filter(function ($item) {
+            if (! $item->product || $item->product->status !== 'active') {
+                return false;
+            }
+
+            // A size that has been withdrawn or deactivated is as unavailable as a
+            // deleted product — reordering it would price the line off the base
+            // product instead of the size that was actually bought.
+            if ($item->variant_id) {
+                return $item->variant && $item->variant->is_active;
+            }
+
+            return true;
+        });
         $skipped = $order->items->count() - $available->count();
 
         if ($available->isEmpty()) {
@@ -97,7 +108,10 @@ class OrderController extends Controller
         // Merge into the existing cart rather than replacing it.
         $cart = session()->get('cart', []);
         foreach ($available as $item) {
-            $cart[$item->product_id] = ($cart[$item->product_id] ?? 0) + $item->quantity;
+            // Re-key by product AND size, or reordering a 4.8m lintel would put a
+            // base-priced lintel in the cart instead.
+            $key = \App\Support\Cart::key($item->product_id, $item->variant_id);
+            $cart[$key] = ($cart[$key] ?? 0) + $item->quantity;
         }
         session()->put('cart', $cart);
 
@@ -130,7 +144,7 @@ class OrderController extends Controller
         );
 
         $lines = $items->map(
-            fn ($item) => '• ' . $item->quantity . ' x ' . $item->product->name
+            fn ($item) => '• ' . $item->quantity . ' x ' . $item->display_name
         )->implode("\n");
 
         $message = "Hi, I'd like to order these again (previous order {$order->order_number}):\n\n{$lines}";

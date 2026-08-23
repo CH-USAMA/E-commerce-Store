@@ -52,7 +52,13 @@
 
                             <div class="divide-y divide-white/5">
                                 @foreach($products as $product)
-                                    <div id="cart-row-{{ $product->id }}" class="group transition-all duration-300 hover:bg-white/[0.03]">
+                                    @php
+                                        // Two sizes of one product are two rows, so the product
+                                        // id is no longer unique here. ':' is legal in an id
+                                        // attribute but awkward in CSS selectors, so swap it.
+                                        $rowId = str_replace(':', '-', $product->cart_key);
+                                    @endphp
+                                    <div id="cart-row-{{ $rowId }}" class="group transition-all duration-300 hover:bg-white/[0.03]">
                                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-6 py-6 sm:px-8">
                                             <!-- Product Info -->
                                             <div class="md:col-span-6 flex items-center gap-4 sm:gap-6">
@@ -62,7 +68,12 @@
                                                 <div class="min-w-0">
                                                     <p class="text-[8px] font-black text-gold-400 uppercase tracking-widest mb-1 opacity-60">#{{ str_pad($product->id, 5, '0', STR_PAD_LEFT) }}</p>
                                                     <a href="{{ route('product.detail', $product->slug) }}" title="{{ $product->name }}" class="text-sm sm:text-base font-bold text-white hover:text-gold-400 transition block uppercase tracking-tight">{{ $product->name }}</a>
-                                                    <button onclick="removeItem({{ $product->id }})" class="mt-2 text-[9px] font-black text-red-400/40 hover:text-red-400 transition uppercase tracking-widest flex items-center gap-2">
+                                                    @if($product->cart_variant)
+                                                        <span class="inline-block mt-1 px-2 py-0.5 rounded-md bg-gold-400/10 border border-gold-400/20 text-[9px] font-black uppercase tracking-widest text-gold-400">
+                                                            Size: {{ $product->cart_variant->label }}
+                                                        </span>
+                                                    @endif
+                                                    <button onclick="removeItem('{{ $product->cart_key }}', '{{ $rowId }}')" class="mt-2 text-[9px] font-black text-red-400/40 hover:text-red-400 transition uppercase tracking-widest flex items-center gap-2">
                                                         <i class="fas fa-trash-alt"></i> Remove Item
                                                     </button>
                                                 </div>
@@ -71,18 +82,18 @@
                                             <!-- Price (Mobile Friendly) -->
                                             <div class="md:col-span-2 flex md:flex-col items-baseline md:items-center justify-between gap-1">
                                                 <span class="md:hidden text-[9px] font-black uppercase text-dark-muted">Unit Rate:</span>
-                                                <p class="text-sm font-bold text-gray-300">R{{ number_format($product->price, 2) }}</p>
+                                                <p class="text-sm font-bold text-gray-300">R{{ number_format($product->cart_unit_price, 2) }}</p>
                                             </div>
 
                                             <!-- Qty Controls -->
                                             <div class="md:col-span-2 flex md:flex-col items-center justify-between md:justify-center gap-4">
                                                 <span class="md:hidden text-[9px] font-black uppercase text-dark-muted">Quantity:</span>
                                                 <div class="flex items-center bg-black/40 border border-white/10 rounded-xl p-1 shadow-inner">
-                                                    <button onclick="changeQty({{ $product->id }}, {{ $product->price }}, -1)" class="w-8 h-8 flex items-center justify-center text-dark-muted hover:text-gold-400 transition">
+                                                    <button onclick="changeQty('{{ $product->cart_key }}', '{{ $rowId }}', {{ $product->cart_unit_price }}, -1)" class="w-8 h-8 flex items-center justify-center text-dark-muted hover:text-gold-400 transition">
                                                         <i class="fas fa-minus text-[10px]"></i>
                                                     </button>
-                                                    <span id="qty-{{ $product->id }}" class="w-8 text-center text-xs font-black text-white px-1">{{ $product->cart_quantity }}</span>
-                                                    <button onclick="changeQty({{ $product->id }}, {{ $product->price }}, 1)" class="w-8 h-8 flex items-center justify-center text-dark-muted hover:text-gold-400 transition">
+                                                    <span id="qty-{{ $rowId }}" class="w-8 text-center text-xs font-black text-white px-1">{{ $product->cart_quantity }}</span>
+                                                    <button onclick="changeQty('{{ $product->cart_key }}', '{{ $rowId }}', {{ $product->cart_unit_price }}, 1)" class="w-8 h-8 flex items-center justify-center text-dark-muted hover:text-gold-400 transition">
                                                         <i class="fas fa-plus text-[10px]"></i>
                                                     </button>
                                                 </div>
@@ -91,7 +102,7 @@
                                             <!-- Subtotal -->
                                             <div class="md:col-span-2 flex md:flex-col items-baseline md:items-end justify-between gap-1">
                                                 <span class="md:hidden text-[9px] font-black uppercase text-gold-400">Subtotal:</span>
-                                                <p id="sub-{{ $product->id }}" class="text-base sm:text-lg font-black text-white tracking-tighter">
+                                                <p id="sub-{{ $rowId }}" class="text-base sm:text-lg font-black text-white tracking-tighter">
                                                     R{{ number_format($product->cart_subtotal, 2) }}
                                                 </p>
                                             </div>
@@ -177,9 +188,12 @@
 
 @push('js')
     <script>
+        // Keyed by cart key ("12" or "12:5"), because two sizes of one product are
+        // two independent lines. `row` is the sanitised DOM id for that line.
         let productData = {
             @foreach($products as $p)
-                {{ $p->id }}: { qty: {{ $p->cart_quantity }}, price: {{ $p->price }} },
+                @php $rid = str_replace(':', '-', $p->cart_key); @endphp
+                '{{ $p->cart_key }}': { qty: {{ $p->cart_quantity }}, price: {{ $p->cart_unit_price }}, row: '{{ $rid }}' },
             @endforeach
                                 };
 
@@ -193,20 +207,20 @@
             if (d2) d2.textContent = fmt;
         }
 
-        function changeQty(id, price, delta) {
-            let current = productData[id] ? productData[id].qty : 1;
+        function changeQty(key, row, price, delta) {
+            let current = productData[key] ? productData[key].qty : 1;
             let newQty = Math.max(1, Math.min(999, current + delta));
-            productData[id] = { qty: newQty, price: price };
-            document.getElementById('qty-' + id).textContent = newQty;
-            document.getElementById('sub-' + id).textContent = 'R' + (price * newQty).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            productData[key] = { qty: newQty, price: price, row: row };
+            document.getElementById('qty-' + row).textContent = newQty;
+            document.getElementById('sub-' + row).textContent = 'R' + (price * newQty).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             recalcTotal();
-            fetch('/cart/update', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ product_id: id, quantity: newQty }) }).then(r => r.json()).then(data => window.updateCartBadge(data.cart_count));
+            fetch('/cart/update', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ cart_key: key, quantity: newQty }) }).then(r => r.json()).then(data => window.updateCartBadge(data.cart_count));
         }
 
-        function removeItem(id) {
-            fetch('/cart/remove', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ product_id: id }) }).then(r => r.json()).then(data => {
-                document.getElementById('cart-row-' + id).remove();
-                delete productData[id];
+        function removeItem(key, row) {
+            fetch('/cart/remove', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ cart_key: key }) }).then(r => r.json()).then(data => {
+                document.getElementById('cart-row-' + row).remove();
+                delete productData[key];
                 recalcTotal();
                 window.updateCartBadge(data.cart_count);
                 if (Object.keys(productData).length === 0) location.reload();

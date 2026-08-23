@@ -76,7 +76,7 @@
                             <tbody>
                                 @foreach($order->items as $item)
                                     <tr>
-                                        <td class="ps-4 fw-semibold" style="font-size: 0.83rem;">{{ $item->product->name }}</td>
+                                        <td class="ps-4 fw-semibold" style="font-size: 0.83rem;">{{ $item->display_name }}</td>
                                         <td style="font-size: 0.83rem;">R {{ number_format($item->price, 2) }}</td>
                                         <td>
                                             <span class="badge bg-secondary">× {{ $item->quantity }}</span>

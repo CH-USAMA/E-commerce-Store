@@ -24,7 +24,7 @@
                                 @foreach($order->items as $item)
                                     <tr>
                                         <td>
-                                            <strong>{{ $item->product->name }}</strong><br>
+                                            <strong>{{ $item->display_name }}</strong><br>
                                             <small class="text-muted">SKU: {{ $item->product->sku }}</small>
                                         </td>
                                         <td class="text-center">{{ $item->quantity }}</td>

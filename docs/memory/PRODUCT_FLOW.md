@@ -103,3 +103,41 @@ Product::whereRaw("MATCH(name, description) AGAINST(? IN BOOLEAN MODE)", [$query
     ->get();
 ```
 Fallback to `LIKE` if no results returned.
+
+---
+
+## Product Sizes (variants)
+
+*Added 2026-08-24.* A product is either a **single product** or a **product with sizes**,
+switched by `products.has_variants` on the admin product form. Sizes live in
+`product_variants` (label + price + optional code + active flag + order).
+
+**Why not separate products.** Both workarounds were visible in the live catalog and both
+failed: "Lintels from 1M to 6M" was one product with the range in its name, so no price could
+be shown and nothing could be picked; "Paint Brush 50MM / 100MM / 150MM" were three products
+that sort 100, 150, 50 alphabetically. With 292 products, one lintel in six lengths would have
+meant six cards in the category grid and six descriptions to keep in sync.
+
+**Read `Product::offersVariants()`**, not `has_variants` — it also requires a live size, so a
+fully-deactivated range degrades to a simple product rather than rendering an empty picker.
+
+Storefront behaviour:
+- **Listing cards** show `display_price` (the cheapest size), prefixed "From" when
+  `hasPriceRange()`. The card CTA becomes **Choose Size** and links to the product page:
+  adding to the cart from a card would have to guess a size and therefore a price, and a
+  WhatsApp enquiry with no size puts the customer back to typing "the 4.8m one".
+- **Product page** renders a size picker; the price and the WhatsApp message both react to it.
+  While `hide_pricing = 1` that WhatsApp message is the whole point of the feature — it carries
+  `- size 4.8m` so the enquiry arrives complete.
+- **Cart / checkout / orders** carry the size end to end; see `ARCHITECTURE.md` for the cart
+  key scheme and `ORDER_FLOW.md` for the order snapshot.
+
+**Search** matches size labels and per-size codes as well as name/description/SKU, so
+"lintel 4.8" finds the product. Note the search clause is **grouped**: before this change the
+bare `orWhere('sku', ...)` OR-ed past the `active()` and category filters and could return
+inactive or out-of-category products on a SKU match.
+
+**The CSV importer does not handle sizes.** Its column map is fixed (0:ID … 9:Featured) and
+was left alone. Bulk-loading sizes is a follow-up, not something the current importer does
+silently.
+

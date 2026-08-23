@@ -290,6 +290,38 @@ banner stayed invisible for up to 60 minutes. Live had 5 rows rendering 4 slides
 - [ ] `/specials` and `/track-order` make no failed image request (the old
       `qumbu_special_compressed.webp` 404)
 
+### Product sizes (variants)
+- [ ] Product form: ticking **"This product comes in different sizes"** reveals the size rows
+- [ ] Adding sizes, saving, re-opening: rows come back in the order entered, not alphabetical
+- [ ] Editing a size keeps its id (order history joins on it) — check the row is updated, not
+      deleted and recreated
+- [ ] Removing a row in the browser deletes that size on save
+- [ ] Two sizes with the same name are refused with a readable message, and the product falls
+      back to "single product" rather than saving a broken set
+- [ ] **Unticking the switch keeps the sizes** — re-tick and they are all still there
+- [ ] Deactivating EVERY size makes the product behave as a simple product (no empty picker)
+- [ ] Listing card shows "From R x" (the cheapest size) and a **Choose Size** button that
+      goes to the product page
+- [ ] Product page: picking a size updates the price
+- [ ] **WhatsApp enquiry contains the chosen size** — this is the whole feature while
+      `hide_pricing = 1`
+- [ ] Searching a size ("lintel 4.8") finds the product
+- [ ] Searching still excludes inactive and out-of-category products
+
+### Product sizes — cart & orders (needs `hide_pricing = 0`; restore it afterwards)
+- [ ] Adding a sized product without choosing a size is refused ("Please choose a size first")
+- [ ] Two different sizes of one product are **two separate cart lines**, each showing its size
+- [ ] Cart line price is the **size's** price, not the product's base price
+- [ ] Changing quantity / removing affects only that size's line
+- [ ] Checkout summary shows the size; the order total matches the per-size prices
+- [ ] The placed order, the invoice PDF, the confirmation email, the tracking page and the
+      admin order view all show "Product (size)"
+- [ ] **Deleting that size afterwards** leaves the order reading correctly (label snapshot)
+- [ ] "Order again" on a sized order restores the right sizes, not base-priced products
+- [ ] A cart holding a size that is then deleted drops that line with a message, and does
+      **not** silently reprice it to the base price
+- [ ] An old cart from before this change (integer keys) still loads — legacy key support
+
 ### Footer credit
 - [ ] "Developed by Jabulani Tech Solutions" appears in the storefront footer and the
       customer portal footer, linking to `https://agency.jabulanigroupofcompanies.co.za/`

@@ -120,6 +120,26 @@ key depends on the row.
 `BlogPost` also clears the **previous** slug's key via `getOriginal('slug')` — otherwise a
 renamed post keeps serving its pre-edit copy on the old URL.
 
+### Cart key scheme (added 2026-08-24)
+
+The session cart is a flat `[key => quantity]` map. Since product sizes exist, the key is:
+
+```
+"12"     product 12, no size      (legacy shape, still produced for simple products)
+"12:5"   product 12, variant 5
+```
+
+`App\Support\Cart::parse()` reads both, which is what made the change safe for carts that
+already existed — in live sessions and in `users.cart_data`, which survives logout. No cart
+data was migrated and no customer lost a basket.
+
+**Always resolve a cart through `Cart::lines()`.** It returns product + variant + quantity +
+unit_price + subtotal, pricing sized lines off the *variant*. That resolution was needed by the
+cart page, the checkout summary, the order writer and the nearest-store rule; four copies would
+have been four chances to price a sized line off `products.price`. `Cart::invalidKeys()` finds
+lines whose product or size has since been withdrawn — the cart page prunes them rather than
+repricing, because falling back to the base price would quietly sell a different thing.
+
 **Adding a new cached key**: register it on the owning model's `$contentCacheKeys`, or the
 same stale-content bug returns. Caching without invalidation is the failure mode to avoid,
 not caching itself — the TTL stays at 3600 because invalidation now handles freshness.

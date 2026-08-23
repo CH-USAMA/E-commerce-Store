@@ -193,3 +193,30 @@ Notification `data` payload:
 - Lookup by `order_number` (human-readable code, not UUID)
 - No authentication required
 - Does NOT expose `id` or `uuid`
+
+---
+
+## Sized line items (added 2026-08-24)
+
+`order_items` carries **two** columns for a size, on purpose:
+
+| Column | Why |
+|:---|:---|
+| `variant_id` | live link, nullable, `nullOnDelete` — an order must survive its size being withdrawn from the catalog |
+| `variant_label` | **snapshot** of the text at purchase time |
+
+The snapshot is the same reasoning that already makes `order_items.price` a copy rather than a
+join back to `products.price`: without it, deleting a discontinued size would silently rewrite
+what an old invoice says was bought. Verified — deleting a variant nulls the FK, leaves the
+label and price intact, and `OrderItem::display_name` still reads "Lintel (4.8m)".
+
+**Render `$item->display_name`**, never `$item->product->name`, in every order view (admin,
+customer portal, invoice PDF, confirmation email, tracking page, branch view) — the raw name
+drops the size and two lines of the same product become indistinguishable.
+
+`price` is written from the **variant** price via `Cart::lines()`, not `products.price`.
+
+"Order again" re-keys by product *and* size, so reordering a 4.8m lintel does not put a
+base-priced lintel in the cart, and it treats a deactivated size as unavailable exactly like a
+deleted product.
+

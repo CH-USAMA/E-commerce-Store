@@ -53,18 +53,32 @@ class CartController extends Controller
         }
 
         $cart = session()->get('cart', []);
-        $total = 0;
 
-        if (!empty($cart)) {
-            $products = \App\Models\Product::whereIn('id', array_keys($cart))->get()->map(function ($product) use ($cart) {
-                $product->cart_quantity = $cart[$product->id];
-                $product->cart_subtotal = $product->price * $cart[$product->id];
-                return $product;
-            });
-            $total = $products->sum('cart_subtotal');
-        } else {
-            $products = collect(); // always a Collection, never a plain array
+        // A size (or whole product) can be withdrawn while it sits in someone's
+        // cart. Drop those lines rather than pricing them off products.price,
+        // which would sell a different thing at a different price.
+        if ($dropped = \App\Support\Cart::invalidKeys($cart)) {
+            $cart = array_diff_key($cart, array_flip($dropped));
+            session()->put('cart', $cart);
+            $this->syncCartToDb();
+            session()->flash('error', 'Some items are no longer available and were removed from your cart.');
         }
+
+        $lines = \App\Support\Cart::lines($cart);
+        $total = $lines->sum('subtotal');
+
+        // `$products` is what the view has always iterated; each entry now carries
+        // its chosen size and the price that size actually costs.
+        $products = $lines->map(function ($line) {
+            $product = $line->product;
+            $product->cart_key = $line->key;
+            $product->cart_variant = $line->variant;
+            $product->cart_quantity = $line->quantity;
+            $product->cart_unit_price = $line->unit_price;
+            $product->cart_subtotal = $line->subtotal;
+
+            return $product;
+        });
 
         return view('frontend.cart', compact('products', 'total'));
     }
@@ -73,17 +87,40 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'nullable|integer|min:1',
         ]);
 
+        $product = \App\Models\Product::with('activeVariants')->findOrFail($request->product_id);
+        $variantId = $request->variant_id ? (int) $request->variant_id : null;
+
+        // A size must belong to THIS product and still be on sale. Without this
+        // check a crafted request could attach any variant id — and therefore any
+        // price — to any product.
+        if ($variantId !== null && ! $product->activeVariants->contains('id', $variantId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'That size is not available for this product.',
+            ], 422);
+        }
+
+        // Conversely, a product that offers sizes cannot be added without one, or
+        // the line would silently fall back to the base price.
+        if ($variantId === null && $product->offersVariants()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please choose a size first.',
+            ], 422);
+        }
+
         $cart = session()->get('cart', []);
-        $productId = $request->product_id;
+        $key = \App\Support\Cart::key($product->id, $variantId);
         $quantity = $request->quantity ?? 1;
 
-        if (isset($cart[$productId])) {
-            $cart[$productId] += $quantity;
+        if (isset($cart[$key])) {
+            $cart[$key] += $quantity;
         } else {
-            $cart[$productId] = $quantity;
+            $cart[$key] = $quantity;
         }
 
         session()->put('cart', $cart);
@@ -101,17 +138,22 @@ class CartController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'product_id' => 'required|exists:products,id',
+            // `cart_key` identifies one sized line ("12:5"); `product_id` is still
+            // accepted so older cached JS and any bookmarked call keep working.
+            'cart_key' => 'nullable|string|max:32',
+            'product_id' => 'required_without:cart_key|nullable|exists:products,id',
             'quantity' => 'required|integer|min:0',
         ]);
 
         $cart = session()->get('cart', []);
-        $productId = $request->product_id;
+        $key = $request->filled('cart_key')
+            ? (string) $request->cart_key
+            : (string) $request->product_id;
 
         if ($request->quantity == 0) {
-            unset($cart[$productId]);
+            unset($cart[$key]);
         } else {
-            $cart[$productId] = $request->quantity;
+            $cart[$key] = $request->quantity;
         }
 
         session()->put('cart', $cart);
@@ -126,7 +168,10 @@ class CartController extends Controller
     public function remove(Request $request)
     {
         $cart = session()->get('cart', []);
-        unset($cart[$request->product_id]);
+        $key = $request->filled('cart_key')
+            ? (string) $request->cart_key
+            : (string) $request->product_id;
+        unset($cart[$key]);
         session()->put('cart', $cart);
         $this->syncCartToDb();
 
@@ -166,7 +211,7 @@ class CartController extends Controller
         if ($store && str_contains(strtolower($store->name), 'quarries')) {
             $cart = session()->get('cart', []);
             if (!empty($cart)) {
-                $hasOtherProducts = \App\Models\Product::whereIn('id', array_keys($cart))
+                $hasOtherProducts = \App\Models\Product::whereIn('id', \App\Support\Cart::productIds($cart))
                     ->whereHas('subcategory', function ($query) {
                         $query->where('name', '!=', 'Crush Stone');
                     })->exists();
@@ -241,13 +286,18 @@ class CartController extends Controller
             return redirect()->route('checkout.auth');
         }
 
-        $products = \App\Models\Product::whereIn('id', array_keys($cart))->get()->map(function ($product) use ($cart) {
-            $product->cart_quantity = $cart[$product->id];
-            $product->cart_subtotal = $product->price * $cart[$product->id];
+        $products = \App\Support\Cart::lines($cart)->map(function ($line) {
+            $product = $line->product;
+            $product->cart_key = $line->key;
+            $product->cart_variant = $line->variant;
+            $product->cart_quantity = $line->quantity;
+            $product->cart_unit_price = $line->unit_price;
+            $product->cart_subtotal = $line->subtotal;
+
             return $product;
         });
 
-        $hasOtherProducts = \App\Models\Product::whereIn('id', array_keys($cart))
+        $hasOtherProducts = \App\Models\Product::whereIn('id', \App\Support\Cart::productIds($cart))
             ->whereHas('subcategory', function ($query) {
                 $query->where('name', '!=', 'Crush Stone');
             })->exists();
@@ -323,11 +373,9 @@ class CartController extends Controller
 
         \Illuminate\Support\Facades\DB::beginTransaction();
         try {
-            $products = \App\Models\Product::whereIn('id', array_keys($cart))->get();
-            $total = 0;
-            foreach ($products as $p) {
-                $total += $p->price * $cart[$p->id];
-            }
+            // Priced off the variant when a size was chosen — see Support\Cart.
+            $lines = \App\Support\Cart::lines($cart);
+            $total = $lines->sum('subtotal');
 
             $orderData = [
                 'order_number' => 'JB-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
@@ -385,12 +433,16 @@ class CartController extends Controller
 
             $order = Order::create($orderData);
 
-            foreach ($products as $p) {
+            foreach ($lines as $line) {
                 \App\Models\OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => $p->id,
-                    'quantity' => $cart[$p->id],
-                    'price' => $p->price,
+                    'product_id' => $line->product->id,
+                    'variant_id' => $line->variant?->id,
+                    // Snapshot, so deleting a discontinued size never rewrites
+                    // what an old invoice says was bought.
+                    'variant_label' => $line->variant?->label,
+                    'quantity' => $line->quantity,
+                    'price' => $line->unit_price,
                     'vat' => 0,
                 ]);
             }

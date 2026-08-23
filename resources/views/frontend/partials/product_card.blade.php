@@ -4,7 +4,9 @@
     @if(($settings['hide_pricing'] ?? '0') != '1')
         <div class="absolute top-6 left-6 z-20">
             <span class="bg-gold-400 text-dark font-black px-4 py-2 rounded-2xl text-xs">
-                R {{ number_format($product->price, 2) }}
+                {{-- With sizes there is no single price to print; lead with the
+                     cheapest and say so, rather than quoting one size as the price. --}}
+                @if($product->hasPriceRange())From @endif R {{ number_format($product->display_price, 2) }}
             </span>
         </div>
     @endif

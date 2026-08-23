@@ -170,6 +170,34 @@ the admin's sequence without the call site having to ask. See `ADMIN_PANEL.md §
 | `invoice_footer_text` | string | Footer on PDF |
 | `invoice_logo` | path string | `settings/{uuid}.{ext}` in **`public/settings/`** (not `storage/app/public/`). Max 1MB. The PDF embeds it via `image_path()`, not a URL — DomPDF cannot fetch http. See `ARCHITECTURE.md § 7` |
 
+### `product_variants`
+
+*Added 2026-08-24.* Size options for a product — a lintel in 1.2m / 1.5m / 4.6m / 4.8m.
+
+| Column | Type | Notes |
+|:---|:---|:---|
+| `id` | PK | referenced by `order_items.variant_id` |
+| `product_id` | bigint FK | **cascade delete** — sizes have no life without their product |
+| `label` | string | free text: "1.2m", "100MM". Unique per product |
+| `sku` | string, nullable | optional per-size code. Deliberately NOT unique — `products.sku` is not either, and enforcing it would block saving a product whose codes are not filled in yet |
+| `price` | decimal(12,2) | **the price actually charged** for this size |
+| `is_active` | boolean, default true | withdraw one size while keeping the rest on sale |
+| `sort_order` | unsigned int, default 0 | index `(product_id, sort_order)`. Explicit because sizes sort badly as text — "Paint Brush 50MM" would list after "150MM" |
+
+**Not stock-bearing, on purpose.** `product_store_stocks` held 60 rows across 292 products and
+every one was zero when this was built, so per-store stock is not maintained. Giving variants
+their own stock would mean threading `variant_id` through the stock table, the CSV importer and
+the WMS screens to serve nothing. When stock is tracked for real, that is the time to add it.
+
+`products.has_variants` is the "single product / product with sizes" switch. It is an explicit
+flag rather than `variants()->exists()` so a range can be parked for a season without deleting
+its sizes. **Read `Product::offersVariants()`, never the flag alone** — it also requires at
+least one *active* size, so a product whose sizes were all deactivated falls back to behaving
+like a simple product instead of rendering an empty picker.
+
+`Product::display_price` is the cheapest live size (or `products.price` when there are none)
+and `hasPriceRange()` says whether to prefix it with "From".
+
 ### `specials`
 
 *Added 2026-08-24.* Seasonal branch flyers on `/specials`, previously a hardcoded PHP array

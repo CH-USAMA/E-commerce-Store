@@ -14,14 +14,14 @@ class HomeController extends Controller
         $categories = \Illuminate\Support\Facades\Cache::remember('categories_top', 3600, fn() => \App\Models\Category::topLevel()->ordered()->with('children')->get());
         // Fetch products by new flags, with fallbacks for unflagged databases.
         // ->active() keeps deactivated products off the storefront (see Product::scopeActive).
-        $featuredProducts = \App\Models\Product::active()->with('category', 'subcategory')->where('is_featured', true)->take(12)->get();
-        $topSellingProducts = \App\Models\Product::active()->with('category', 'subcategory')->where('is_top_selling', true)->take(10)->get();
+        $featuredProducts = \App\Models\Product::active()->with('category', 'subcategory', 'activeVariants')->where('is_featured', true)->take(12)->get();
+        $topSellingProducts = \App\Models\Product::active()->with('category', 'subcategory', 'activeVariants')->where('is_top_selling', true)->take(10)->get();
         if ($topSellingProducts->isEmpty()) {
-            $topSellingProducts = \App\Models\Product::active()->with('category', 'subcategory')->inRandomOrder()->take(10)->get();
+            $topSellingProducts = \App\Models\Product::active()->with('category', 'subcategory', 'activeVariants')->inRandomOrder()->take(10)->get();
         }
-        $newArrivalProducts = \App\Models\Product::active()->with('category', 'subcategory')->where('is_new_arrival', true)->take(10)->get();
+        $newArrivalProducts = \App\Models\Product::active()->with('category', 'subcategory', 'activeVariants')->where('is_new_arrival', true)->take(10)->get();
         if ($newArrivalProducts->isEmpty()) {
-            $newArrivalProducts = \App\Models\Product::active()->with('category', 'subcategory')->latest()->take(10)->get();
+            $newArrivalProducts = \App\Models\Product::active()->with('category', 'subcategory', 'activeVariants')->latest()->take(10)->get();
         }
 
         $latestPosts = \App\Models\BlogPost::with('category')->latest()->take(3)->get();
@@ -119,7 +119,7 @@ class HomeController extends Controller
         $search = $request->get('search');
         $sort = $request->get('sort', 'latest');
 
-        $query = \App\Models\Product::active()->with('category', 'subcategory')
+        $query = \App\Models\Product::active()->with('category', 'subcategory', 'activeVariants')
             ->when($selectedCategory, function ($q) use ($selectedCategory) {
                 $q->whereHas('category', fn($q) => $q->where('slug', $selectedCategory));
             })
@@ -127,9 +127,20 @@ class HomeController extends Controller
                 $q->whereHas('subcategory', fn($q) => $q->where('slug', $selectedSubcategory));
             })
             ->when($search, function ($q) use ($search) {
-                // Use FullText search for better performance and relevance
-                $q->whereFullText(['name', 'description'], $search)
-                  ->orWhere('sku', 'like', '%' . $search . '%');
+                // Grouped so the size clause cannot leak past an active()/category
+                // filter — a bare orWhere chain here would OR against those too and
+                // return inactive or out-of-category products.
+                $q->where(function ($w) use ($search) {
+                    // Use FullText search for better performance and relevance
+                    $w->whereFullText(['name', 'description'], $search)
+                      ->orWhere('sku', 'like', '%' . $search . '%')
+                      // "lintel 4.8" should find the lintel: its sizes live in
+                      // product_variants, which the fulltext index cannot see.
+                      ->orWhereHas('variants', function ($v) use ($search) {
+                          $v->where('label', 'like', '%' . $search . '%')
+                            ->orWhere('sku', 'like', '%' . $search . '%');
+                      });
+                });
             });
 
         match ($sort) {
@@ -164,7 +175,7 @@ class HomeController extends Controller
         // A deactivated product 404s rather than staying reachable by direct link.
         $product = \App\Models\Product::active()
             ->where('slug', $slug)
-            ->with('category', 'subcategory', 'brand')
+            ->with('category', 'subcategory', 'brand', 'activeVariants')
             ->firstOrFail();
 
         // Record the visit for the "Recently viewed" strip. Session-based, so it works

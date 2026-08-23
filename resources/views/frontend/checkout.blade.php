@@ -484,9 +484,13 @@
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-black text-white italic uppercase tracking-tight group-hover/item:text-gold-400 transition-colors" title="{{ $product->name }}">{{ $product->name }}</p>
                                             <div class="flex items-center gap-3 mt-1.5">
+                                                @if($product->cart_variant)
+                                                    <span class="text-[9px] font-black uppercase tracking-widest text-gold-400">{{ $product->cart_variant->label }}</span>
+                                                    <span class="w-1 h-1 rounded-full bg-white/10"></span>
+                                                @endif
                                                 <span class="text-[9px] font-black uppercase tracking-widest text-dark-muted">Qty: {{ $product->cart_quantity }}</span>
                                                 <span class="w-1 h-1 rounded-full bg-white/10"></span>
-                                                <span class="text-[10px] font-black text-white italic">R{{ number_format($product->price, 2) }}</span>
+                                                <span class="text-[10px] font-black text-white italic">R{{ number_format($product->cart_unit_price, 2) }}</span>
                                             </div>
                                         </div>
                                         <div class="text-right flex-shrink-0">

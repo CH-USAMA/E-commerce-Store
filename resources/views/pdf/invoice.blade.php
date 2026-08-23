@@ -203,7 +203,7 @@
                 @foreach($order->items as $item)
                     <tr>
                         <td>
-                            <strong>{{ $item->product->name }}</strong><br>
+                            <strong>{{ $item->display_name }}</strong><br>
                         </td>
                         <td style="text-align: center;">{{ $item->quantity }}</td>
                         <td class="price-col">R{{ number_format($item->price, 2) }}</td>

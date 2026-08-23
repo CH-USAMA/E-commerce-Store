@@ -151,7 +151,7 @@
                                         </h3>
                                         <div class="flex items-center justify-between">
                                             @if(($settings['hide_pricing'] ?? '0') != '1')
-                                                <span class="text-gold-400 font-black text-xl">R {{ number_format($product->price, 2) }}</span>
+                                                <span class="text-gold-400 font-black text-xl">@if($product->hasPriceRange())<span class="text-xs font-bold uppercase tracking-widest opacity-70">From </span>@endif R {{ number_format($product->display_price, 2) }}</span>
                                             @else
                                                 <span class="text-gold-400 font-black text-xs uppercase tracking-widest">Contact for Price</span>
                                             @endif

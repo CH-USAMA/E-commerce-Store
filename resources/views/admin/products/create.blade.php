@@ -84,7 +84,12 @@
                             @error('price')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <div class="form-text" style="font-size: 0.7rem;">
+                                Used when the product has no sizes. If you add sizes below,
+                                each size carries its own price and this becomes a fallback.
+                            </div>
                         </div>
+                        @include('admin.products.partials.variants')
                         <div class="mb-3">
                             <label class="form-label">VAT Rate (%)</label>
                             <input type="number" step="0.01" name="vat_rate"

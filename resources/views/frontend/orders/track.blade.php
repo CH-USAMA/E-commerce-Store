@@ -172,7 +172,7 @@
                                                             class="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700">
                                                     </div>
                                                     <span
-                                                        class="text-sm font-bold text-white italic group-hover:text-gold-400 transition-all">{{ $item->product->name ?? 'Material Specification' }}</span>
+                                                        class="text-sm font-bold text-white italic group-hover:text-gold-400 transition-all">{{ $item->display_name }}</span>
                                                 </div>
                                             </td>
                                             <td class="py-6 text-center font-black text-gray-400 italic">{{ $item->quantity }}</td>

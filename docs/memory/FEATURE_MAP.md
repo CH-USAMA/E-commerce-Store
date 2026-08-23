@@ -11,7 +11,7 @@
 |:---|:---|:---|:---|:---|
 | Home page | `GET /` | `HomeController@index` | Category, Product, Banner, Store, Brand | web |
 | Product listing | `GET /products` | `HomeController@products` | Product, Category, Brand | web |
-| Product detail | `GET /product/{slug}` | `HomeController@productDetail` | Product | web |
+| Product detail | `GET /product/{slug}` | `HomeController@productDetail` | Product, ProductVariant | web |
 | Blog listing | `GET /blog` | `HomeController@blog` | BlogPost, BlogCategory | web |
 | Blog detail | `GET /blog/{slug}` | `HomeController@blogDetail` | BlogPost | web |
 | Seasonal specials | `GET /specials` | `HomeController@specials` | Special, Setting | web |

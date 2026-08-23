@@ -43,6 +43,13 @@ class ProductController extends Controller
             'image' => $this->imageRules(),
             'stocks' => 'nullable|array',
             'stocks.*' => 'numeric',
+            'has_variants' => 'nullable|boolean',
+            'variants' => 'nullable|array',
+            'variants.*.id' => 'nullable|integer|exists:product_variants,id',
+            'variants.*.label' => 'nullable|string|max:100',
+            'variants.*.sku' => 'nullable|string|max:100',
+            'variants.*.price' => 'nullable|numeric|min:0',
+            'variants.*.is_active' => 'nullable|boolean',
         ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
@@ -53,7 +60,13 @@ class ProductController extends Controller
         $validated['is_top_selling'] = $request->has('is_top_selling');
         $validated['is_new_arrival'] = $request->has('is_new_arrival');
 
+        $validated['has_variants'] = $request->boolean('has_variants');
+
         $product = \App\Models\Product::create($validated);
+
+        if ($error = $this->syncVariants($product, $request)) {
+            return redirect()->route('admin.products.edit', $product)->with('error', $error);
+        }
 
         // Handle initial stocks
         if ($request->has('stocks')) {
@@ -109,6 +122,13 @@ class ProductController extends Controller
             'stocks.*.incoming' => 'nullable|numeric|min:0',
             'stocks.*.reserved' => 'nullable|numeric|min:0',
             'stocks.*.damaged' => 'nullable|numeric|min:0',
+            'has_variants' => 'nullable|boolean',
+            'variants' => 'nullable|array',
+            'variants.*.id' => 'nullable|integer|exists:product_variants,id',
+            'variants.*.label' => 'nullable|string|max:100',
+            'variants.*.sku' => 'nullable|string|max:100',
+            'variants.*.price' => 'nullable|numeric|min:0',
+            'variants.*.is_active' => 'nullable|boolean',
         ], $this->imageMessages());
 
         if ($request->hasFile('image')) {
@@ -125,7 +145,13 @@ class ProductController extends Controller
         $validated['is_top_selling'] = $request->has('is_top_selling');
         $validated['is_new_arrival'] = $request->has('is_new_arrival');
 
+        $validated['has_variants'] = $request->boolean('has_variants');
+
         $product->update($validated);
+
+        if ($error = $this->syncVariants($product, $request)) {
+            return back()->withInput()->with('error', $error);
+        }
 
         // Update stocks (WMS Aware)
         if ($request->has('stocks')) {
@@ -143,6 +169,93 @@ class ProductController extends Controller
         }
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+    }
+
+    /**
+     * Persist the size rows posted by the product form.
+     *
+     * Returns null on success, or a message to show the admin. Deliberately does
+     * NOT throw a validation exception: the product itself has already saved by
+     * this point, so failing hard would leave the admin thinking nothing was kept.
+     *
+     * Rows are matched by their hidden `id` so editing a size keeps its identity —
+     * order history joins on it, and delete-and-recreate would orphan those rows.
+     * A row present in the database but absent from the submission was removed in
+     * the browser, so it is deleted here.
+     *
+     * Unticking "has sizes" does NOT delete the sizes. They stop being offered
+     * (offersVariants() checks the flag) and come back intact when it is re-ticked,
+     * which is what a seasonal range needs.
+     */
+    private function syncVariants(\App\Models\Product $product, Request $request): ?string
+    {
+        $rows = collect($request->input('variants', []))
+            // Blank template rows are normal: the form ships one empty row to type
+            // into, and removing a row in the browser can leave a gap.
+            ->filter(fn ($row) => filled($row['label'] ?? null) || filled($row['price'] ?? null))
+            ->values();
+
+        if (! $request->boolean('has_variants')) {
+            // Keep the rows, just stop offering them.
+            return null;
+        }
+
+        if ($rows->isEmpty()) {
+            $product->update(['has_variants' => false]);
+
+            return 'No sizes were entered, so this product was saved as a single product.';
+        }
+
+        $incomplete = $rows->first(fn ($row) => blank($row['label'] ?? null) || blank($row['price'] ?? null));
+
+        if ($incomplete) {
+            $product->update(['has_variants' => false]);
+
+            return 'Every size needs both a name and a price, so this product was saved '
+                . 'as a single product. Re-open it to finish adding the sizes.';
+        }
+
+        $labels = $rows->map(fn ($row) => trim($row['label']));
+
+        if ($labels->count() !== $labels->map(fn ($l) => mb_strtolower($l))->unique()->count()) {
+            $product->update(['has_variants' => false]);
+
+            return 'Two sizes had the same name. Sizes must be unique per product, so '
+                . 'this product was saved as a single product.';
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($product, $rows) {
+            $keptIds = [];
+
+            foreach ($rows as $index => $row) {
+                $attributes = [
+                    'label' => trim($row['label']),
+                    'sku' => filled($row['sku'] ?? null) ? trim($row['sku']) : null,
+                    'price' => (float) $row['price'],
+                    // An unchecked checkbox posts nothing, so absence means false.
+                    'is_active' => (bool) ($row['is_active'] ?? false),
+                    // Position comes from the row order on screen, not from the
+                    // label — sizes sort badly as text (50MM after 150MM).
+                    'sort_order' => $index + 1,
+                ];
+
+                $existing = filled($row['id'] ?? null)
+                    ? $product->variants()->whereKey($row['id'])->first()
+                    : null;
+
+                if ($existing) {
+                    $existing->update($attributes);
+                    $keptIds[] = $existing->id;
+                } else {
+                    $keptIds[] = $product->variants()->create($attributes)->id;
+                }
+            }
+
+            // Rows the admin removed in the browser.
+            $product->variants()->whereNotIn('id', $keptIds)->delete();
+        });
+
+        return null;
     }
 
     public function destroy(\App\Models\Product $product)

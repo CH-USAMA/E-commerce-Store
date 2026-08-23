@@ -214,7 +214,7 @@
                             </div>
                             <div class="min-w-0">
                                 @if($item->product)
-                                    <a href="{{ route('product.detail', $item->product->slug) }}" class="text-xl font-black text-white italic hover:text-gold-400 transition-all tracking-tighter uppercase block leading-tight">{{ $item->product->name }}</a>
+                                    <a href="{{ route('product.detail', $item->product->slug) }}" class="text-xl font-black text-white italic hover:text-gold-400 transition-all tracking-tighter uppercase block leading-tight">{{ $item->display_name }}</a>
                                     <p class="text-[9px] font-black uppercase tracking-widest text-dark-muted mt-2 opacity-50 italic">SKU: {{ $item->product->sku ?: 'JBL-PRC-00' . $item->product->id }}</p>
                                 @else
                                     <span class="text-sm font-black text-dark-muted uppercase tracking-widest italic opacity-50">Product Archive Encription: {{ $item->price }}</span>

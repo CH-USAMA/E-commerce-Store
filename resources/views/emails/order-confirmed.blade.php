@@ -210,7 +210,7 @@
                 <tbody>
                     @foreach($order->items as $item)
                         <tr>
-                            <td>{{ $item->product->name }}</td>
+                            <td>{{ $item->display_name }}</td>
                             <td>{{ $item->quantity }}</td>
                             <td class="price">R{{ number_format($item->price * $item->quantity, 2) }}</td>
                         </tr>
