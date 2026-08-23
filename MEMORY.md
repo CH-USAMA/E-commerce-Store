@@ -102,6 +102,14 @@ half-applies a merge on production.
 - ⚠️ **`public/.gitignore` contains a blanket `*`**, so any *new* file under `public/` is
   invisible to git and will never deploy. Add an explicit `!filename` exception. This is why
   `public/css/design-system.css` once 404'd in production.
+  **`design-system.css` is now excepted and tracked** (2026-08-24) — it had drifted back to
+  untracked, identical on both machines by luck and one edit away from silently not
+  deploying. A sweep of every `asset('css|js/...')` reference confirmed it was the only such
+  file. The exception is narrow: new files dropped in `public/css/` or `public/images/` are
+  still ignored, so **any further app asset needs its own `!` line**.
+  > Deploying a commit that *adds* a file which already exists untracked on live makes
+  > `git merge` abort. Compare `md5sum` on both sides first; if identical, move live's copy
+  > aside, merge, confirm git restored the same bytes, then discard the parked copy.
 
 ### Rule 3 — Security Invariants (NEVER BREAK)
 - Orders are ALWAYS routed by `uuid` — never integer `id`

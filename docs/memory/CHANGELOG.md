@@ -5,6 +5,52 @@
 
 ---
 
+## [2026-08-24] — Admin Readability, Tracked Stylesheet, Two Asset 404s
+
+**Type**: Bug Fix (UI + deployment hygiene)
+**Reported as**: "can we add some space to view size when added and also make text visible in
+dark mode"
+**Files Changed**: `layouts/admin.blade.php`, `admin/products/partials/variants.blade.php`,
+`frontend/products.blade.php`, `frontend/partials/product_card.blade.php`,
+`frontend/contact.blade.php`, `public/.gitignore`, `public/css/design-system.css` (now tracked)
+
+- **Helper text was unreadable.** `.form-text` is Bootstrap's `#6c757d`, effectively
+  invisible on the near-black admin. Lifted to the theme's secondary text, with
+  `.form-check-label` and in-form `thead th` too — every admin form, not just the size rows.
+- **The rules sit in their own UNCONDITIONAL `<style>` block.** The existing theme block is
+  wrapped in `@if(isset($settings['theme_primary_color']))`, so anything placed inside it
+  vanishes on an unthemed install. The first attempt went in there and did not render;
+  caught by rendering the page rather than assuming. Worth knowing: **`theme_primary_color`
+  is not set on live either**, so that whole block is currently dead code in production.
+- **Size rows given room** — Size is the flexible column (min 150px) with a 130px semibold
+  input, the table refuses to squash below 520px and scrolls, every cell gained padding.
+- **Product card footers** stopped breaking mid-phrase: at three columns the card is ~225px
+  wide, so "Contact for Price" and "View Details" each wrapped onto two ragged lines.
+  `flex-wrap` + `whitespace-nowrap` keeps each label whole.
+
+### Deployment hygiene
+
+`public/css/design-system.css` was **untracked** — application code caught by the blanket `*`.
+Byte-identical on both machines (`b7933215`) so nothing was broken, but one edit from silently
+never deploying. Now excepted explicitly; the exception is narrow (probe files in
+`public/css/` and `public/images/` stay ignored). A sweep of every `asset('css|js/...')`
+reference confirmed it was the only untracked one.
+
+> Deploying it needed care: the file already existed untracked on live, which makes
+> `git merge` abort. Compared `md5sum` both sides, parked live's copy, merged, confirmed git
+> restored identical bytes. Same technique as the `git hash-object` proof in Rule 11.
+
+### Also fixed
+
+`images/JB_About_Hero.webp` **does not exist** and was the header background on `/contact` —
+a failed request on every load, invisible at 10% opacity. Now the fleet shot the About page
+already uses, through `image_url()` so a missing file degrades to the placeholder. The sweep
+found no other missing assets.
+
+**Deploy**: no migration. Blade + CSS changed → `view:clear`, and tell users to hard-refresh.
+
+---
+
 ## [2026-08-24] — Converted the Two Size-Workaround Products (placeholder prices)
 
 **Type**: Data migration
