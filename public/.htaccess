@@ -25,6 +25,12 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+    # Laravel routes that must win over same-named folders on the server. A stray
+    # empty public/products/ (and public/categories/) made mod_dir 301 to the trailing
+    # slash, then 403 under Options -Indexes, because the !-d condition below stopped
+    # the front controller from ever running.
+    RewriteRule ^(products|categories)/?$ index.php [L]
+
     # Redirect Trailing Slashes If Not A Directory...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
